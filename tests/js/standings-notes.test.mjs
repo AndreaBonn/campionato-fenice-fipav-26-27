@@ -64,10 +64,10 @@ test("how-to items: Pt rule, G/V/P, Set and the two ratios, plus the Fenice high
   const { items } = howToRead({ tieBreak: girone.tie_break, showPossible: false });
   const byTerm = Object.fromEntries(items.map((i) => [i.term, i.text]));
   assert.match(byTerm.Pt, /3 per una vittoria 3-0 o 3-1, 2 per un 3-2, 1 per una sconfitta 2-3/);
-  assert.ok(byTerm["G, V, P"]);
-  assert.ok(byTerm.Set);
-  assert.ok(byTerm["Q. set"]);
-  assert.ok(byTerm["Q. punti"]);
+  assert.equal(byTerm["G, V, P"], "partite giocate, vinte, perse.");
+  assert.equal(byTerm.Set, "set vinti e persi.");
+  assert.equal(byTerm["Q. set"], "quoziente set: set vinti diviso set persi.");
+  assert.equal(byTerm["Q. punti"], "quoziente punti: punti fatti diviso punti subiti.");
   assert.match(byTerm.Fenice, /evidenziata/);
   assert.equal("Poss." in byTerm, false);
 });
@@ -89,4 +89,16 @@ test("tie-break sentence lists the criteria in order with their labels; provisio
   const unknown = howToRead({ tieBreak: { provisional: false, criteria: ["wins", "custom"] }, showPossible: false }).tieBreak;
   assert.match(unknown, /vittorie, custom\./);
   assert.equal(TIE_BREAK_LABELS.wins, "vittorie");
+});
+
+test("preseason note reads the day in Rome even on a server clock in UTC", () => {
+  // 00:30 in Rome is still the day before in UTC: only the explicit time zone gives sabato 21
+  const previous = process.env.TZ;
+  process.env.TZ = "UTC";
+  try {
+    const note = preseasonNote(zeroRows, [game("a", "b", "2026-11-21T00:30:00+01:00", null, false)]);
+    assert.match(note, /^Il campionato parte sabato 21 novembre:/);
+  } finally {
+    if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous;
+  }
 });

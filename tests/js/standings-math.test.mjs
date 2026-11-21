@@ -204,3 +204,9 @@ test("a team with no sets yet (null ratios) ties with one that lost every set, i
   assert.deepEqual(positionRanges(ahead).get("A"), { best: 1, worst: 1 });
   assert.deepEqual(positionRanges(ahead).get("B"), { best: 2, worst: 2 });
 });
+
+test("decided facts with the same best position list the narrower range first", () => {
+  const ranges = new Map([["wide", { best: 1, worst: 3 }], ["narrow", { best: 1, worst: 2 }]]);
+  const formula = { published: true, promotion: 3, playoff: 0, relegation: 0 };
+  assert.deepEqual(decidedFacts(ranges, formula).map((f) => f.team_id), ["narrow", "wide"]);
+});

@@ -86,3 +86,13 @@ test("google calendar url: called without a page url the details have no «Calen
   assert.equal(params(googleCalendarUrl(sample.games[3], teams)).get("details").includes("Calendario completo"), false);
   assert.match(params(googleCalendarUrl(sample.games[3], teams, PAGES)).get("details"), /Calendario completo: /);
 });
+
+test("feed links: without an argument they come from the address of the page in the browser", () => {
+  const had = Object.hasOwn(globalThis, "location"), previous = globalThis.location;
+  globalThis.location = { href: `${PAGES}index.html` };
+  try {
+    assert.equal(feedUrls().https, "https://andreabonn.github.io/campionato-fenice-fipav-26-27/calendario.ics");
+  } finally {
+    if (had) globalThis.location = previous; else delete globalThis.location;
+  }
+});

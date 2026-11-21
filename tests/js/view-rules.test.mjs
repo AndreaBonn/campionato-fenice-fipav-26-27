@@ -57,6 +57,7 @@ test("team name: FIPAV upper case becomes title case, acronyms and initials stay
   assert.equal(displayTeamName("ASD FENICE"), "Asd Fenice");
   assert.equal(displayTeamName("CUS CAGLIARI"), "CUS Cagliari");
   assert.equal(displayTeamName("G.S. AQUILA ORO"), "G.S. Aquila Oro");
+  assert.equal(displayTeamName("POL. S. ANTONIO"), "Pol. S. Antonio");
   assert.equal(displayTeamName("VSA"), "VSA");
   assert.equal(displayTeamName("POLISPORTIVA SELARGIUS 85 ASD"), "Polisportiva Selargius 85 Asd");
   assert.equal(displayTeamName("SARDINIA YACHT SERVICES GS SARDEGNA"), "Sardinia Yacht Services GS Sardegna");

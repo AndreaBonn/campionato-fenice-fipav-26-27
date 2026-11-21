@@ -96,3 +96,19 @@ test("last result meta: round, short day and the side", () => {
 test("last result meta: no day when the game has no date", () => {
   assert.equal(lastResultMeta({ round: 4, starts_at: null, home_id: FENICE, away_id: "x" }, FENICE), "4ª giornata · in casa");
 });
+
+test("share payload: a venue without name and town leaves the place out, no trailing comma", () => {
+  const game = { ...homeGame, venue: { ...homeGame.venue, name: null, city: null } };
+  assert.equal(sharePayload(sample, game, undefined).text, "ASD Fenice - VSA, sabato 21 novembre ore 17:00");
+});
+
+test("share payload: the day is the Rome one even on a clock in UTC", () => {
+  const previous = process.env.TZ;
+  process.env.TZ = "UTC";
+  try {
+    const game = { ...homeGame, starts_at: "2026-11-21T00:30:00+01:00", time: "00:30" };
+    assert.match(sharePayload(sample, game, undefined).text, /, sabato 21 novembre ore 00:30, /);
+  } finally {
+    if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous;
+  }
+});

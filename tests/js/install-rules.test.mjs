@@ -40,3 +40,16 @@ test("hint mode: never when running standalone, dismissed or installed, whatever
     assert.equal(hintMode({ ...base, canPrompt: true, iosSafari: true, [flag]: true }), null, flag);
   }
 });
+
+test("iOS Safari: an iOS web view without the Safari token, and every other iOS browser, are not Safari", () => {
+  const webView = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+  assert.equal(isIosSafari({ userAgent: webView, maxTouchPoints: 5 }), false);
+  for (const token of ["FxiOS/124.0", "EdgiOS/124.0", "OPiOS/48.0", "OPT/4.5"]) {
+    const ua = IPHONE_SAFARI.replace("Version/17.4", token);
+    assert.equal(isIosSafari({ userAgent: ua, maxTouchPoints: 5 }), false, token);
+  }
+});
+
+test("hint mode: a browser that can install on request gets the prompt, also on iOS Safari", () => {
+  assert.equal(hintMode({ ...base, canPrompt: true, iosSafari: true }), "prompt");
+});

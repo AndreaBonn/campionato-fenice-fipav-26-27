@@ -178,3 +178,10 @@ test("next game: exactly the games whose status is upcoming or live", () => {
     if (next) assert.ok(open.includes(next));
   }
 });
+
+test("a played game without a date goes before the dated ones, so it is never the last result", () => {
+  const undated = { ...played("x", [3, 0]), starts_at: null };
+  const dated = { ...played("d", [0, 3]), starts_at: "2026-11-09T18:00:00+01:00" };
+  assert.equal(lastPlayed([dated, undated]).id, "d");
+  assert.equal(lastPlayed([undated, dated]).id, "d");
+});

@@ -72,8 +72,10 @@ test("a ratio keeps Infinity when sets were won and none lost", () => {
 });
 
 test("a game with a team missing from the teams list is skipped, not a crash", () => {
-  const table = tableFromGames([game("a", "ghost", [3, 0], [[25, 10], [25, 10], [25, 10]])], [team("a"), team("b")]);
+  const sets = [[25, 10], [25, 10], [25, 10]];
+  const table = tableFromGames([game("a", "ghost", [3, 0], sets), game("ghost", "b", [3, 0], sets)], [team("a"), team("b")]);
   assert.equal(table.find((r) => r.team_id === "a").played, 0);
+  assert.equal(table.find((r) => r.team_id === "b").played, 0);
 });
 
 
