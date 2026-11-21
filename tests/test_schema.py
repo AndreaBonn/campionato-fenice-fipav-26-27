@@ -241,3 +241,45 @@ def test_validate_data_played_game_without_sets_needs_a_forfeit_score(
     index = sample["games"].index(game)
     game["sets_won"], game["sets"] = sets_won, []
     assert f"games[{index}].sets: played game needs results" in validate_data(sample)
+
+
+def test_validate_data_venue_is_a_valid_change(sample: dict[str, Any]) -> None:
+    sample["games"][0]["changes"] = ["date", "time", "venue"]
+    assert validate_data(sample) == []
+    sample["games"][0]["changes"] = ["venue", "score"]
+    assert "games[0].changes: invalid value" in validate_data(sample)
+
+
+@pytest.mark.parametrize(
+    ("lat", "lng", "valid"),
+    [
+        (-90, 9, True),
+        (-90.1, 9, False),
+        (39, 180, True),
+        (39, -180, True),
+        (39, -180.1, False),
+    ],
+)
+def test_validate_data_coordinate_limits_are_inclusive_on_both_sides(
+    sample: dict[str, Any], lat: float, lng: float, valid: bool
+) -> None:
+    sample["games"][0]["venue"].update(lat=lat, lng=lng)
+    errors = validate_data(sample)
+    assert ("games[0].venue: invalid coordinates" not in errors) is valid
+    assert (errors == []) is valid
+
+
+def test_validate_data_unplayed_game_with_set_scores_is_rejected(
+    sample: dict[str, Any],
+) -> None:
+    game = sample["games"][2]
+    assert not game["played"] and game["sets_won"] is None
+    game["sets"] = [[25, 10]]
+    assert "games[2].sets: unplayed game has results" in validate_data(sample)
+
+
+def test_validate_data_boolean_is_not_a_coordinate(sample: dict[str, Any]) -> None:
+    sample["games"][0]["venue"].update(lat=39.0, lng=9.0)
+    assert validate_data(sample) == []
+    sample["games"][0]["venue"]["lat"] = True
+    assert "games[0].venue.lat: invalid type or value" in validate_data(sample)
