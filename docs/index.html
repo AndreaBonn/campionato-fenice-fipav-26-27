@@ -15,6 +15,12 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div role="status">
+<div class="update-notice" id="update-notice" hidden>
+<p>È disponibile una nuova versione della pagina.</p>
+<div class="acts"><button type="button" class="apply" id="update-apply">Aggiorna</button><button type="button" class="later" id="update-later">Più tardi</button></div>
+</div>
+</div>
 <a class="skip" href="#calendar">Vai al calendario</a>
 <header class="site">
   <div class="wrap brand">
@@ -156,5 +162,6 @@ document.addEventListener("click", (e) => {
 setInterval(showChecked, CLOCK_TICK_MS);
 load();
 </script>
+<script type="module" src="update.js"></script>
 </body>
 </html>
