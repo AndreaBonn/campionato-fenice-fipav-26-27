@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { positionRanges, decidedFacts } from "../../docs/standings-math.js";
+import { performance } from "node:perf_hooks";
+import { MAX_ENUMERATED_GAMES, positionRanges, decidedFacts } from "../../docs/standings-math.js";
 
 const outcomes = [[3, 0], [2, 1], [1, 2], [0, 3]];
 const scores = [[3, 0], [3, 2], [2, 3], [0, 3]];
@@ -149,4 +150,23 @@ test("six teams with two out of contention match brute force, fixed games includ
   // A-D and B-C are the only games that can matter: fixed games must not count against the enumeration limit
   assert.deepEqual(positionRanges(data, { maxEnumerated: 2 }).get("A"), exact.get("A"));
   assert.ok(ranges.get("A").best === 1 && ranges.get("F").best >= 5);
+});
+
+test("possible positions at MAX_ENUMERATED_GAMES stay under the 0.3 s limit (R16)", () => {
+  const LIMIT_MS = 300;
+  const TEAM_COUNT = 6;
+  const PLAYING_TEAMS = TEAM_COUNT - 1;
+  const worst = {
+    teams: Array.from({ length: TEAM_COUNT }, (_, id) => ({ id })),
+    games: Array.from({ length: MAX_ENUMERATED_GAMES }, (_, i) => ({
+      home_id: i % PLAYING_TEAMS, away_id: (i + 1) % PLAYING_TEAMS, played: false,
+    })),
+  };
+  const run = () => positionRanges(worst, { maxEnumerated: MAX_ENUMERATED_GAMES });
+  run();
+  const start = performance.now();
+  const ranges = run();
+  const elapsed = performance.now() - start;
+  assert.equal(ranges.size, TEAM_COUNT);
+  assert.ok(elapsed < LIMIT_MS, `took ${elapsed.toFixed(1)} ms, limit ${LIMIT_MS} ms`);
 });
