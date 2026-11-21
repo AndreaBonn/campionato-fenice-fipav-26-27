@@ -3,6 +3,7 @@ import { feniceTeamId } from "./game-rules.js";
 import { tableFromGames } from "./standings-rules.js";
 import { displayTeamName, teamInitials } from "./view-rules.js";
 import { esc } from "./games-view.js";
+import { decidedFacts, positionRanges } from "./standings-math.js";
 
 const CREST_SIZE = 24;
 const NO_VALUE = "-";
@@ -39,6 +40,27 @@ function teamCell(team, isMe) {
   return `<td class="name">${crest}${label}</td>`;
 }
 
+// "1°-3°", or "2°" when the position is settled
+const rangeText = ({ best, worst }) => (best === worst ? `${best}°` : `${best}°-${worst}°`);
+
+// The column and the block are worth showing only once some range is narrower than first-to-last
+const hasNarrowRange = (ranges) => [...ranges.values()].some(({ best, worst }) => best > 1 || worst < ranges.size);
+
+const ZONE_LABELS = [["promotion", "promozione"], ["playoff", "playoff"], ["relegation", "retrocessione"]];
+
+function factText(fact, name) {
+  const parts = [];
+  if (fact.position !== null) parts.push(`${fact.position}° posto`);
+  for (const [key, label] of ZONE_LABELS) if (fact[key] === true) parts.push(label);
+  return `<li><b>${esc(name)}</b>: ${esc(parts.join(", "))}</li>`;
+}
+
+function decidedBlock(ranges, formula, byId) {
+  const items = decidedFacts(ranges, formula).filter((f) => byId.has(f.team_id))
+    .map((f) => factText(f, displayTeamName(byId.get(f.team_id).name)));
+  return items.length ? `<div class="decided"><h3>Già deciso</h3><ul>${items.join("")}</ul></div>` : "";
+}
+
 function rowHtml(row, team, ctx) {
   const isMe = row.team_id === ctx.meId;
   const classes = [isMe ? "me" : "", zoneClass(ctx.formula, row.pos, ctx.total)].filter(Boolean);
@@ -46,11 +68,12 @@ function rowHtml(row, team, ctx) {
   return `<tr${cls}>` +
     `<td>${esc(row.pos)}</td>${teamCell(team, isMe)}<td>${esc(row.played)}</td><td><b>${esc(row.points)}</b></td>` +
     `<td>${esc(row.won)}</td><td>${esc(row.lost)}</td><td>${esc(row.sets_won)}-${esc(row.sets_lost)}</td>` +
-    `<td>${ratioText(row.set_ratio)}</td><td>${ratioText(row.point_ratio)}</td></tr>`;
+    `<td>${ratioText(row.set_ratio)}</td><td>${ratioText(row.point_ratio)}</td>${ctx.ranges ? `<td>${rangeText(ctx.ranges.get(row.team_id))}</td>` : ""}</tr>`;
 }
 
-const HEAD = '<tr><th scope="col">Pos</th><th scope="col">Squadra</th><th scope="col">G</th><th scope="col">Pt</th><th scope="col">V</th><th scope="col">P</th>' +
-  '<th scope="col">Set</th><th scope="col">Q. set</th><th scope="col">Q. punti</th></tr>';
+const POSSIBLE_HEAD = '<th scope="col">Poss.</th>';
+const HEAD = '<th scope="col">Pos</th><th scope="col">Squadra</th><th scope="col">G</th><th scope="col">Pt</th><th scope="col">V</th><th scope="col">P</th>' +
+  '<th scope="col">Set</th><th scope="col">Q. set</th><th scope="col">Q. punti</th>';
 
 const tieBreakNote = (tb) => (tb.provisional ? `<p class="note">Criterio di parità provvisorio: ${tb.criteria.map((c) => TIE_BREAK_LABELS[c] ?? c).join(", ")}</p>` : "");
 
@@ -58,8 +81,10 @@ export function renderStandings(data) {
   const table = data.standings.length ? data.standings : tableFromGames(data.games, data.teams);
   if (!table.length) return "";
   const byId = new Map(data.teams.map((t) => [t.id, t]));
-  const ctx = { meId: feniceTeamId(data), formula: data.formula, total: table.length };
+  const allRanges = positionRanges(data);
+  const ranges = hasNarrowRange(allRanges) ? allRanges : null;
+  const ctx = { meId: feniceTeamId(data), formula: data.formula, total: table.length, ranges };
   const body = table.filter((r) => byId.has(r.team_id)).map((r) => rowHtml(r, byId.get(r.team_id), ctx)).join("");
   return `<div class="table-wrap" role="region" aria-label="Classifica, scorri in orizzontale per vedere tutte le colonne" tabindex="0">` +
-    `<table class="standings"><caption class="sr-only">Classifica del girone</caption><thead>${HEAD}</thead><tbody>${body}</tbody></table></div>${tieBreakNote(data.tie_break)}`;
+    `<table class="standings"><caption class="sr-only">Classifica del girone</caption><thead><tr>${HEAD}${ranges ? POSSIBLE_HEAD : ""}</tr></thead><tbody>${body}</tbody></table></div>${ranges ? decidedBlock(ranges, data.formula, byId) : ""}${tieBreakNote(data.tie_break)}`;
 }

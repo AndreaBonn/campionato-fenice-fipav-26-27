@@ -146,3 +146,7 @@ footer.site p { margin: 0.15rem 0; }
 .feed p + p { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
 .feed a, .game .addcal a { display: inline-block; min-height: 44px; padding-block: 0.6rem; }
 .game .addcal { grid-column: 1; margin: 0; font-size: 0.875rem; }
+
+.decided { margin-top: 12px; }
+.decided h3 { font-size: 1rem; margin: 0 0 4px; }
+.decided ul { margin: 0; padding-left: 1.2em; }

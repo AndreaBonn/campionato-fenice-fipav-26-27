@@ -85,3 +85,40 @@ test("a failed crest image is replaced by the initials; other errors are ignored
   const other = { tagName: "SCRIPT", dataset: {}, insertAdjacentHTML: () => assert.fail("touched"), remove: () => assert.fail("touched") };
   listeners[0].fn({ target: other });
 });
+
+// Every game played, the team listed first in data.teams always wins 3-0: a strict order, all positions decided
+function decidedSeason() {
+  const data = structuredClone(girone);
+  const rank = (id) => data.teams.findIndex((t) => t.id === id);
+  for (const g of data.games) {
+    const homeWins = rank(g.home_id) < rank(g.away_id);
+    Object.assign(g, homeWins
+      ? { played: true, sets_won: [3, 0], sets: [[25, 10], [25, 10], [25, 10]] }
+      : { played: true, sets_won: [0, 3], sets: [[10, 25], [10, 25], [10, 25]] });
+  }
+  data.standings = [];
+  return data;
+}
+
+test("shows no possible-position column nor decided block at the start of the season", () => {
+  const html = renderStandings(girone);
+  assert.doesNotMatch(html, /Poss\./);
+  assert.doesNotMatch(html, /Già deciso/);
+});
+
+test("shows the possible-position column and the decided block once positions are settled", () => {
+  const html = renderStandings(decidedSeason());
+  assert.match(html, /<th scope="col">Poss\.<\/th>/);
+  assert.match(html, /<td>1°<\/td>/);
+  assert.match(html, /Già deciso/);
+  assert.match(html, /1° posto/);
+});
+
+test("decided block lists zones only when the formula is published", () => {
+  const data = decidedSeason();
+  assert.doesNotMatch(renderStandings(data), /promozione|retrocessione/);
+  data.formula = { published: true, promotion: 1, playoff: 0, relegation: 1 };
+  const html = renderStandings(data);
+  assert.match(html, /promozione/);
+  assert.match(html, /retrocessione/);
+});
