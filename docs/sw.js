@@ -30,7 +30,10 @@ const SHELL = [
   "notices-view.js",
   "logo-fenice.png",
   "manifest.webmanifest",
+  "favicon.ico",
   "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icons/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {

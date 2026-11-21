@@ -243,3 +243,18 @@ test("install: every cached file exists under docs/, one missing file would fail
   assert.ok(paths.includes("index.html"));
   assert.deepEqual(missing, []);
 });
+
+test("install caches the icons the page links and the manifest's 'any' icons, so the installed app keeps its icon offline", async () => {
+  const { handlers, storage } = loadWorker();
+
+  await dispatchLifecycle(handlers.install);
+
+  const read = (name) => readFileSync(new URL(`../../docs/${name}`, import.meta.url), "utf8");
+  const linked = [...read("index.html").matchAll(/<link rel="(?:icon|apple-touch-icon)" href="([^"]+)"/g)].map((m) => m[1]);
+  const fromManifest = JSON.parse(read("manifest.webmanifest")).icons.filter((i) => i.purpose === "any").map((i) => i.src);
+  const cached = storage.get("fenice-fipav-dev");
+  assert.ok(linked.includes("favicon.ico") && linked.includes("icons/apple-touch-icon.png"));
+  assert.ok(fromManifest.includes("icons/icon-512.png"));
+  const missing = [...linked, ...fromManifest].filter((name) => !cached.has(new URL(name, PAGE).href));
+  assert.deepEqual(missing, []);
+});
