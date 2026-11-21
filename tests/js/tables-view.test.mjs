@@ -146,14 +146,18 @@ test("crest errors ignore images without names and named non-images", () => {
   assert.deepEqual(calls, ["insert", "remove"]);
 });
 
-test("a team without a logo still has a row without an image", () => {
+test("a team without a logo shows its initials, like the team card, instead of an image", () => {
   const data = structuredClone(girone);
   const id = data.standings[0].team_id;
-  data.teams.find((team) => team.id === id).logo_url = null;
+  const team = data.teams.find((t) => t.id === id);
+  team.logo_url = null;
   const row = rows(renderStandings(data))[0];
   assert.match(row, new RegExp(`data-opponent="${id}"|la tua squadra`));
   assert.doesNotMatch(row, /<img/);
-  assert.match(rows(renderStandings(girone))[0], /<img/);
+  assert.ok(row.includes(crestFallbackHtml(team.name)));
+  const withLogo = rows(renderStandings(girone))[0];
+  assert.match(withLogo, /<img/);
+  assert.doesNotMatch(withLogo, /crest-fallback/);
 });
 
 test("a narrow open range shows the column without a decided block", () => {
