@@ -157,7 +157,11 @@ test("six teams with two out of contention match brute force, fixed games includ
   assert.ok(ranges.get("A").best === 1 && ranges.get("F").best >= 5);
 });
 
-test("possible positions at MAX_ENUMERATED_GAMES stay under the 0.3 s limit (R16)", () => {
+// Coverage instrumentation makes the enumeration about 4 times slower (measured 2026-11-21: ~75 ms plain,
+// ~300 ms with --experimental-test-coverage), so under it the timing says nothing about the page
+const UNDER_COVERAGE = Boolean(process.env.NODE_V8_COVERAGE);
+
+test("possible positions at MAX_ENUMERATED_GAMES stay under the 0.3 s limit (R16)", { skip: UNDER_COVERAGE && "timing is not meaningful under coverage instrumentation" }, () => {
   const LIMIT_MS = 300;
   const TEAM_COUNT = 10;
   const PLAYING_TEAMS = TEAM_COUNT - 1;
