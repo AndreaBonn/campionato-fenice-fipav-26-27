@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { feniceGames } from "../../docs/game-rules.js";
-import { errorCause, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { errorCause, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -219,4 +219,19 @@ test("schedule: referee names go through escaping", () => {
   const html = renderSchedule(data, new Date("2026-11-20T10:00:00Z"));
   assert.equal(count(html, "<i>Mario"), 0);
   assert.match(html, /&lt;i&gt;Mario/);
+});
+
+test("schedule: «Aggiungi a Google Calendar» only on future games with a start", () => {
+  const html = renderSchedule(sample, new Date("2026-11-20T10:00:00Z"));
+  assert.equal(count(html, "calendar.google.com/calendar/render"), 2);
+  assert.match(html, /dates=20261121T160000Z%2F20261121T180000Z/);
+  assert.match(html, /Aggiungi a Google Calendar<span class="sr-only"> la partita contro/);
+});
+
+test("calendar feed block: webcal subscribe link and https download link", () => {
+  const html = renderCalendarFeed(sample);
+  assert.match(html, /Aggiungi al calendario/);
+  assert.match(html, /href="webcal:\/\/andreabonn\.github\.io\/campionato-fenice-fipav-26-27\/calendario\.ics"/);
+  assert.match(html, /href="https:\/\/andreabonn\.github\.io\/campionato-fenice-fipav-26-27\/calendario\.ics" download/);
+  assert.equal(renderCalendarFeed({ ...sample, games: [] }), "");
 });

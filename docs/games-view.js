@@ -1,5 +1,6 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
+import { FEED_HTTPS_URL, FEED_WEBCAL_URL, googleCalendarUrl, teamsById } from "./calendar-rules.js";
 import { changeLabel, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
@@ -60,12 +61,19 @@ function resultHtml(g, teamId) {
 const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel(g))}</p>` : "");
 const movedHtml = (g) => (changeLabel(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeLabel(g).replace("Spostata: ", ""))}</p>` : "");
 
+function addToCalendarHtml(data, g, teamId) {
+  const url = g.played ? null : googleCalendarUrl(g, teamsById(data));
+  if (!url) return "";
+  const who = esc(teamName(data, opponentId(g, teamId)));
+  return `<p class="addcal"><a href="${esc(url)}" target="_blank" rel="noopener">Aggiungi a Google Calendar<span class="sr-only"> la partita contro ${who} (si apre in una nuova scheda)</span></a></p>`;
+}
+
 function rowHtml(data, g, teamId, isNext) {
   const score = scoreLabel(g, teamId), parts = setScores(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${addToCalendarHtml(data, g, teamId)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
@@ -113,3 +121,8 @@ export function renderLastResult(data) {
 <p class="score"><b>${esc(scoreLabel(g, teamId))}</b> <span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></p>${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}
 <ol class="form" aria-label="Forma delle ultime partite, dalla più vecchia alla più recente. V vinta, P persa">${strip}</ol>`;
 }
+
+// Subscribe to the ICS feed (webcal) or download the file; nothing for a club without games
+export const renderCalendarFeed = (data) => (!feniceGames(data).length ? "" :
+  `<div class="feed"><h3>Aggiungi al calendario</h3><p>Tutte le partite della Fenice, con gli aggiornamenti di data e palestra.</p>
+<p><a href="${FEED_WEBCAL_URL}">Iscriviti al calendario</a> <a href="${FEED_HTTPS_URL}" download>Scarica il file .ics</a></p></div>`);

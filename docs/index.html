@@ -35,6 +35,7 @@
   </section>
   <section id="calendar" aria-labelledby="calendar-title">
     <h2 id="calendar-title">Calendario e risultati</h2>
+    <div id="feed"></div>
     <div id="list" aria-live="polite"></div>
   </section>
   <noscript><p class="state">Per vedere il calendario serve JavaScript attivo nel browser.</p></noscript>
@@ -46,7 +47,7 @@
   </div>
 </footer>
 <script type="module">
-import { renderChecked, renderError, renderHero, renderLastResult, renderLoading, renderSchedule } from "./games-view.js";
+import { renderCalendarFeed, renderChecked, renderError, renderHero, renderLastResult, renderLoading, renderSchedule } from "./games-view.js";
 import { renderStandings } from "./tables-view.js";
 
 const $ = (id) => document.getElementById(id);
@@ -83,7 +84,7 @@ async function fetchData() {
 // A TypeError while building the markup is bad data, not a dead network: the cause text must not say so
 function build(data, now) {
   try {
-    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data), last: renderLastResult(data) };
+    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data), last: renderLastResult(data), feed: renderCalendarFeed(data) };
   } catch (err) {
     throw new Error("invalid data", { cause: err });
   }
@@ -104,12 +105,13 @@ async function load() {
   const slow = setTimeout(showSlowNote, SLOW_LOAD_MS);
   loadStatus();
   try {
-    const { hero, list, standings, last } = build(await fetchData(), new Date());
+    const { hero, list, standings, last, feed } = build(await fetchData(), new Date());
     $("next-body").innerHTML = hero;
     $("next").hidden = !hero;
     $("list").innerHTML = list;
     $("standings-body").innerHTML = standings;
     $("last-body").innerHTML = last;
+    $("feed").innerHTML = feed;
     $("last").hidden = !last;
     $("standings").hidden = !standings;
   } catch (err) {

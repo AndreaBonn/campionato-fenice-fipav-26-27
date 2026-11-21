@@ -30,7 +30,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T021 | tables-view.js: classifica, Fenice evidenziata, criterio provvisorio | dip: T019 | R11 | ok | revert
 - [x] T022 | Ultimo risultato, forma, link diretta, arbitri | dip: T018 | R5, R14 | seq | revert
 - [x] T023 | ics.py adattato, docs/calendario.ics | dip: T019 | R13 | seq | revert
-- [ ] T024 | calendar-rules.js: Google Calendar e link webcal | dip: T022 | R14 | seq | revert
+- [x] T024 | calendar-rules.js: Google Calendar e link webcal | dip: T022 | R14 | seq | revert
 - [ ] T025 | Baseline calendario-iniziale.json, merge.py changes, badge spostata | dip: T019 | R15 | seq | revert
 - [ ] T026 | Sync reale, render, click-through, a11y-gate, commit di fase 2 | dip: T020,T021,T022,T023,T024,T025 | R26 | seq | revert
 
