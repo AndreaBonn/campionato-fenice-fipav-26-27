@@ -122,3 +122,13 @@ test("large fixture returns valid ranges promptly", () => {
   assert.equal(ranges.size, 6);
   for (const { best, worst } of ranges.values()) assert.ok(1 <= best && best <= worst && worst <= 6);
 });
+
+test("ranges start from the official standings, which can carry a penalty the games do not show", () => {
+  const win = (home_id, away_id) => ({ home_id, away_id, played: true, sets_won: [3, 0], sets: [[25, 10], [25, 10], [25, 10]] });
+  const data = { teams: teams.slice(0, 3), games: [win("A", "B"), win("A", "C"), { home_id: "B", away_id: "C", played: false, sets_won: null, sets: [] }] };
+  assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 1 }); // 6 points against a best case of 3
+  const row = (team_id, points, won, set_ratio) => ({ team_id, points, won, set_ratio, point_ratio: set_ratio });
+  data.standings = [row("A", 2, 2, 3), row("B", 0, 0, 0), row("C", 0, 0, 0)]; // A carries a 4 point penalty
+  assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 2 });
+  assert.deepEqual(positionRanges({ ...data, standings: [] }).get("A"), { best: 1, worst: 1 });
+});

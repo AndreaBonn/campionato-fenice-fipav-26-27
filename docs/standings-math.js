@@ -4,10 +4,13 @@ const WIN_FULL = 3;
 const OUTCOMES = [[3, 0], [2, 1], [1, 2], [0, 3]];
 export const MAX_ENUMERATED_GAMES = 9;
 
+// Points and wins come from the official standings when published (they can include penalties the games do not
+// show); the games only tell which fixtures are still to play
 function leagueState(data) {
-  const rows = tableFromGames(data.games, data.teams);
+  const rows = data.standings?.length ? data.standings : tableFromGames(data.games, data.teams);
   const index = new Map(rows.map((row, i) => [row.team_id, i]));
-  const remaining = data.games.filter((g) => !g.played).map((g) => [index.get(g.home_id), index.get(g.away_id)]);
+  const remaining = data.games.filter((g) => !g.played && index.has(g.home_id) && index.has(g.away_id))
+    .map((g) => [index.get(g.home_id), index.get(g.away_id)]);
   const pending = rows.map(() => 0);
   for (const [home, away] of remaining) { pending[home]++; pending[away]++; }
   return { rows, remaining, pending };
