@@ -246,7 +246,8 @@ def _start_errors(game: dict[str, Any], path: str) -> list[str]:
     if (
         start is None
         or not _valid_datetime(start, "starts_at")
-        or datetime.fromisoformat(start) != expected
+        # the string, not only the instant: the page shows the Rome time written in it
+        or start != expected.isoformat()
     ):
         return [f"{path}.starts_at: inconsistent date and time"]
     return []

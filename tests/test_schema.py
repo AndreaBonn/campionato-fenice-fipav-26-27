@@ -89,6 +89,12 @@ def test_nonfinite_standings_ratio_is_rejected(sample: dict[str, Any]) -> None:
             "2026-11-21T17:00:00+02:00",
             "games[0].starts_at: inconsistent date and time",
         ),
+        (
+            # same instant as 17:00 in Rome, but plan.md wants the Rome offset written out
+            "starts_at",
+            "2026-11-21T16:00:00+00:00",
+            "games[0].starts_at: inconsistent date and time",
+        ),
         ("date", None, "games[0].starts_at: requires date and time"),
         ("time", None, "games[0].starts_at: requires date and time"),
         ("away_id", "232642", "games[0].away_id: same as home team"),
