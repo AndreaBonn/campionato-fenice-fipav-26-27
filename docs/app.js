@@ -84,7 +84,18 @@ export async function loadStatus(app) {
 
 // Page states: loading -> shown | failed, and shown | failed -> (refresh) -> shown. Every request takes a
 // ticket: an answer whose ticket is no longer the latest is dropped, so a slow old request never wins.
-function show(app, data, views) {
+// The returned function tells whether this request is still the latest one.
+function takeTicket(app) {
+  const ticket = (app.ticket = (app.ticket ?? 0) + 1);
+  return () => ticket === app.ticket;
+}
+
+// Fetches data.json (and status.json beside it), builds the views and shows them if still the latest
+async function fetchAndShow(app, isLatest) {
+  loadStatus(app);
+  const data = await fetchData(app.fetch);
+  const views = buildViews(data, app.now(), app.filter);
+  if (!isLatest()) return;
   applyViews(app.$, views, app.views ?? {});
   app.data = data;
   app.views = views;
@@ -92,22 +103,19 @@ function show(app, data, views) {
 }
 
 export async function load(app) {
-  const { $ } = app, ticket = (app.ticket = (app.ticket ?? 0) + 1);
+  const { $ } = app, isLatest = takeTicket(app);
   showLoading($);
   app.views = null;
   app.loading = true;
   const slow = setTimeout(() => showSlowNote($), SLOW_LOAD_MS);
-  loadStatus(app);
   try {
-    const data = await fetchData(app.fetch);
-    const views = buildViews(data, app.now(), app.filter);
-    if (ticket === app.ticket) show(app, data, views);
+    await fetchAndShow(app, isLatest);
   } catch (err) {
     console.error("load failed", err);
-    if (ticket === app.ticket) $("list").innerHTML = renderError(err, app.protocol);
+    if (isLatest()) $("list").innerHTML = renderError(err, app.protocol);
   } finally {
     clearTimeout(slow);
-    if (ticket === app.ticket) {
+    if (isLatest()) {
       app.loading = false;
       $("list").setAttribute("aria-busy", "false");
     }
@@ -116,12 +124,8 @@ export async function load(app) {
 
 // Background request: no loading box, and on failure the page keeps what it shows (data or error box)
 export async function refresh(app) {
-  const ticket = (app.ticket = (app.ticket ?? 0) + 1);
-  loadStatus(app);
   try {
-    const data = await fetchData(app.fetch);
-    const views = buildViews(data, app.now(), app.filter);
-    if (ticket === app.ticket) show(app, data, views);
+    await fetchAndShow(app, takeTicket(app));
   } catch (err) {
     console.warn("background refresh failed, the page keeps what it shows", err);
   }
