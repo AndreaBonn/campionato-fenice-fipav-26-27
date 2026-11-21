@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { mock, test } from "node:test";
 
-import { CLOCK_TICK_MS, SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, startApp } from "../../docs/app.js";
+import { CLOCK_TICK_MS, REFRESH_AFTER_MS, SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, refresh, startApp } from "../../docs/app.js";
 
 const SAMPLE = JSON.parse(readFileSync(new URL("./../fixtures/data-sample.json", import.meta.url), "utf8"));
 const GIRONE = JSON.parse(readFileSync(new URL("./../fixtures/data-64353.json", import.meta.url), "utf8"));
@@ -52,7 +52,7 @@ function router(routes) {
 }
 
 function makeApp(page, fetch) {
-  return { $: page.$, fetch, now: () => NOW, protocol: "https:", checkedAt: null, data: null };
+  return { $: page.$, fetch, now: () => NOW, protocol: "https:", checkedAt: null, data: null, views: null, loadedAt: null, ticket: 0, loading: false };
 }
 
 const sampleWithoutGames = () => ({ ...SAMPLE, games: [], standings: [] });
@@ -383,6 +383,186 @@ test("startApp: a click on a [data-opponent] element opens the team card with th
     click("232396");
     assert.equal(shown.length, 1);
     assert.match(page.els["opp-body"].innerHTML, /Sporting Club Su Planu/);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+// A fetch that records every URL and answers from the routes
+function recording(routes) {
+  const calls = [];
+  const fetch = (url, init) => {
+    calls.push(url);
+    return router(routes)(url, init);
+  };
+  return { calls, fetch, dataCalls: () => calls.filter((u) => u === "data.json").length };
+}
+
+// Element whose innerHTML writes are counted, to tell a rewrite from an untouched section
+function countingElement() {
+  const el = { hidden: false, writes: 0, html: "", setAttribute() {} };
+  Object.defineProperty(el, "innerHTML", { get() { return this.html; }, set(v) { this.writes += 1; this.html = v; } });
+  return el;
+}
+
+test("applyViews rewrites only the sections whose markup changed since the previous views", () => {
+  const els = Object.fromEntries(IDS.map((id) => [id, countingElement()]));
+  const $ = (id) => els[id];
+  const views = { hero: "<p>h</p>", list: "<li>l</li>", standings: "", last: "<p>r</p>", feed: "", analysis: "", notices: "<p>n</p>" };
+  applyViews($, views);
+  applyViews($, { ...views, hero: "<p>h2</p>" }, views);
+  assert.equal(els["next-body"].writes, 2);
+  assert.equal(els["next-body"].innerHTML, "<p>h2</p>");
+  // a focused link inside an untouched section keeps its node, so the keyboard focus is not lost
+  assert.equal(els.list.writes, 1);
+  assert.equal(els["notices-body"].writes, 1);
+});
+
+test("clock tick: the hero follows the kickoff without a new request («Stasera» becomes «In corso»)", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const clock = { now: new Date("2026-11-21T16:58:00+01:00") };
+    const net = recording({ "data.json": () => respond(SAMPLE) });
+    await startApp({ doc: page.doc, fetch: net.fetch, now: () => clock.now, protocol: "https:" });
+    assert.match(page.els["next-body"].innerHTML, /tra<\/span><b>2 minuti/);
+    assert.doesNotMatch(page.els.list.innerHTML, /In corso/);
+
+    clock.now = new Date("2026-11-21T17:05:00+01:00");
+    mock.timers.tick(CLOCK_TICK_MS);
+
+    assert.match(page.els["next-body"].innerHTML, /<b>In corso<\/b>/);
+    assert.match(page.els.list.innerHTML, /<span class="pending">In corso<\/span>/);
+    assert.equal(net.dataCalls(), 1);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("clock tick: data older than REFRESH_AFTER_MS on a visible page is requested again and applied", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const clock = { now: NOW };
+    let body = SAMPLE;
+    const net = recording({ "data.json": () => respond(body) });
+    await startApp({ doc: page.doc, fetch: net.fetch, now: () => clock.now, protocol: "https:" });
+
+    clock.now = new Date(NOW.getTime() + REFRESH_AFTER_MS - 1);
+    mock.timers.tick(CLOCK_TICK_MS);
+    assert.equal(net.dataCalls(), 1);
+
+    body = GIRONE;
+    clock.now = new Date(NOW.getTime() + REFRESH_AFTER_MS);
+    mock.timers.tick(CLOCK_TICK_MS);
+    await settle();
+    assert.equal(net.dataCalls(), 2);
+    assert.match(page.els["standings-body"].innerHTML, /Sporting Club Su Planu/);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("clock tick on a hidden page never asks the network", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    page.doc.visibilityState = "hidden";
+    const clock = { now: NOW };
+    const net = recording({ "data.json": () => respond(SAMPLE) });
+    await startApp({ doc: page.doc, fetch: net.fetch, now: () => clock.now, protocol: "https:" });
+
+    clock.now = new Date(NOW.getTime() + 2 * REFRESH_AFTER_MS);
+    mock.timers.tick(CLOCK_TICK_MS);
+    await settle();
+
+    assert.equal(net.dataCalls(), 1);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("coming back to the page (installed app reopened) refreshes stale data at once", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const clock = { now: NOW };
+    const net = recording({ "data.json": () => respond(SAMPLE) });
+    page.doc.visibilityState = "visible";
+    await startApp({ doc: page.doc, fetch: net.fetch, now: () => clock.now, protocol: "https:" });
+
+    page.doc.listeners.visibilitychange();
+    await settle();
+    assert.equal(net.dataCalls(), 1);
+
+    clock.now = new Date(NOW.getTime() + 2 * 24 * 3600e3);
+    page.doc.listeners.visibilitychange();
+    await settle();
+    assert.equal(net.dataCalls(), 2);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("a failed background refresh keeps the page as it was: no error box over good data", async () => {
+  const page = fakePage();
+  const app = makeApp(page, router({ "data.json": () => respond(SAMPLE) }));
+  await load(app);
+  const before = page.els.list.innerHTML;
+
+  app.fetch = () => Promise.reject(new TypeError("Failed to fetch"));
+  await refresh(app);
+
+  assert.equal(page.els.list.innerHTML, before);
+  assert.equal(app.data, SAMPLE);
+});
+
+test("a background refresh after a failed load replaces the error with the data", async () => {
+  const page = fakePage();
+  const app = makeApp(page, () => Promise.reject(new TypeError("Failed to fetch")));
+  await load(app);
+  assert.match(page.els.list.innerHTML, /Riprova/);
+
+  app.fetch = router({ "data.json": () => respond(SAMPLE) });
+  await refresh(app);
+
+  assert.match(page.els.list.innerHTML, /Giornata/);
+  assert.equal(page.els.next.hidden, false);
+});
+
+test("an older request that answers last never overwrites the newer one", async () => {
+  const page = fakePage();
+  let releaseOld;
+  const oldAnswer = new Promise((resolve) => (releaseOld = resolve));
+  const answers = [() => oldAnswer, () => respond(GIRONE)];
+  const app = makeApp(page, (url) => (url === "data.json" ? answers.shift()() : respond({}, { ok: false, status: 404 })));
+
+  const first = load(app);
+  await load(app);
+  releaseOld({ ok: true, status: 200, json: async () => SAMPLE });
+  await first;
+
+  assert.equal(app.data, GIRONE);
+  assert.match(page.els["standings-body"].innerHTML, /Sporting Club Su Planu/);
+  assert.equal(page.els.list.attrs["aria-busy"], "false");
+});
+
+test("a clock tick during a slow first load does not start a refresh that would orphan the loading box", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    let release;
+    const answers = [() => new Promise((resolve) => (release = resolve)), () => Promise.reject(new TypeError("Failed to fetch"))];
+    const net = recording({ "data.json": () => answers.shift()() });
+    const started = startApp({ doc: page.doc, fetch: net.fetch, now: () => NOW, protocol: "https:" });
+
+    mock.timers.tick(CLOCK_TICK_MS);
+    assert.equal(net.dataCalls(), 1);
+
+    release({ ok: false, status: 503, json: async () => ({}) });
+    await started;
+    assert.match(page.els.list.innerHTML, /Riprova/);
+    assert.equal(page.els.list.attrs["aria-busy"], "false");
   } finally {
     mock.timers.reset();
   }

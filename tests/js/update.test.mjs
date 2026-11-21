@@ -276,3 +276,36 @@ test("Più tardi: coming back to the tab does not show the notice again", async 
 
   assert.equal(t.els["update-notice"].hidden, true);
 });
+
+test("accepted worker replaced by a newer release before taking over: the button works again for the newer one", async () => {
+  const old = worker("installed");
+  const t = setup({ waiting: old });
+  await setupUpdates(t.env);
+  t.els["update-apply"].onclick();
+  assert.equal(t.els["update-apply"].disabled, true);
+
+  const newer = worker("installed");
+  t.registration.waiting = newer;
+  old.state = "redundant";
+  old.fire("statechange");
+
+  assert.equal(t.els["update-apply"].disabled, false);
+  assert.equal(t.els["update-apply"].textContent, "Aggiorna");
+  assert.equal(t.els["update-notice"].hidden, false);
+  t.els["update-apply"].onclick();
+  assert.deepEqual(newer.posted, [{ type: "SKIP_WAITING" }]);
+});
+
+test("accepted worker that dies with nothing else waiting: the notice goes away instead of hanging", async () => {
+  const old = worker("installed");
+  const t = setup({ waiting: old });
+  await setupUpdates(t.env);
+  t.els["update-apply"].onclick();
+
+  t.registration.waiting = null;
+  old.state = "redundant";
+  old.fire("statechange");
+
+  assert.equal(t.els["update-notice"].hidden, true);
+  assert.equal(t.els["update-apply"].disabled, false);
+});

@@ -404,3 +404,34 @@ test("schedule: rows of games to play link the venue map, played games do not (R
   const first = ours.findIndex((g) => !g.played && mapUrl(g.venue));
   assert.ok(items[first].includes(`href="${esc(mapUrl(ours[first].venue))}"`));
 });
+
+// sample game 3 (id "3", vs 232656) kicks off 2026-11-21 17:00 Rome time and is not played
+const rowOf = (html, opponent) => html.split('<li class="game').find((row) => row.includes(opponent));
+const onlyThird = () => ({ ...sample, games: [sample.games[2]] });
+
+test("schedule: the row of a game being played says «In corso», not «Da giocare»", () => {
+  const row = rowOf(renderSchedule(onlyThird(), new Date("2026-11-21T17:30:00+01:00")), "VSA");
+  assert.match(row, /<span class="pending">In corso<\/span>/);
+  assert.equal(count(row, "Da giocare"), 0);
+});
+
+test("schedule: a game over without a published result says «Risultato in arrivo»", () => {
+  const html = renderSchedule(onlyThird(), new Date("2026-11-23T10:00:00+01:00"));
+  assert.match(html, /<span class="pending">Risultato in arrivo<\/span>/);
+  assert.equal(count(html, "Da giocare"), 0);
+});
+
+test("schedule: before the whistle the same game says «Da giocare»", () => {
+  const html = renderSchedule(onlyThird(), new Date("2026-11-21T16:59:00+01:00"));
+  assert.match(html, /<span class="pending">Da giocare<\/span>/);
+});
+
+test("hero: a result still missing weeks later is not described as just finished", () => {
+  const html = renderHero(onlyThird(), new Date("2026-12-20T10:00:00+01:00"));
+  assert.match(html, /Risultato in aggiornamento/);
+  assert.equal(count(html, "da poco"), 0);
+});
+
+test("error box: announced as an alert, the calendar list itself is not a live region", () => {
+  assert.match(renderError(new TypeError("x"), "https:"), /^<div class="state err" role="alert">/);
+});

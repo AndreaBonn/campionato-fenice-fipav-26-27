@@ -91,3 +91,20 @@ L'utente ha chiesto di correggere tutti i 19 finding dell'analisi di coerenza (r
 - Review del codice: nessun difetto bloccante; corretti i due rilievi fondati (badge senza `uv`, link del calendario su file://).
 - a11y-gate 5/5 sulla pagina con gare giocate; render a 375 e 1280 px senza scorrimento orizzontale; click-through della scheda avversaria (apertura, Tab, Esc, Chiudi, ritorno del focus), nessun errore in console.
 - Non verificati: il workflow su GitHub e il caricamento reale delle locandine FIPAV in un browser (in automatico Cloudflare risponde 403).
+
+## 2026-11-21 - Macchine a stati implicite: analisi e correzioni
+
+### Cosa è stato fatto
+
+- Mappate le macchine a stati del progetto: ciclo di vita della partita, caricamento della pagina, avviso di aggiornamento del service worker, sincronizzazione Python (host alternativo, arricchimento tollerante, scrittura atomica), scheda avversaria. Il lato Python è risultato corretto e non è stato toccato.
+- Ciclo di vita della partita reso esplicito con `gameStatus()`: la riga di una gara in corso diceva «Da giocare», una gara finita senza risultato pure; l'hero diceva «finita da poco» anche settimane dopo; la scheda avversaria chiamava «da giocare» una gara già giocata in attesa di risultato.
+- Pagina: prima restava ferma all'istante del caricamento (conto alla rovescia, prossima partita, «In corso» mai aggiornati) e non rinfrescava mai i dati, nemmeno riaprendo l'app installata giorni dopo. Ora segue l'orologio e rinfresca in background i dati vecchi di oltre 10 minuti; una risposta vecchia non sovrascrive una nuova; un refresh fallito non copre i dati con un errore; un tick durante un caricamento lento non lascia più la pagina bloccata sullo scheletro (trovato dal code-reviewer).
+- Aggiornamento: se la versione accettata viene sostituita da una più nuova prima di prendere il controllo, il pulsante non resta più bloccato su «Aggiornamento…».
+- Accessibilità: l'elenco del calendario non è più una regione live (veniva letto per intero a ogni cambio); il box di errore è un `alert`.
+- Service worker: l'icona maskable del manifest entra nella cache offline.
+
+### Verifica
+
+- `npm test` 302 passati (23 test nuovi), `pytest` 260 passati, ruff e mypy puliti. Mutazioni sulle guardie nuove: ogni mutazione fa fallire almeno un test.
+- Browser (Chromium headless, 375 e 1280 px, orologio simulato): «tra 2 minuti» diventa «In corso» nell'hero e nella riga senza ricaricare; scheda avversaria aperta e chiusa con focus restituito; errore offline con Riprova, Riprova ripristina il calendario; refresh fallito in background lascia il calendario; nessun errore in console.
+

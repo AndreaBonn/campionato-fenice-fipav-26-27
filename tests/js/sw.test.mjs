@@ -347,3 +347,10 @@ test("install caches every local image the page markup shows, so the header cres
   assert.ok(images.includes("logo-fenice.png"));
   assert.deepEqual(images.filter((src) => !cached.has(new URL(src, PAGE).href)), []);
 });
+
+test("every icon of the manifest is in the shell, so the installed app keeps its icons offline", () => {
+  const manifest = JSON.parse(readFileSync(new URL("../../docs/manifest.webmanifest", import.meta.url), "utf8"));
+  const shell = [...SOURCE.matchAll(/^\s+"([^"]+)",$/gm)].map((m) => m[1]);
+  assert.ok(shell.includes("icons/icon-192.png"));
+  for (const icon of manifest.icons) assert.ok(shell.includes(icon.src), `${icon.src} missing from SHELL`);
+});

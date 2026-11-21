@@ -16,13 +16,27 @@ export function feniceGames(data) {
 // A volleyball match is over well within this window after the first whistle
 export const MATCH_WINDOW_MS = 3 * 60 * 60e3;
 
-// First unplayed game that has not started yet or started less than the match window ago;
-// games without a start are left out
+// Lifecycle of a game at an instant; every view asks here instead of reading played and starts_at itself:
+//   unscheduled -> upcoming -> live -> awaiting -> played
+// unscheduled: no start yet; upcoming: before the whistle; live: from the whistle to MATCH_WINDOW_MS after;
+// awaiting: the window is over and FIPAV has not published the result; played: the result is published.
+// played wins over the clock: FIPAV can publish a result early, or a postponed game keep its old date
+export function gameStatus(game, now) {
+  if (game.played) return "played";
+  if (game.starts_at === null) return "unscheduled";
+  const sinceKickoff = now.getTime() - Date.parse(game.starts_at);
+  if (sinceKickoff < 0) return "upcoming";
+  return sinceKickoff <= MATCH_WINDOW_MS ? "live" : "awaiting";
+}
+
+const OPEN_STATUSES = new Set(["upcoming", "live"]);
+
+// Earliest game that is upcoming or live; games without a start, waiting for a result or played are left out
 export function nextGame(games, now) {
-  const upcoming = games
-    .filter((g) => !g.played && g.starts_at !== null && new Date(g.starts_at) >= now - MATCH_WINDOW_MS)
-    .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
-  return upcoming[0] ?? null;
+  const open = games
+    .filter((g) => OPEN_STATUSES.has(gameStatus(g, now)))
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  return open[0] ?? null;
 }
 
 // [mine, theirs] pair from a [home, away] pair, seen from the team's side

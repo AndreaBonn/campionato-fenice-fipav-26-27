@@ -1,7 +1,7 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
 import { feedUrls, googleCalendarUrl, teamsById } from "./calendar-rules.js";
-import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores, setsLabel } from "./game-rules.js";
+import { changeDetail, feniceGames, feniceTeamId, form, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores, setsLabel } from "./game-rules.js";
 import { TIME_ZONE, countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const HTTP_STATUS = /^HTTP (\d+)$/;
@@ -46,8 +46,8 @@ export function renderHero(data, now) {
   const teamId = feniceTeamId(data), games = feniceGames(data), g = nextGame(games, now);
   if (!games.length) return "";
   if (!g) {
-    if (games.some((x) => !x.played && x.starts_at !== null)) return stateHtml("Risultato in aggiornamento", "L'ultima partita è finita da poco: il risultato apparirà appena la FIPAV lo pubblica.");
-    const open = games.some((x) => !x.played && x.starts_at === null);
+    if (games.some((x) => gameStatus(x, now) === "awaiting")) return stateHtml("Risultato in aggiornamento", "Il risultato dell'ultima partita giocata apparirà appena la FIPAV lo pubblica.");
+    const open = games.some((x) => gameStatus(x, now) === "unscheduled");
     return open
       ? stateHtml("Prossima partita da definire", "La FIPAV non ha ancora fissato data e ora delle gare che restano.")
       : stateHtml("Stagione regolare conclusa", "Non ci sono altre partite in calendario.");
@@ -74,16 +74,25 @@ const movedHtml = (g) => (changeDetail(g) ? `<p class="moved"><span class="tag m
 
 // Only for a game still to come: after the whistle the link would add a past event
 function addToCalendarHtml(data, g, teamId, now, pageUrl) {
-  const url = g.played || !(new Date(g.starts_at) > now) ? null : googleCalendarUrl(g, teamsById(data), pageUrl);
+  const url = gameStatus(g, now) === "upcoming" ? googleCalendarUrl(g, teamsById(data), pageUrl) : null;
   if (!url) return "";
   const who = esc(teamName(data, opponentId(g, teamId)));
   return `<p class="addcal"><a href="${esc(url)}" target="_blank" rel="noopener">Aggiungi a Google Calendar<span class="sr-only"> la partita contro ${who} (si apre in una nuova scheda)</span></a></p>`;
 }
 
+// Label of a game without a result, by its lifecycle status (gameStatus)
+const PENDING_LABELS = { unscheduled: "Da giocare", upcoming: "Da giocare", live: "In corso", awaiting: "Risultato in arrivo" };
+
+function pendingHtml(g, now) {
+  const status = gameStatus(g, now);
+  // kept while awaiting too: the live score page can show the final score before FIPAV publishes it
+  const live = g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
+  return `<div class="res"><span class="pending">${PENDING_LABELS[status]}</span>${live}</div>`;
+}
+
 function rowHtml(data, g, teamId, isNext, now, pageUrl) {
   const score = setsLabel(g, teamId);
-  const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
-  const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
+  const right = score ? resultHtml(g, teamId) : pendingHtml(g, now);
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
 <p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}${g.played ? "" : mapLinkHtml(g)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now, pageUrl)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
 }
@@ -110,7 +119,7 @@ export function errorCause(err, protocol) {
 const RETRY = '<button type="button" class="btn" id="retry">Riprova</button>';
 
 export const renderError = (err, protocol) =>
-  `<div class="state err"><strong>Impossibile caricare i dati delle partite.</strong>${esc(errorCause(err, protocol))}<br>${RETRY}</div>`;
+  `<div class="state err" role="alert"><strong>Impossibile caricare i dati delle partite.</strong>${esc(errorCause(err, protocol))}<br>${RETRY}</div>`;
 
 export const renderEmpty = () =>
   `<div class="state"><strong>Calendario non ancora disponibile</strong>La FIPAV non ha ancora pubblicato le partite dell'Asd Fenice per questo girone.<br>${RETRY}</div>`;

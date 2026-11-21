@@ -35,10 +35,24 @@ function applyUpdate(s) {
     s.notice.hidden = true;
     return;
   }
+  const accepted = s.registration.waiting;
   s.apply.disabled = true;
   s.apply.textContent = "Aggiornamento…";
+  // a newer release finishing its install replaces the accepted worker, which then never takes over:
+  // without this the button would stay on «Aggiornamento…» with no reload coming
+  accepted.addEventListener("statechange", () => {
+    if (accepted.state === "redundant") resetNotice(s);
+  });
   // the reload happens on controllerchange, once the new version is in control
-  s.registration.waiting.postMessage({ type: "SKIP_WAITING" });
+  accepted.postMessage({ type: "SKIP_WAITING" });
+}
+
+// Back to the offer: shown again if another worker is waiting, hidden otherwise
+function resetNotice(s) {
+  s.apply.disabled = false;
+  s.apply.textContent = "Aggiorna";
+  s.notice.hidden = true;
+  announce(s);
 }
 
 function wireButtons(s) {

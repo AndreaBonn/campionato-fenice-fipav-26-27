@@ -1,6 +1,6 @@
 // Content and wiring of the opponent card, a native <dialog> opened with showModal().
 // Imperative shell over opponent-rules.js and team-rules.js; the markup builders return strings.
-import { feniceTeamId } from "./game-rules.js";
+import { feniceTeamId, gameStatus } from "./game-rules.js";
 import { headToHead } from "./opponent-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
@@ -9,6 +9,8 @@ import { esc } from "./games-view.js";
 import { crestFallbackHtml, installCrestFallback } from "./tables-view.js";
 
 const NEXT_SHOWN = 5;
+// team ids are FIPAV digits, but the selector must not break on anything else
+const quoteAttr = (value) => String(value).replace(/["\\]/g, "\\$&");
 const CREST_SIZE = 40;
 
 const nameOf = (team) => esc(displayTeamName(team.name));
@@ -37,11 +39,15 @@ function headerHtml(data, team) {
   return `<header class="opp-head">${crestHtml(team)}<div><h2 id="opp-title">${nameOf(team)}</h2>${place}${rangeLine(data, team.id)}</div></header>`;
 }
 
-function headToHeadHtml(data, team) {
+// Wording of a head-to-head game without a result, by its lifecycle status (gameStatus)
+const PENDING_WORDS = { live: "in corso", awaiting: "risultato in arrivo" };
+const pendingWord = (g, now) => PENDING_WORDS[gameStatus(g, now)] ?? "da giocare";
+
+function headToHeadHtml(data, team, now) {
   const h = headToHead(feniceTeamId(data), team.id, data.games);
   if (!h.played.length && !h.upcoming.length) return section("Scontri diretti con la Fenice", "<p>Nessuno scontro in calendario.</p>");
   const played = h.played.map((p) => `<li>Giornata ${esc(p.game.round)}: <b>${esc(p.score)}</b> ${p.outcome === "won" ? "vinta" : "persa"} dalla Fenice${p.sets.length ? `<small> (${esc(p.sets.join(", "))})</small>` : ""}</li>`);
-  const upcoming = h.upcoming.map((g) => `<li>Giornata ${esc(g.round)}: da giocare, ${esc(dayText(g))}</li>`);
+  const upcoming = h.upcoming.map((g) => `<li>Giornata ${esc(g.round)}: ${pendingWord(g, now)}, ${esc(dayText(g))}</li>`);
   return section("Scontri diretti con la Fenice", `<ul>${[...played, ...upcoming].join("")}</ul>`);
 }
 
@@ -75,24 +81,27 @@ function remainingHtml(data, team) {
 
 const CLOSE = '<p class="opp-close"><button type="button" class="btn" data-close>Chiudi</button></p>';
 
-// Whole card for one opponent; "" when the team is unknown or is the followed club itself
-export function renderOpponent(data, teamId) {
+// Whole card for one opponent at the instant now; "" when the team is unknown or is the followed club itself
+export function renderOpponent(data, teamId, now) {
   const team = data.teams.find((t) => t.id === teamId);
   if (!team || teamId === feniceTeamId(data)) return "";
-  return [headerHtml(data, team), headToHeadHtml(data, team), recordHtml(data, team), remainingHtml(data, team), CLOSE].join("");
+  return [headerHtml(data, team), headToHeadHtml(data, team, now), recordHtml(data, team), remainingHtml(data, team), CLOSE].join("");
 }
 
 // One delegated click listener: [data-opponent] opens the card, [data-close] closes it, and closing
-// gives the focus back to the control that opened it. getData() returns the loaded data or null.
-export function installOpponentDialog(root, dialog, body, getData) {
+// gives the focus back to the control that opened it. getData() returns the loaded data or null, now() the clock.
+export function installOpponentDialog(root, dialog, body, getData, now) {
   let trigger = null;
   installCrestFallback(body);
-  dialog.addEventListener("close", () => trigger?.focus());
+  // the clock can re-render the section that held the opener while the card is open: then its
+  // replacement, the control of the same team, takes the focus back
+  const focusTarget = () => (trigger?.isConnected ? trigger : root.querySelector(`[data-opponent="${quoteAttr(trigger.dataset.opponent)}"]`));
+  dialog.addEventListener("close", () => trigger && focusTarget()?.focus());
   root.addEventListener("click", (e) => {
     if (e.target.closest("[data-close]")) return dialog.close();
     const opener = e.target.closest("[data-opponent]"), data = getData();
     if (!opener || !data) return undefined;
-    const html = renderOpponent(data, opener.dataset.opponent);
+    const html = renderOpponent(data, opener.dataset.opponent, now());
     if (!html) return undefined;
     trigger = opener;
     body.innerHTML = html;

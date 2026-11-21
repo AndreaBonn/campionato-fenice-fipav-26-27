@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setScores, setsLabel } from "../../docs/game-rules.js";
+import { MATCH_WINDOW_MS, changeDetail, feniceGames, feniceTeamId, form, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setScores, setsLabel } from "../../docs/game-rules.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -160,4 +160,36 @@ test("a postponed game played after later rounds is the last result and the newe
   assert.deepEqual(form(games, FENICE), ["won", "won", "lost"]);
   const inOrder = [games[0], games[2], games[1]];
   assert.equal(lastPlayed(inOrder).id, "r2");
+});
+
+// One unplayed game at 17:00 Rome time, seen at every edge of its lifecycle
+const KICKOFF = "2026-11-21T17:00:00+01:00";
+const at = (offsetMs) => new Date(Date.parse(KICKOFF) + offsetMs);
+const unplayed = { played: false, starts_at: KICKOFF };
+
+test("game status: upcoming before the whistle, live from the whistle to the end of the match window", () => {
+  assert.equal(gameStatus(unplayed, at(-1)), "upcoming");
+  assert.equal(gameStatus(unplayed, at(0)), "live");
+  assert.equal(gameStatus(unplayed, at(MATCH_WINDOW_MS)), "live");
+});
+
+test("game status: past the match window without a result it is awaiting, never upcoming again", () => {
+  assert.equal(gameStatus(unplayed, at(MATCH_WINDOW_MS + 1)), "awaiting");
+  assert.equal(gameStatus(unplayed, at(30 * 24 * 3600e3)), "awaiting");
+});
+
+test("game status: a played game is played at any instant, a game without a start is unscheduled", () => {
+  assert.equal(gameStatus({ played: true, starts_at: KICKOFF }, at(-1)), "played");
+  assert.equal(gameStatus({ played: true, starts_at: null }, at(0)), "played");
+  assert.equal(gameStatus({ played: false, starts_at: null }, at(0)), "unscheduled");
+});
+
+test("next game: exactly the games whose status is upcoming or live", () => {
+  const games = feniceGames(sample);
+  for (const offset of [-1, 0, MATCH_WINDOW_MS, MATCH_WINDOW_MS + 1]) {
+    const next = nextGame(games, at(offset));
+    const open = games.filter((g) => ["upcoming", "live"].includes(gameStatus(g, at(offset))));
+    assert.equal(next === null, open.length === 0);
+    if (next) assert.ok(open.includes(next));
+  }
 });
