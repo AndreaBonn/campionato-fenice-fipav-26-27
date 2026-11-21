@@ -66,4 +66,6 @@ test("feed links: a local server keeps its host and port; page file, query and h
 test("feed links: null when the page url is unknown", () => {
   assert.equal(feedUrls(null), null);
   assert.equal(feedUrls(undefined), null);
+  // a page opened from disk cannot be subscribed to: no feed links at all
+  assert.equal(feedUrls("file:///home/u/docs/index.html"), null);
 });

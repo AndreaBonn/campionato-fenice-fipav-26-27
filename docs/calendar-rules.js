@@ -3,8 +3,9 @@ import { displayTeamName } from "./view-rules.js";
 
 const FEED_FILE = "calendario.ics";
 
-// Folder of the page, without file, query or hash: the site root where docs/ is served; null when unknown
-const siteUrl = (pageUrl) => (pageUrl ? new URL(".", pageUrl).href : null);
+// Folder of the page, without file, query or hash: the site root where docs/ is served;
+// null when unknown or not served over http(s), since a file:// page cannot be subscribed to
+const siteUrl = (pageUrl) => (pageUrl && /^https?:/.test(pageUrl) ? new URL(".", pageUrl).href : null);
 
 // Addresses of the ICS feed next to the page that links it: { https, webcal }; null when the page url is unknown.
 // pageUrl is location.href, passed by the caller, so there is no second copy of the site address here
