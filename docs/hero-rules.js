@@ -18,9 +18,8 @@ export function matchSides(data, game) {
 // "ASD Fenice - Santandreasulcis"
 export const matchTitle = (data, game) => matchSides(data, game).map((s) => s.name).join(" - ");
 
-// "sabato 21 novembre ore 17:00", the time only when known
+// "sabato 21 novembre ore 17:00", the time only when known; the game has a start (nextGame gives only those)
 function whenText(game) {
-  if (!game.starts_at) return "data da definire";
   const day = fmt(game.starts_at, { weekday: "long", day: "numeric", month: "long" });
   return `${day} ${game.time ? `ore ${game.time}` : "orario da definire"}`;
 }

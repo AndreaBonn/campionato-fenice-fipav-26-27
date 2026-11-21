@@ -35,8 +35,9 @@ export function averagePointsPerSet(teamId, games) {
   for (const g of withSets(teamId, games)) {
     setPairs(g, teamId).forEach((pair, i) => (i + 1 === TIE_BREAK_SET ? decider : regular).push(pair));
   }
-  if (!regular.length && !decider.length) return null;
-  const mean = (pairs, index) => (pairs.length ? sum(pairs, index) / pairs.length : null);
+  // a fifth set comes after four regular ones, so no regular set means no set at all
+  if (!regular.length) return null;
+  const mean = (pairs, index) => sum(pairs, index) / pairs.length;
   return {
     sets: regular.length, scored: mean(regular, 0), conceded: mean(regular, 1),
     tieBreak: decider.length ? { sets: decider.length, scored: mean(decider, 0), conceded: mean(decider, 1) } : null,

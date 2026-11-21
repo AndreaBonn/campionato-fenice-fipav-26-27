@@ -46,8 +46,8 @@ export function relativeAge(iso, now) {
 
 // Title case of a word, also after an apostrophe or a hyphen ("SANT'ANDREA" -> "Sant'Andrea")
 const titleWord = (w) => w.toLowerCase().replace(/(^|['-])(\p{L})/gu, (_, sep, c) => sep + c.toUpperCase());
-// Dotted acronyms (G.S.), single initials (S.) and known acronyms keep FIPAV's capitals
-const keepsCapitals = (w) => /^(\p{L}\.){2,}$/u.test(w) || /^\p{L}\.$/u.test(w) || ACRONYMS.has(w);
+// Dotted acronyms (G.S.) and known acronyms keep FIPAV's capitals; a single initial (S.) reads the same in title case
+const keepsCapitals = (w) => /^(\p{L}\.){2,}$/u.test(w) || ACRONYMS.has(w);
 
 // FIPAV registers names in capitals: same name, only the capitals change
 export const displayTeamName = (name) => name.split(" ").map((w) => (keepsCapitals(w) ? w : titleWord(w))).join(" ");

@@ -13,7 +13,7 @@ const EMPTY = '<p class="state">L\'analisi comparirà dopo la prima partita.</p>
 function pointsText(avg) {
   const base = `${dec(avg.scored)} fatti, ${dec(avg.conceded)} subiti`;
   const decider = avg.tieBreak ? `; nel quinto set ${dec(avg.tieBreak.scored)} fatti, ${dec(avg.tieBreak.conceded)} subiti` : "";
-  return avg.sets ? base + decider : decider.slice(2);
+  return base + decider;
 }
 
 function tieBreakText(tb) {
