@@ -189,3 +189,14 @@ test("nine relevant games use exact enumeration when the bound is wider", () => 
   assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 2 });
   assert.deepEqual(positionRanges(data, { maxEnumerated: 8 }).get("A"), { best: 1, worst: 3 });
 });
+
+test("a team with no sets yet (null ratios) ties with one that lost every set, it does not jump it", () => {
+  const row = (team_id, set_ratio, point_ratio) => ({ team_id, points: 0, won: 0, set_ratio, point_ratio });
+  const data = { teams: teams.slice(0, 2), standings: [row("A", 0, 0), row("B", null, null)], games: [] };
+  const ranges = positionRanges(data);
+  assert.deepEqual(ranges.get("A"), { best: 1, worst: 2 });
+  assert.deepEqual(ranges.get("B"), { best: 1, worst: 2 });
+  const ahead = { ...data, standings: [row("A", 0.5, 0.9), row("B", null, null)] };
+  assert.deepEqual(positionRanges(ahead).get("A"), { best: 1, worst: 1 });
+  assert.deepEqual(positionRanges(ahead).get("B"), { best: 2, worst: 2 });
+});

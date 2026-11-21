@@ -27,6 +27,9 @@ function limits(team, state) {
   return { bound: { best: above + 1, worst: state.rows.length - below }, settled };
 }
 
+// No sets yet means no ratio (null): it counts as 0, so 0/0 ties with a 0-3 and never beats it
+const ratios = (r) => ({ set: r.set_ratio ?? 0, point: r.point_ratio ?? 0 });
+
 function rank(team, points, wins, state) {
   let above = 0;
   const tied = [];
@@ -35,12 +38,12 @@ function rank(team, points, wins, state) {
     else if (points[i] === points[team] && wins[i] === wins[team]) tied.push(i);
   }
   if (tied.some((i) => state.pending[i])) return [above + 1, above + tied.length];
-  const row = state.rows[team];
+  const row = ratios(state.rows[team]);
   let equal = 0;
   for (const i of tied) {
-    const other = state.rows[i];
-    if (other.set_ratio > row.set_ratio || (other.set_ratio === row.set_ratio && other.point_ratio > row.point_ratio)) above++;
-    else if (other.set_ratio === row.set_ratio && other.point_ratio === row.point_ratio) equal++;
+    const other = ratios(state.rows[i]);
+    if (other.set > row.set || (other.set === row.set && other.point > row.point)) above++;
+    else if (other.set === row.set && other.point === row.point) equal++;
   }
   return [above + 1, above + equal];
 }
