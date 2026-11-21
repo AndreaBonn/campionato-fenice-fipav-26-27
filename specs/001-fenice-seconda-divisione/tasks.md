@@ -7,7 +7,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T001 | git init, .gitignore, LICENSE | dip: - | R3, R10 | seq | rimuovere .git (utente)
 - [x] T002 | pyproject, package.json con i verbi, uv.lock | dip: T001 | R25 | seq | revert
 - [x] T003 | Copia fixture reali e stemma dalla scratchpad, test dei conteggi | dip: T002 | R1, R12 | ok | revert
-- [ ] T004 | config.py (URL, codice Fenice, UA, formula vuota, tie-break) | dip: T003 | R1, R2, R11 | ok | revert
+- [x] T004 | config.py (URL, codice Fenice, UA, formula vuota, tie-break) | dip: T003 | R1, R2, R11 | ok | revert
 - [ ] T005 | Contratto data.json: schema.py, validate_data, data-sample.json | dip: T004 | R1 | contratto | revert
 - [ ] T006 | fetch.py con fallback data./app. e rifiuto HTML | dip: T004 | R2 | ok | revert
 - [ ] T007 | parse_game: normalizzazione data/ora/parziali/arbitri | dip: T005 | R4, R5 | seq | revert
