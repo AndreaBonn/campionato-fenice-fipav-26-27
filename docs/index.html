@@ -21,9 +21,9 @@
   </div>
 </header>
 <main class="wrap">
-  <section id="next" class="hero" aria-labelledby="next-title" aria-busy="true">
+  <section id="next" class="hero" aria-labelledby="next-title" hidden>
     <h2 id="next-title" class="sr-only">Prossima partita</h2>
-    <div id="next-body"><p class="state">Caricamento dei dati in corso…</p></div>
+    <div id="next-body"></div>
   </section>
   <section id="calendar" aria-labelledby="calendar-title">
     <h2 id="calendar-title">Calendario e risultati</h2>
@@ -37,5 +37,80 @@
     <p id="checked" hidden></p>
   </div>
 </footer>
+<script type="module">
+import { renderChecked, renderError, renderHero, renderLoading, renderSchedule } from "./games-view.js";
+
+const $ = (id) => document.getElementById(id);
+// Past this wait the page admits the network is slow
+const SLOW_LOAD_MS = 15000;
+const CLOCK_TICK_MS = 60000;
+let checkedAt = null;
+
+function showChecked() {
+  if (!checkedAt) return;
+  const el = $("checked");
+  el.textContent = renderChecked(checkedAt, new Date());
+  el.hidden = false;
+}
+
+// status.json is optional: without it (local run, first deploy) the line stays hidden
+async function loadStatus() {
+  try {
+    const r = await fetch("status.json", { cache: "no-cache" });
+    if (!r.ok) return;
+    checkedAt = (await r.json()).checked_at ?? null;
+    showChecked();
+  } catch (err) {
+    console.warn("status.json not available", err);
+  }
+}
+
+async function fetchData() {
+  const r = await fetch("data.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// A TypeError while building the markup is bad data, not a dead network: the cause text must not say so
+function build(data, now) {
+  try {
+    return { hero: renderHero(data, now), list: renderSchedule(data, now) };
+  } catch (err) {
+    throw new Error("invalid data", { cause: err });
+  }
+}
+
+function showSlowNote() {
+  const box = $("list").querySelector(".state");
+  if (box) box.insertAdjacentHTML("afterbegin", "<p>Ci sta mettendo più del previsto: la rete è lenta.</p>");
+}
+
+async function load() {
+  $("next").hidden = true;
+  $("next-body").innerHTML = "";
+  $("list").setAttribute("aria-busy", "true");
+  $("list").innerHTML = renderLoading();
+  const slow = setTimeout(showSlowNote, SLOW_LOAD_MS);
+  loadStatus();
+  try {
+    const { hero, list } = build(await fetchData(), new Date());
+    $("next-body").innerHTML = hero;
+    $("next").hidden = !hero;
+    $("list").innerHTML = list;
+  } catch (err) {
+    console.error("load failed", err);
+    $("list").innerHTML = renderError(err, location.protocol);
+  } finally {
+    clearTimeout(slow);
+    $("list").setAttribute("aria-busy", "false");
+  }
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#retry")) load();
+});
+setInterval(showChecked, CLOCK_TICK_MS);
+load();
+</script>
 </body>
 </html>
