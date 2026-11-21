@@ -1,4 +1,5 @@
 import copy
+import math
 import re
 from datetime import UTC, datetime
 from typing import Any, cast
@@ -15,6 +16,8 @@ VENUE_SEPARATOR = " - "
 LIVE_URL = "https://escore.fipavonline.it?gara={game_id}"
 ROUND_PATTERN = re.compile(r"Giornata\s+(\d+)")
 FLAG_ON = "1"
+LAT_LIMIT = 90
+LNG_LIMIT = 180
 
 
 SCHEMA_VERSION = 1
@@ -50,23 +53,28 @@ def _parse_when(date_text: str, time_text: str) -> tuple[str | None, str | None,
     return date_iso, time_iso, starts_at.isoformat()
 
 
-def _coordinate(value: object) -> float | None:
+def _coordinate(value: object, limit: float) -> float | None:
     try:
-        return float(str(value))
+        number = float(str(value))
     except ValueError:
         return None
+    return number if math.isfinite(number) and -limit <= number <= limit else None
 
 
 def _parse_venue(raw: dict[str, Any]) -> Venue:
     text = str(raw["stadium"]).replace("\\'", "'")
     parts = [_clean(part) for part in text.split(VENUE_SEPARATOR)]
+    lat = _coordinate(raw.get("lat-stadium"), LAT_LIMIT)
+    lng = _coordinate(raw.get("lng-stadium"), LNG_LIMIT)
+    if lat is None or lng is None:
+        lat = lng = None
     return Venue(
         raw=text,
         name=parts[0],
         address=VENUE_SEPARATOR.join(parts[1:-1]) or None,
         city=parts[-1] if len(parts) > 1 else None,
-        lat=_coordinate(raw.get("lat-stadium")),
-        lng=_coordinate(raw.get("lng-stadium")),
+        lat=lat,
+        lng=lng,
     )
 
 

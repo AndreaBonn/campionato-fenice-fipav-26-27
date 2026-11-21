@@ -175,3 +175,23 @@ def test_parse_game_bad_round_label_raises(
     raw["day"] = round_label
     with pytest.raises(ParseError):
         parse_game(raw, index_for(girone_a))
+
+
+@pytest.mark.parametrize(
+    ("lat", "lng", "expected"),
+    [
+        ("90", "-180", (90.0, -180.0)),
+        ("nan", "9", (None, None)),
+        ("91", "9", (None, None)),
+        ("39", "181", (None, None)),
+        ("39", "inf", (None, None)),
+        ("", "9", (None, None)),
+    ],
+)
+def test_parse_game_validates_coordinates(
+    girone_a: list[dict[str, Any]], lat: str, lng: str, expected: tuple[float | None, float | None]
+) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["lat-stadium"], raw["lng-stadium"] = lat, lng
+    venue = parse_game(raw, index_for(girone_a))["venue"]
+    assert (venue["lat"], venue["lng"]) == expected
