@@ -61,12 +61,14 @@ function remainingRow(data, r) {
   return `<li>${esc(dayText(r.game))}: ${opp ? nameOf(opp) : "Squadra sconosciuta"}${place}, ${r.home ? "in casa" : "in trasferta"}</li>`;
 }
 
+const laterLabel = (n) => (n === 1 ? "L'altra gara" : `Le altre ${n} gare`);
+
 function remainingHtml(data, team) {
   const { games, averagePosition } = remainingGames(team.id, data.games, data.standings);
   if (!games.length) return section("Prossime gare", "<p>Nessuna gara da giocare.</p>");
   const rows = games.map((r) => remainingRow(data, r));
   const later = rows.length > NEXT_SHOWN
-    ? `<details><summary>Le altre ${rows.length - NEXT_SHOWN} gare</summary><ul>${rows.slice(NEXT_SHOWN).join("")}</ul></details>` : "";
+    ? `<details><summary>${laterLabel(rows.length - NEXT_SHOWN)}</summary><ul>${rows.slice(NEXT_SHOWN).join("")}</ul></details>` : "";
   const avg = averagePosition === null ? "" : `<p class="note">Posizione media delle avversarie da affrontare: ${averagePosition.toFixed(1).replace(".", ",")}°.</p>`;
   return section("Prossime gare", `<ul>${rows.slice(0, NEXT_SHOWN).join("")}</ul>${later}${avg}`);
 }

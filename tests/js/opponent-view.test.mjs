@@ -217,3 +217,10 @@ test("clicking the control of the followed club or an unknown id leaves the dial
   assert.equal(dialog.open, true);
   assert.match(body.innerHTML, /Aquila Oro/);
 });
+
+test("one game beyond the five shown is announced in the singular", () => {
+  const html = renderOpponent(playUntil(clone(), AQUILA, 6), AQUILA);
+  assert.match(html, /<summary>L'altra gara<\/summary>/);
+  assert.doesNotMatch(html, /Le altre 1 gare/);
+  assert.match(renderOpponent(girone, AQUILA), /<summary>Le altre 2 gare<\/summary>/);
+});
