@@ -61,8 +61,8 @@ const CHANGE_NOUNS = { date: "data", time: "ora", venue: "palestra" };
 const startTime = (g) => (g.starts_at ? Date.parse(g.starts_at) : -Infinity);
 
 // Played games with a result, oldest first by the date they were played: a postponed game
-// counts when it was played, not in its round. The sort is stable, so games without a date
-// keep the file order
+// counts when it was played, not in its round. A played game without a date (the parser
+// always gives one) goes first; the sort is stable, so equal dates keep the file order
 export const playedInOrder = (games) => games.filter((g) => g.played && g.sets_won).sort((a, b) => startTime(a) - startTime(b));
 
 // Last played game by play date; null when none is played
