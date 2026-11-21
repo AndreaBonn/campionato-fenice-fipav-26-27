@@ -1,10 +1,9 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
-import { FEED_HTTPS_URL, FEED_WEBCAL_URL, googleCalendarUrl, teamsById } from "./calendar-rules.js";
+import { feedUrls, googleCalendarUrl, teamsById } from "./calendar-rules.js";
 import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores, setsLabel } from "./game-rules.js";
-import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
+import { TIME_ZONE, countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
-const TIME_ZONE = "Europe/Rome";
 const HTTP_STATUS = /^HTTP (\d+)$/;
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
@@ -73,29 +72,30 @@ const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel
 const movedHtml = (g) => (changeDetail(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeDetail(g))}</p>` : "");
 
 // Only for a game still to come: after the whistle the link would add a past event
-function addToCalendarHtml(data, g, teamId, now) {
-  const url = g.played || !(new Date(g.starts_at) > now) ? null : googleCalendarUrl(g, teamsById(data));
+function addToCalendarHtml(data, g, teamId, now, pageUrl) {
+  const url = g.played || !(new Date(g.starts_at) > now) ? null : googleCalendarUrl(g, teamsById(data), pageUrl);
   if (!url) return "";
   const who = esc(teamName(data, opponentId(g, teamId)));
   return `<p class="addcal"><a href="${esc(url)}" target="_blank" rel="noopener">Aggiungi a Google Calendar<span class="sr-only"> la partita contro ${who} (si apre in una nuova scheda)</span></a></p>`;
 }
 
-function rowHtml(data, g, teamId, isNext, now) {
+function rowHtml(data, g, teamId, isNext, now, pageUrl) {
   const score = setsLabel(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now, pageUrl)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
-export function renderSchedule(data, now) {
+// pageUrl: location.href, for the link back to the page in the calendar entry
+export function renderSchedule(data, now, pageUrl = globalThis.location?.href) {
   const games = feniceGames(data);
   if (!games.length) return renderEmpty();
   const teamId = feniceTeamId(data), next = nextGame(games, now), rounds = new Map();
   for (const g of games) rounds.set(g.round, [...(rounds.get(g.round) ?? []), g]);
   return [...rounds].map(([round, list]) =>
-    `<section class="round"><h3>Giornata ${esc(round)}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next, now)).join("")}</ul></section>`).join("");
+    `<section class="round"><h3>Giornata ${esc(round)}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next, now, pageUrl)).join("")}</ul></section>`).join("");
 }
 
 // A failed load, in plain words: network down, server error, or a page opened as a local file
@@ -134,7 +134,10 @@ export function renderLastResult(data) {
 <ol class="form" aria-label="Forma delle ultime partite, dalla più vecchia alla più recente. V vinta, P persa">${strip}</ol>`;
 }
 
-// Subscribe to the ICS feed (webcal) or download the file; nothing for a club without games
-export const renderCalendarFeed = (data) => (!feniceGames(data).length ? "" :
-  `<div class="feed"><h3>Aggiungi al calendario</h3><p>Tutte le partite della Fenice, con gli aggiornamenti di data e palestra.</p>
-<p><a href="${FEED_WEBCAL_URL}">Iscriviti al calendario</a> <a href="${FEED_HTTPS_URL}" download>Scarica il file .ics</a></p></div>`);
+// Subscribe to the ICS feed (webcal) or download the file; nothing for a club without games or an unknown page url
+export function renderCalendarFeed(data, pageUrl = globalThis.location?.href) {
+  const feed = feedUrls(pageUrl);
+  if (!feniceGames(data).length || !feed) return "";
+  return `<div class="feed"><h3>Aggiungi al calendario</h3><p>Tutte le partite della Fenice, con gli aggiornamenti di data e palestra.</p>
+<p><a href="${esc(feed.webcal)}">Iscriviti al calendario</a> <a href="${esc(feed.https)}" download>Scarica il file .ics</a></p></div>`;
+}

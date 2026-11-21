@@ -234,12 +234,24 @@ test("schedule: no «Aggiungi a Google Calendar» once the game has started, eve
   assert.equal(count(html, "Aggiungi a Google Calendar"), 0);
 });
 
-test("calendar feed block: webcal subscribe link and https download link", () => {
-  const html = renderCalendarFeed(sample);
+const PAGES = "https://andreabonn.github.io/campionato-fenice-fipav-26-27/";
+
+test("calendar feed block: webcal subscribe link and https download link, from the page url", () => {
+  const html = renderCalendarFeed(sample, PAGES);
   assert.match(html, /Aggiungi al calendario/);
   assert.match(html, /href="webcal:\/\/andreabonn\.github\.io\/campionato-fenice-fipav-26-27\/calendario\.ics"/);
   assert.match(html, /href="https:\/\/andreabonn\.github\.io\/campionato-fenice-fipav-26-27\/calendario\.ics" download/);
-  assert.equal(renderCalendarFeed({ ...sample, games: [] }), "");
+  assert.match(renderCalendarFeed(sample, "http://127.0.0.1:8000/"), /href="webcal:\/\/127\.0\.0\.1:8000\/calendario\.ics"/);
+  assert.equal(renderCalendarFeed({ ...sample, games: [] }, PAGES), "");
+});
+
+test("calendar feed block: hidden when the page url is unknown", () => {
+  assert.equal(renderCalendarFeed(sample, null), "");
+});
+
+test("schedule: the Google Calendar details link back to the page it is given", () => {
+  const html = renderSchedule(sample, new Date("2026-11-20T10:00:00Z"), "http://127.0.0.1:8000/");
+  assert.match(html, /127\.0\.0\.1%3A8000/);
 });
 
 test("schedule: moved game shows the «Spostata» badge with what changed, others show none", () => {

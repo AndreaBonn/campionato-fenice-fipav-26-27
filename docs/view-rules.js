@@ -2,7 +2,7 @@
 
 import { MATCH_WINDOW_MS } from "./game-rules.js";
 
-const TIME_ZONE = "Europe/Rome";
+export const TIME_ZONE = "Europe/Rome";
 // From this hour on, a game on the same day is "tonight"
 const EVENING_HOUR = 17;
 const MINUTE_MS = 60e3;
