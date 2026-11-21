@@ -81,7 +81,6 @@ def test_nonfinite_standings_ratio_is_rejected(sample: dict[str, Any]) -> None:
     ("field", "value", "expected"),
     [
         ("sets_won", None, "games[0].sets: played game needs results"),
-        ("sets", [], "games[0].sets: played game needs results"),
         ("played", False, "games[0].sets: unplayed game has results"),
         ("sets_won", [0, 3], "games[0].sets: inconsistent scores"),
         ("starts_at", None, "games[0].starts_at: inconsistent date and time"),
@@ -223,3 +222,22 @@ def test_validate_data_named_referee_is_never_pending(sample: dict[str, Any]) ->
     )
     game["referee_pending"] = False
     assert validate_data(sample) == []
+
+
+@pytest.mark.parametrize("sets_won", [[3, 0], [0, 3]])
+def test_validate_data_forfeit_without_set_scores_is_accepted(
+    sample: dict[str, Any], sets_won: list[int]
+) -> None:
+    game = next(g for g in sample["games"] if g["played"])
+    game["sets_won"], game["sets"] = sets_won, []
+    assert validate_data(sample) == []
+
+
+@pytest.mark.parametrize("sets_won", [[3, 1], [2, 3], None])
+def test_validate_data_played_game_without_sets_needs_a_forfeit_score(
+    sample: dict[str, Any], sets_won: list[int] | None
+) -> None:
+    game = next(g for g in sample["games"] if g["played"])
+    index = sample["games"].index(game)
+    game["sets_won"], game["sets"] = sets_won, []
+    assert f"games[{index}].sets: played game needs results" in validate_data(sample)

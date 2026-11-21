@@ -134,3 +134,14 @@ def test_parse_document_missing_logo_is_null(logo: str | None) -> None:
     assert fenice["logo_url"] is None
     assert other["logo_url"] is not None and other["logo_url"].startswith("https://")
     assert validate_data(dict(document)) == []
+
+
+def test_parse_document_forfeit_without_set_scores_is_valid() -> None:
+    calendar = load("calendar-64353.json")
+    match = next(m for m in calendar["data"]["matches"] if m["played"])
+    match["pt_a"], match["pt_b"] = [], []
+    match["team1-setwin"], match["team2-setwin"] = 3, 0
+    document = parse_document(calendar, generated_at=GENERATED_AT)
+    game = next(g for g in document["games"] if g["id"] == str(match["id"]))
+    assert (game["played"], game["sets_won"], game["sets"]) == (True, [3, 0], [])
+    assert validate_data(dict(document)) == []

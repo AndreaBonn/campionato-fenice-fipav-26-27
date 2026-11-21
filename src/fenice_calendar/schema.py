@@ -201,13 +201,17 @@ def _referee_errors(game: dict[str, Any], path: str) -> list[str]:
     return []
 
 
+# A game awarded at the table: 3-0 or 0-3 and no set scores (left out of the set statistics)
+FORFEIT_SCORES = ([3, 0], [0, 3])
+
+
 def _game_consistency_errors(game: dict[str, Any], path: str) -> list[str]:
     errors = []
     sets, won = game["sets"], game["sets_won"]
     if game["played"]:
-        if won is None or not sets:
+        if won is None or (not sets and won not in FORFEIT_SCORES):
             errors.append(f"{path}.sets: played game needs results")
-        elif len(won) == 2 and all(len(pair) == 2 for pair in sets):
+        elif sets and len(won) == 2 and all(len(pair) == 2 for pair in sets):
             counts = [sum(pair[side] > pair[1 - side] for pair in sets) for side in (0, 1)]
             if won != counts or any(score < 0 for pair in sets for score in pair):
                 errors.append(f"{path}.sets: inconsistent scores")
