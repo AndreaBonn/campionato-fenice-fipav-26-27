@@ -67,3 +67,25 @@ def test_badge_json_is_produced_only_by_fenice_badges() -> None:
     content = WORKFLOW.with_name("tests.yml").read_text()
     assert "uv run fenice-badges" in content
     assert "schemaVersion" not in content
+
+
+def test_python_and_js_tests_run_before_the_sync() -> None:
+    content = WORKFLOW.read_text()
+    pytest_run = content.find("run: uv run pytest")
+    js_run = content.find("run: npm test")
+    sync = content.find("run: uv run fenice-sync")
+    assert -1 not in (pytest_run, js_run, sync)
+    assert pytest_run < sync
+    assert js_run < sync
+
+
+def test_data_commit_happens_only_when_generated_files_changed() -> None:
+    content = WORKFLOW.read_text()
+    guard = re.search(
+        r"if \[ -z \"\$\(git status --porcelain -- docs/data\.json docs/calendario\.ics\)\" \]; "
+        r"then\n(?P<body>(?:.*\n)*?)\s*fi\n",
+        content,
+    )
+    assert guard, "the commit step must bail out when data.json and calendario.ics are unchanged"
+    assert "exit 0" in guard["body"]
+    assert guard.end() <= content.find("git commit -m")
