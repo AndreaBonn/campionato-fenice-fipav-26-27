@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-21T01:13:16.696770+00:00",
+  "updated_at": "2026-11-21T13:46:17.018853+00:00",
   "source": {
     "name": "FIPAV Online",
     "url": "https://www.fipavonline.it"
@@ -2531,8 +2531,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232642",
@@ -2545,8 +2545,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "230615",
@@ -2559,8 +2559,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "229796",
@@ -2573,8 +2573,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232613",
@@ -2587,8 +2587,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232426",
@@ -2601,8 +2601,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232488",
@@ -2615,8 +2615,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "231931",
@@ -2629,8 +2629,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232838",
@@ -2643,8 +2643,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     },
     {
       "team_id": "232656",
@@ -2657,8 +2657,8 @@
       "sets_lost": 0,
       "points_for": 0,
       "points_against": 0,
-      "set_ratio": 100.0,
-      "point_ratio": 1000.0
+      "set_ratio": null,
+      "point_ratio": null
     }
   ],
   "notices": []
