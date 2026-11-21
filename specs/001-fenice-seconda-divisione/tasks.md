@@ -53,7 +53,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T035 | Cattura fixture WordPress, verifica id categorie | dip: T034 | R20 | ok | revert
 - [x] T036 | notices.py con filtro Seconda Divisione, outage non fatale | dip: T035 | R20 | seq | revert
 - [x] T037 | posters.py con regex della chiave, outage non fatale | dip: T035 | R21 | ok | revert
-- [ ] T038 | Notizie e locandine in pagina, a11y-gate, commit di fase 5 | dip: T036,T037 | R20, R21, R26 | seq | revert
+- [x] T038 | Notizie e locandine in pagina, a11y-gate, commit di fase 5 | dip: T036,T037 | R20, R21, R26 | seq | revert
 
 ## Fase 6 - App installabile e badge
 
