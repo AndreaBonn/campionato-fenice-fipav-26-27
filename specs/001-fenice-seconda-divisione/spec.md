@@ -28,7 +28,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 ### Pagina, fase 1
 
 - R6. La pagina mostra la prossima gara della Fenice (avversaria, data, ora, impianto, casa/trasferta) con countdown; dopo l'ultima gara mostra lo stato di fine stagione invece di un box vuoto. Stati loading, error (causa e "riprova"), empty, populated resi.
-- R7. Lista gare della Fenice per giornata con risultato in set e parziali (es. "3-0 (25-12, 25-19, 25-18)"), link mappa costruito dalle coordinate dell'impianto (assente se mancano lat/lng).
+- R7. Lista gare della Fenice raggruppata per mese, con la giornata sopra l'avversaria; per una gara giocata il chip Vinta/Persa, il punteggio dal lato della Fenice e la riga dei parziali (es. "3-0" e "Set: 25-12, 25-19, 25-18"), nessuna riga Set per una gara a tavolino; link mappa costruito dalle coordinate dell'impianto solo per le gare da giocare (assente se mancano lat/lng). Testi aggiornati con le proposte UX approvate (decisione dell'utente del 2026-11-21).
 - R8. Attribuzione "Fonte: FIPAV Online" con link, visibile in pagina; data dell'ultimo controllo da `status.json`.
 - R9. Workflow schedulato: un solo cron ogni 4 ore (D7); pytest e `npm test` prima della sync; commit dei dati solo se cambiati; deploy Pages dell'artefatto `docs/`; azioni pinnate a SHA, `persist-credentials: false`, `permissions` al minimo; run fallito = nessun deploy.
 - R10. Documentazione di progetto: `CLAUDE.md` (inglese, flusso dati e convenzioni), `README.md` (italiano, comprensibile in 60 secondi, fonte e attribuzione), `docs/REPORT_ATTIVITA.md`.
@@ -38,7 +38,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 - R11. Classifica dall'API (pos, G, P, V, S, set vinti/persi, QS, QP), Fenice evidenziata, valori numerici (non stringhe) in `data.json`. Nessuna zona promozione/retrocessione mentre la formula in config è vuota; nota "criterio di parità provvisorio" visibile.
 - R12. Coerenza: la classifica ricalcolata dalle gare giocate (3-0 e 3-1 → 3/0, 3-2 → 2/1) coincide con quella dell'API sulla fixture 64353 (6 squadre, 8 gare giocate di cui 2 non omologate) per G, P, V, set e punti.
 - R13. Feed `docs/calendario.ics` con le 18 gare della Fenice, UID stabile per id gara, riscritto solo se cambia ignorando `DTSTAMP`.
-- R14. Per ogni gara futura link "Aggiungi a Google Calendar"; link "Diretta" a `https://escore.fipavonline.it?gara=<id>` solo quando `escorevolley` = "1".
+- R14. Per ogni gara con inizio futuro il pulsante "Calendario" che apre Google Calendar (nessuno dopo il fischio d'inizio); link "Diretta" a `https://escore.fipavonline.it?gara=<id>` solo quando `escorevolley` = "1".
 - R15. Ogni gara porta `changes` (campi `date`, `time`, `venue` diversi dal calendario iniziale del 2026-11-21) e la pagina marca la gara spostata.
 
 ### Posizioni possibili, fase 3
@@ -49,7 +49,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 ### Squadre e Fenice, fase 4
 
 - R18. Scheda avversaria (dialog nativo) aperta dalla prossima gara e da ogni nome in classifica: scontri diretti con la Fenice, rendimento casa/trasferta, gare rimaste.
-- R19. Sezione analisi Fenice: serie in corso, set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). La forma delle ultime 5 gare sta nel box dell'ultimo risultato, non nell'analisi. Serie, forma e ultimo risultato seguono la data in cui la gara è stata giocata, non la giornata: una gara rinviata conta quando si gioca (decisione dell'utente del 2026-11-21). Prima della prima gara giocata: stato empty con spiegazione.
+- R19. Sezione analisi Fenice: serie in corso, set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). La forma delle ultime 5 gare sta nella striscia in testa alla sezione Andamento (analisi), non nel box dell'ultimo risultato (decisione dell'utente del 2026-11-21, con le proposte UX). Serie, forma e ultimo risultato seguono la data in cui la gara è stata giocata, non la giornata: una gara rinviata conta quando si gioca (decisione dell'utente del 2026-11-21). Prima della prima gara giocata: stato empty con spiegazione.
 
 ### Notizie e locandine, fase 5
 
