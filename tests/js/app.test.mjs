@@ -25,8 +25,9 @@ function fakePage() {
       addEventListener(type, fn) {
         this.listeners[type] = fn;
       },
-      insertAdjacentHTML(_where, html) {
-        this.innerHTML = html + this.innerHTML;
+      insertAdjacentHTML(where, html) {
+        this.insertedAt = where;
+        this.innerHTML = where === "afterbegin" ? html + this.innerHTML : this.innerHTML + html;
       },
       querySelector(selector) {
         return selector === ".state" && this.innerHTML.includes('class="state') ? this : null;
@@ -72,6 +73,60 @@ test("populated: sections are filled and shown, busy flag cleared", async () => 
   assert.equal(app.data, SAMPLE);
 });
 
+test("populated: last result, analysis and calendar feed carry their own markup", async () => {
+  const hadLocation = Object.hasOwn(globalThis, "location");
+  const previous = globalThis.location;
+  globalThis.location = { href: "https://example.org/f/" };
+  try {
+    const page = fakePage();
+    await load(makeApp(page, router({ "data.json": () => respond(SAMPLE) })));
+
+    // sample: round 1 won 3-0, round 2 won 3-2 against CUS Cagliari (last played), so 2 wins, 6 sets won, 2 lost
+    assert.match(page.els["last-body"].innerHTML, /<p class="teams"><b>ASD Fenice - CUS Cagliari<\/b><\/p>/);
+    assert.match(page.els["last-body"].innerHTML, /<p class="big">3-2<\/p>/);
+    assert.equal(page.els.last.hidden, false);
+    assert.match(page.els["analysis-body"].innerHTML, /<b class="n">2-0<\/b> vinte e perse/);
+    assert.match(page.els["analysis-body"].innerHTML, /<b class="n">6-2<\/b> set/);
+    assert.equal(page.els.analysis.hidden, false);
+    assert.match(page.els.feed.innerHTML, /<h3>Tutte le partite nel calendario del telefono<\/h3>/);
+    assert.match(page.els.feed.innerHTML, /href="webcal:\/\/example\.org\/f\/calendario\.ics"/);
+  } finally {
+    if (hadLocation) globalThis.location = previous; else delete globalThis.location;
+  }
+});
+
+test("a reload empties the next game box while the new data is awaited", async () => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    const page = fakePage();
+    page.els["next-body"].innerHTML = "<p>previous next game</p>";
+    const app = makeApp(page, router({ "data.json": () => new Promise(() => {}) }));
+
+    load(app);
+
+    assert.equal(page.els["next-body"].innerHTML, "");
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("startApp: a failed crest image in the standings or in the next game box is replaced by the initials", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    await startApp({ doc: page.doc, fetch: router({ "data.json": () => respond(GIRONE) }), now: () => NOW, protocol: "https:" });
+    for (const id of ["standings-body", "next-body"]) {
+      assert.match(page.els[id].innerHTML, /<img [^>]*data-crest-name="[^"]+"/);
+      const calls = [];
+      const img = { tagName: "IMG", dataset: { crestName: "ASD FENICE" }, insertAdjacentHTML: (...a) => calls.push(a), remove: () => calls.push("removed") };
+      page.els[id].listeners.error({ target: img });
+      assert.deepEqual(calls, [["afterend", '<span class="crest-fallback" aria-hidden="true">AF</span>'], "removed"]);
+    }
+  } finally {
+    mock.timers.reset();
+  }
+});
+
 test("loading state is shown while the request is pending, sections hidden", async () => {
   const page = fakePage();
   let release;
@@ -102,6 +157,8 @@ test("slow network: after the threshold a note is added to the loading box, once
     assert.doesNotMatch(page.els.list.innerHTML, /più del previsto/);
     mock.timers.tick(1);
     assert.match(page.els.list.innerHTML, /Ci sta mettendo più del previsto/);
+    assert.equal(page.els.list.insertedAt, "afterbegin");
+    assert.ok(page.els.list.innerHTML.startsWith("<p>Ci sta mettendo più del previsto: la rete è lenta.</p>"));
 
     release(await respond(SAMPLE));
     await loading;

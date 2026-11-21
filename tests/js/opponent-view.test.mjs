@@ -303,7 +303,12 @@ test("A2: against the Fenice shows the played scores, or the date of the next ga
 
 test("A2: andata and ritorno are named from the Fenice's side when the pair meets twice", () => {
   const html = renderOpponent(girone, AQUILA, NOW);
-  assert.match(html, /Andata: la Fenice in (?:casa|trasferta), ritorno: la Fenice in (?:casa|trasferta)/);
+  // round 2: the Fenice at home (andata), round 7: Aquila at home, so the Fenice away (ritorno)
+  assert.ok(html.includes("<small>Andata: la Fenice in casa, ritorno: la Fenice in trasferta</small>"));
+  const swapped = clone();
+  Object.assign(swapped.games.find((g) => g.id === "12995178"), { home_id: AQUILA, away_id: FENICE });
+  Object.assign(swapped.games.find((g) => g.id === "12995193"), { home_id: FENICE, away_id: AQUILA });
+  assert.ok(renderOpponent(swapped, AQUILA, NOW).includes("<small>Andata: la Fenice in trasferta, ritorno: la Fenice in casa</small>"));
   const data = clone();
   data.games = data.games.filter((g) => g.id !== "12995193");
   assert.doesNotMatch(renderOpponent(data, AQUILA, NOW), /Andata:/);
@@ -331,4 +336,58 @@ test("the crest url and the team name in the card header cannot leave their attr
   const html = renderOpponent(data, AQUILA, NOW);
   assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
   assert.doesNotMatch(html, /onerror="alert/);
+});
+
+test("the range line names the best and the worst place in that order", () => {
+  // Only CUS (229802) has a game left, at home against the Fenice (round 5, 3-0 = 3 points to the winner, 2-1 = 2 and 1).
+  // Points: Aquila 20, Sarroch 8, Selargius 7, CUS 6, Su Planu 3, Fenice 0. CUS ends on 6, 7, 8 or 9:
+  // on 9 only Aquila is above it (2nd), on 6 Aquila, Sarroch and Selargius are above it (4th).
+  const data = clone();
+  for (const g of data.games.filter((x) => !x.played && x.id !== "12995188")) Object.assign(g, { played: true, sets_won: [3, 0], sets: [[25, 1], [25, 1], [25, 1]] });
+  const points = { 232223: 20, 232139: 8, 232550: 7, 229802: 6, 232396: 3, 232645: 0 };
+  const wins = { 232223: 7, 232139: 3, 232550: 2, 229802: 2, 232396: 1, 232645: 0 };
+  data.standings = data.standings.map((r) => ({ ...r, points: points[r.team_id], won: wins[r.team_id] }));
+  assert.ok(renderOpponent(data, "229802", NOW).includes('<p class="opp-range">Posizione finale possibile: tra il 2° e il 4° posto</p>'));
+});
+
+test("the focus lookup after a re-render escapes quotes and backslashes in the team id", () => {
+  const data = clone();
+  const odd = 'x"y\\z';
+  data.teams.push({ id: odd, cod: "1", name: "SQUADRA STRANA", logo_url: null });
+  const listeners = {}, dialogListeners = {};
+  const dialog = {
+    showModal() {}, close() { dialogListeners.close.forEach((f) => f()); },
+    addEventListener(type, fn) { (dialogListeners[type] ??= []).push(fn); },
+  };
+  const opener = { dataset: { opponent: odd }, isConnected: false, closest: (sel) => (sel === "[data-opponent]" ? opener : null) };
+  const asked = [];
+  const root = { addEventListener(type, fn) { listeners[type] = fn; }, querySelector(sel) { asked.push(sel); return null; } };
+  installOpponentDialog(root, dialog, { innerHTML: "", addEventListener() {} }, () => data, () => NOW);
+  listeners.click({ target: opener });
+
+  dialog.close();
+
+  assert.deepEqual(asked, ['[data-opponent="x\\"y\\\\z"]']);
+});
+
+test("an id without quotes reaches the focus lookup unchanged", () => {
+  const listeners = {}, dialogListeners = {};
+  const dialog = { showModal() {}, close() { dialogListeners.close.forEach((f) => f()); }, addEventListener(type, fn) { (dialogListeners[type] ??= []).push(fn); } };
+  const opener = { dataset: { opponent: AQUILA }, isConnected: false, closest: (sel) => (sel === "[data-opponent]" ? opener : null) };
+  const asked = [];
+  const root = { addEventListener(type, fn) { listeners[type] = fn; }, querySelector(sel) { asked.push(sel); return null; } };
+  installOpponentDialog(root, dialog, { innerHTML: "", addEventListener() {} }, () => girone, () => NOW);
+  listeners.click({ target: opener });
+  dialog.close();
+  assert.deepEqual(asked, [`[data-opponent="${AQUILA}"]`]);
+});
+
+test("the card body listens for a failed crest image and swaps in the initials", () => {
+  const registered = [];
+  const body = { innerHTML: "", addEventListener: (type, fn, capture) => registered.push({ type, fn, capture }) };
+  installOpponentDialog({ addEventListener() {} }, { addEventListener() {} }, body, () => girone, () => NOW);
+  assert.deepEqual(registered.map((r) => [r.type, r.capture]), [["error", true]]);
+  const calls = [];
+  registered[0].fn({ target: { tagName: "IMG", dataset: { crestName: "ASD FENICE" }, insertAdjacentHTML: (...a) => calls.push(a), remove: () => calls.push("removed") } });
+  assert.deepEqual(calls, [["afterend", '<span class="crest-fallback" aria-hidden="true">AF</span>'], "removed"]);
 });

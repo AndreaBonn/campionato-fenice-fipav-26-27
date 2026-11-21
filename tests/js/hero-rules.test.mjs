@@ -58,11 +58,11 @@ test("team summary: record and form from the games, position from the standings"
   const data = structuredClone(girone);
   const opp = data.standings[1].team_id;
   const s = teamSummary(data, opp);
+  // Sarroch (232139): round 1 home 2-3 lost, round 2 home 3-0 won, round 3 away 0-3 for the home side won
+  assert.equal(opp, "232139");
   assert.equal(s.position, 2);
-  assert.equal(s.won + s.lost, s.played);
-  assert.ok(s.played > 0);
-  assert.equal(s.form.length, Math.min(s.played, 5));
-  assert.ok(s.form.every((o) => o === "won" || o === "lost"));
+  assert.deepEqual([s.played, s.won, s.lost], [3, 2, 1]);
+  assert.deepEqual(s.form, ["lost", "won", "won"]);
 });
 
 test("team summary: form keeps the last five, oldest first", () => {
@@ -74,6 +74,17 @@ test("team summary: form keeps the last five, oldest first", () => {
   assert.deepEqual(s.form, ["won", "won", "won", "won", "won"]);
   assert.deepEqual([s.played, s.won, s.lost], [7, 5, 2]);
   assert.equal(s.position, null);
+});
+
+test("team summary: form of mixed results is in play order, oldest first", () => {
+  // outcomes in date order: won, lost, won, won, lost, lost; the last five are lost, won, won, lost, lost
+  const sets = [[3, 0], [0, 3], [3, 0], [3, 0], [0, 3], [0, 3]];
+  const games = sets.map((sets_won, i) => ({
+    id: `m${i}`, home_id: "A", away_id: `B${i}`, played: true, starts_at: `2027-02-0${i + 1}T17:00:00+01:00`, sets: [], sets_won,
+  }));
+  const s = teamSummary({ games: [...games].reverse(), standings: [], teams: [], team_cod: "" }, "A");
+  assert.deepEqual(s.form, ["lost", "won", "won", "lost", "lost"]);
+  assert.deepEqual([s.played, s.won, s.lost], [6, 3, 3]);
 });
 
 test("chips: position, record in plural form, and the empty record", () => {
