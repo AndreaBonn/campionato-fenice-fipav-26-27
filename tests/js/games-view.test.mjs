@@ -270,13 +270,24 @@ test("the next game box has no opponent button when the opponent is not among th
 const POSTER = { url: "https://fipavcagliari.it/wp-content/uploads/locandina.jpg", width: 800, height: 1131 };
 const withPoster = (data, poster) => ({ ...data, games: data.games.map((g, i) => (i === data.games.indexOf(feniceGames(data).find((x) => !x.played)) ? { ...g, poster } : g)) });
 
-test("poster: hero and schedule row link the image when the game has one", () => {
+test("poster: hero and schedule row link a lazy image with explicit size and alt", () => {
   const data = withPoster(sample, POSTER), now = new Date("2026-11-20T10:00:00Z");
   for (const html of [renderHero(data, now), renderSchedule(data, now)]) {
-    assert.match(html, /href="https:\/\/fipavcagliari\.it\/wp-content\/uploads\/locandina\.jpg" target="_blank" rel="noopener"/);
-    assert.match(html, /Locandina/);
-    assert.match(html, /800 x 1131/);
+    assert.match(html, /<a href="https:\/\/fipavcagliari\.it\/wp-content\/uploads\/locandina\.jpg" target="_blank" rel="noopener"><img /);
+    const img = /<img [^>]*>/.exec(html)[0];
+    assert.match(img, /src="https:\/\/fipavcagliari\.it\/wp-content\/uploads\/locandina\.jpg"/);
+    assert.match(img, /width="800"/);
+    assert.match(img, /height="1131"/);
+    assert.match(img, /loading="lazy"/);
+    assert.match(img, /alt="Locandina della gara Asd Fenice - VSA"/);
   }
+});
+
+test("poster: the alt text is escaped", () => {
+  const data = withPoster(sample, POSTER), now = new Date("2026-11-20T10:00:00Z");
+  data.teams = data.teams.map((t) => (t.name.includes("VSA") ? { ...t, name: 'A"B<' } : t));
+  const html = renderSchedule(data, now);
+  assert.match(/<img [^>]*>/.exec(html)[0], /alt="Locandina della gara [^"<]*&quot;[^"<]*"/);
 });
 
 test("poster: no element when poster is null", () => {
