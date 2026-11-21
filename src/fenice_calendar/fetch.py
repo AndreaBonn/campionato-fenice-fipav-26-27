@@ -42,10 +42,15 @@ def _request_json(url: str, opener: Opener, delay: float) -> Any:
 
 def fetch_json(path: str, opener: Opener = urlopen, delay: float = REQUEST_DELAY_S) -> Any:
     last_error: Exception | None = None
-    for base_url in (PRIMARY_URL, FALLBACK_URL):
+    urls = (
+        (path,)
+        if path.startswith("https://")
+        else tuple(base_url + path for base_url in (PRIMARY_URL, FALLBACK_URL))
+    )
+    for url in urls:
         try:
-            return _request_json(base_url + path, opener, delay)
+            return _request_json(url, opener, delay)
         except (URLError, OSError, ValueError, HTTPException) as err:
-            logger.warning("Could not fetch JSON from %s: %s", base_url, err)
+            logger.warning("Could not fetch JSON from %s: %s", url, err)
             last_error = err
     raise FetchError(f"Could not fetch JSON from either source: {path}") from last_error

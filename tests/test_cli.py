@@ -8,7 +8,15 @@ from typing import Any
 import pytest
 
 from fenice_calendar.cli import main
-from fenice_calendar.config import CALENDAR_PATH, GROUP_ID, TABLES_PATH, TEAM_COD
+from fenice_calendar.config import (
+    CALENDAR_PATH,
+    COMMITTEE_CODE,
+    GROUP_ID,
+    POSTERS_PATH,
+    TABLES_PATH,
+    TEAM_COD,
+    WP_POSTS_URL,
+)
 from fenice_calendar.fetch import FetchError
 from fenice_calendar.merge import build_baseline
 from fenice_calendar.parse import parse_document
@@ -29,12 +37,23 @@ class Env:
         self.data = tmp_path / "docs" / "data.json"
         self.status = tmp_path / "docs" / "status.json"
         self.requested: list[str] = []
+        self.overrides: dict[str, Any] = {}
 
     def run(self, payload: Any, now: datetime = FIRST_RUN) -> int:
         def fetch(path: str) -> Any:
             self.requested.append(path)
             if isinstance(payload, Exception):
                 raise payload
+            if path in self.overrides:
+                result = self.overrides[path]
+                if isinstance(result, Exception):
+                    raise result
+                return result
+            if path.startswith(WP_POSTS_URL):
+                name = "wp-indizioni.json" if "categories=" in path else "wp-search.json"
+                return json.loads((FIXTURES / name).read_text())
+            if path == POSTERS_PATH.format(committee=COMMITTEE_CODE):
+                return json.loads((FIXTURES / "posters-19092.json").read_text())
             if path == TABLES_PATH.format(group=GROUP_ID):
                 return json.loads((FIXTURES / "standings-64444.json").read_text())
             return payload
@@ -66,6 +85,10 @@ def test_main_success_writes_valid_data_and_status(env: Env) -> None:
     assert env.requested == [
         CALENDAR_PATH.format(group=GROUP_ID),
         TABLES_PATH.format(group=GROUP_ID),
+        WP_POSTS_URL
+        + "?search=seconda%20divisione&per_page=20&_fields=id,date,link,title,categories",
+        WP_POSTS_URL + "?categories=3&per_page=20&_fields=id,date,link,title,categories",
+        POSTERS_PATH.format(committee=COMMITTEE_CODE),
     ]
 
 
@@ -169,3 +192,64 @@ def test_main_data_write_failure_preserves_calendar_and_status(
     monkeypatch.setattr("fenice_calendar.cli.write_if_changed", fail_write)
     assert env.run(calendar(), now=SECOND_RUN) == 1
     assert (ics.read_bytes(), env.status.read_bytes()) == before
+
+
+def test_extra_sources_outage_preserves_previous_values(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    data = json.loads(env.data.read_text())
+    notices = [
+        {
+            "id": i,
+            "title": f"Notice {i}",
+            "url": "https://fipavcagliari.it/",
+            "date": "2026-08-01",
+            "kind": "indizione",
+        }
+        for i in (1, 2)
+    ]
+    poster = {"url": "https://data.fipavonline.it/example.jpg", "width": 620, "height": 877}
+    data["notices"] = notices
+    data["games"][0]["poster"] = poster
+    env.data.write_text(json.dumps(data))
+    env.overrides[
+        WP_POSTS_URL
+        + "?search=seconda%20divisione&per_page=20&_fields=id,date,link,title,categories"
+    ] = FetchError("down")
+    env.overrides[POSTERS_PATH.format(committee=COMMITTEE_CODE)] = FetchError("down")
+    assert env.run(calendar(), now=SECOND_RUN) == 0
+    result = json.loads(env.data.read_text())
+    assert result["notices"] == notices
+    assert result["games"][0]["poster"] == poster
+
+
+def test_first_run_outage_and_recent_notices_and_poster(env: Env) -> None:
+    search_url = (
+        WP_POSTS_URL
+        + "?search=seconda%20divisione&per_page=20&_fields=id,date,link,title,categories"
+    )
+    poster_path = POSTERS_PATH.format(committee=COMMITTEE_CODE)
+    env.overrides[search_url] = FetchError("down")
+    env.overrides[poster_path] = FetchError("down")
+    assert env.run(calendar()) == 0
+    data = json.loads(env.data.read_text())
+    assert data["notices"] == []
+    assert all(game["poster"] is None for game in data["games"])
+    posts = json.loads((FIXTURES / "wp-search.json").read_text())[:1]
+    posts[0]["date"] = "2026-08-01T12:00:00"
+    posts[0]["title"]["rendered"] = "<b>Notizie &#8211; gara</b>"
+    env.overrides[search_url] = posts
+    payload = json.loads((FIXTURES / "posters-19092.json").read_text())
+    entry = payload["data"].pop("13012625")
+    target = data["games"][0]["id"]
+    payload["data"][target] = entry
+    env.overrides[poster_path] = payload
+    assert env.run(calendar(), now=SECOND_RUN) == 0
+    data = json.loads(env.data.read_text())
+    assert data["notices"][0]["title"] == "Notizie – gara"
+    assert validate_data(data) == []
+    assert [(game["id"], game["poster"]) for game in data["games"] if game["poster"]] == [
+        (
+            target,
+            {"url": "https://data.fipavonline.it/" + entry["key"], "width": 620, "height": 877},
+        )
+    ]

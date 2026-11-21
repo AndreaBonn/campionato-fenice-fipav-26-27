@@ -13,6 +13,7 @@ from fenice_calendar.config import (
     STATUS_PATH,
     TABLES_PATH,
 )
+from fenice_calendar.enrich import enrich
 from fenice_calendar.fetch import FetchError, fetch_json
 from fenice_calendar.ics import build_ics, write_ics_if_changed
 from fenice_calendar.merge import compute_changes
@@ -29,7 +30,7 @@ def _utc_now() -> datetime:
     return datetime.now(UTC)
 
 
-def _fetch_and_build(fetch: Fetch, checked_at: datetime) -> tuple[Data, str]:
+def _fetch_and_build(fetch: Fetch, checked_at: datetime, data_path: Path) -> tuple[Data, str]:
     calendar = fetch(CALENDAR_PATH.format(group=GROUP_ID))
     document = parse_document(calendar, generated_at=checked_at)
     baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
@@ -41,6 +42,7 @@ def _fetch_and_build(fetch: Fetch, checked_at: datetime) -> tuple[Data, str]:
         for row in document["standings"]
     ):
         raise ParseError("Standings contain an unknown team")
+    enrich(document, fetch, data_path)
     errors = validate_data(document)
     if errors:
         raise ValueError(f"Generated data is invalid: {errors[:5]}")
@@ -64,7 +66,7 @@ def main(
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     checked_at = now()
     try:
-        document, calendar_ics = _fetch_and_build(fetch, checked_at)
+        document, calendar_ics = _fetch_and_build(fetch, checked_at, data_path)
         _write_outputs(document, calendar_ics, data_path, status_path)
     except (
         FetchError,

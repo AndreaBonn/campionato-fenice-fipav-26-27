@@ -87,3 +87,23 @@ def test_incomplete_http_read_uses_fallback_or_raises(both_fail: bool) -> None:
     else:
         assert fetch_json("/test", opener=opener, delay=0) == {"ok": True}
     assert urls == [PRIMARY_URL + "/test", FALLBACK_URL + "/test"]
+
+
+def test_absolute_url_single_request_and_failure() -> None:
+    requests: list[str] = []
+
+    def opener(request: Request, timeout: int) -> Response:
+        requests.append(request.full_url)
+        return Response(b'{"ok": true}', "application/json")
+
+    url = "https://fipavcagliari.it/test"
+    assert fetch_json(url, opener=opener, delay=0) == {"ok": True}
+    assert requests == [url]
+
+    def broken(request: Request, timeout: int) -> Response:
+        requests.append(request.full_url)
+        return Response(b"bad", "text/html")
+
+    with pytest.raises(FetchError):
+        fetch_json(url, opener=broken, delay=0)
+    assert requests == [url, url]

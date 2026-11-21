@@ -24,3 +24,15 @@ OUTPUT_PATH = ROOT / "docs" / "data.json"
 STATUS_PATH = ROOT / "docs" / "status.json"
 BASELINE_PATH = ROOT / "data" / "calendario-iniziale.json"
 ICS_PATH = ROOT / "docs" / "calendario.ics"
+
+WP_POSTS_URL = "https://fipavcagliari.it/wp-json/wp/v2/posts"
+WP_CATEGORY_INDIZIONI = 3
+WP_CATEGORY_COMUNICATI = 1
+WP_CATEGORY_NEWS = 2
+NOTICES_SINCE = "2026-08-01"
+NOTICES_MAX = 10
+WP_SEARCH_TERM = "seconda divisione"
+WP_FIELDS = "id,date,link,title,categories"
+WP_PER_PAGE = 20
+POSTER_KEY_RE = r"^public/locandine/images/[A-Za-z0-9]{5}/\d+/[a-f0-9]{64}\.(jpg|gif)$"
+POSTER_BASE = PRIMARY_URL + "/"
