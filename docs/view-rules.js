@@ -47,3 +47,9 @@ const keepsCapitals = (w) => /^(\p{L}\.){2,}$/u.test(w) || /^\p{L}\.$/u.test(w) 
 
 // FIPAV registers names in capitals: same name, only the capitals change
 export const displayTeamName = (name) => name.split(" ").map((w) => (keepsCapitals(w) ? w : titleWord(w))).join(" ");
+
+const INITIALS_LENGTH = 2;
+
+// Capitals of the first words of a name, shown where the crest image cannot load: "ASD FENICE" -> "AF"
+export const teamInitials = (name) =>
+  name.split(/\s+/).map((w) => w.match(/\p{L}/u)?.[0]).filter(Boolean).slice(0, INITIALS_LENGTH).join("").toUpperCase();

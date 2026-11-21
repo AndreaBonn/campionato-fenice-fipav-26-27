@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { countdownText, displayTeamName, relativeAge } from "../../docs/view-rules.js";
+import { countdownText, displayTeamName, relativeAge, teamInitials } from "../../docs/view-rules.js";
 
 const NOW = new Date("2026-11-20T12:00:00Z");
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -66,3 +66,10 @@ test("team name: hyphens and apostrophes start a new capital", () => {
   assert.equal(displayTeamName("SANT'ANDREA ALTO-MARE"), "Sant'Andrea Alto-Mare");
 });
 
+
+test("teamInitials takes the first letter of the first two words, in capitals", () => {
+  assert.equal(teamInitials("ASD FENICE"), "AF");
+  assert.equal(teamInitials("Volley Sant'Andrea Rossa"), "VS");
+  assert.equal(teamInitials("Fenice"), "F");
+  assert.equal(teamInitials("  "), "");
+});

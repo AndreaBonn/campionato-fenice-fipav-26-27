@@ -113,6 +113,7 @@ footer.site p { margin: 0.15rem 0; }
 .standings thead th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); }
 .standings tbody tr + tr { border-top: 1px solid var(--line); }
 .standings td.name img { width: 24px; height: 24px; margin-right: 0.5rem; vertical-align: middle; object-fit: contain; }
+.standings td.name .crest-fallback { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-right: 0.5rem; vertical-align: middle; border-radius: 50%; border: 1px solid var(--line); color: var(--muted); font-size: 0.6875rem; font-weight: 700; line-height: 1; }
 .standings tr.me { background: var(--tint); font-weight: 700; box-shadow: inset 4px 0 0 var(--plum); }
 .standings tr.zone-promotion { box-shadow: inset 4px 0 0 var(--win); }
 .standings tr.zone-relegation { box-shadow: inset 4px 0 0 var(--loss); }
