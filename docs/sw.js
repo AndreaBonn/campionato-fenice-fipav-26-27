@@ -28,6 +28,7 @@ const SHELL = [
   "games-view.js",
   "html.js",
   "crest-view.js",
+  "states-view.js",
   "calendar-rules.js",
   "standings-rules.js",
   "standings-math.js",

@@ -4,7 +4,7 @@ import { test } from "node:test";
 
 import { feniceGames, mapUrl } from "../../docs/game-rules.js";
 import { groupByMonth } from "../../docs/schedule-rules.js";
-import { errorCause, formListHtml, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { formListHtml, renderCalendarFeed, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 import { esc } from "../../docs/html.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
@@ -156,34 +156,9 @@ test("schedule: every string from the data is escaped", () => {
   assert.match(html, /&lt;script&gt;x&lt;\/script&gt;/); // venue.name, the positive case beside the negative one
 });
 
-test("error: plain cause and a Riprova button, never a stack trace", () => {
-  const html = renderError(new TypeError("Failed to fetch"), "https:");
-  assert.match(html, /Impossibile caricare i dati/);
-  assert.match(html, /Connessione non riuscita/);
-  assert.match(html, /<button[^>]*id="retry"[^>]*>Riprova<\/button>/);
-  assert.equal(count(html, "Failed to fetch"), 0);
-});
-
-test("error cause: server status, and the local file hint only on file:", () => {
-  assert.equal(errorCause(new Error("HTTP 404"), "https:"), "Il server ha risposto con un errore (404). Riprova tra poco.");
-  assert.match(errorCause(new TypeError("x"), "file:"), /server locale/);
-  assert.equal(count(errorCause(new TypeError("x"), "https:"), "server locale"), 0);
-});
-
-test("empty: no Fenice games gives a headline and a Riprova button", () => {
-  const html = renderEmpty();
-  assert.match(html, /Calendario non ancora disponibile/);
-  assert.match(html, /<button[^>]*id="retry"[^>]*>Riprova<\/button>/);
-});
-
 test("schedule: no games for the club renders the empty state", () => {
   const html = renderSchedule({ ...girone, games: [] }, new Date("2026-11-20T10:00:00Z"));
   assert.match(html, /Calendario non ancora disponibile/);
-});
-
-test("checked line: relative age of the last successful sync", () => {
-  const now = new Date("2026-11-21T12:00:00Z");
-  assert.equal(renderChecked("2026-11-21T09:30:00Z", now), "Dati FIPAV controllati 2 ore fa");
 });
 
 test("last result: score, sets and verdict from the club side", () => {
@@ -372,14 +347,6 @@ test("hero: a next game without a time says «orario da definire», one with a t
   assert.match(renderHero(sample, NOW_BEFORE), /sabato 21 novembre, ore 17:00/);
 });
 
-test("error cause: a failure that is not a network error says the data is not readable", () => {
-  const unreadable = "I dati ricevuti non sono leggibili. Riprova tra poco.";
-  assert.equal(errorCause(new SyntaxError("Unexpected token"), "https:"), unreadable);
-  assert.equal(errorCause(new Error("boom"), "https:"), unreadable);
-  assert.equal(errorCause(undefined, "https:"), unreadable);
-  assert.equal(errorCause(new TypeError("x"), "https:"), "Connessione non riuscita: controlla la rete e riprova.");
-});
-
 test("escape: quotes and ampersands in live_url and poster url cannot leave the attribute", () => {
   const evil = structuredClone(sample);
   const game = evil.games.find((g) => g.id === "3");
@@ -439,10 +406,6 @@ test("hero: a result still missing weeks later is not described as just finished
   const html = renderHero(onlyThird(), new Date("2026-12-20T10:00:00+01:00"));
   assert.match(html, /Risultato in aggiornamento/);
   assert.equal(count(html, "da poco"), 0);
-});
-
-test("error box: announced as an alert, the calendar list itself is not a live region", () => {
-  assert.match(renderError(new TypeError("x"), "https:"), /^<div class="state err" role="alert">/);
 });
 
 test("hero: the title is home side first with crests, the Fenice with the local logo", () => {

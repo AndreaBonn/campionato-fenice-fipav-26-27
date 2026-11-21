@@ -1,15 +1,14 @@
-// HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
+// HTML of the games sections as strings: hero, schedule, last result and calendar feed. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
 import { feedUrls, googleCalendarUrl, teamsById } from "./calendar-rules.js";
 import { esc } from "./html.js";
 import { crestHtml } from "./crest-view.js";
+import { renderEmpty } from "./states-view.js";
 import { changeDetail, feniceGames, feniceTeamId, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { lastResultMeta, matchSides, matchTitle, opponentChipTexts, teamSummary } from "./hero-rules.js";
 import { DEFAULT_FILTER, SIDE_OPTIONS, WHEN_OPTIONS, andataGame, effectiveFilter, emptyMessage, filterGames, groupByMonth, roundLabel, roundsPerHalf } from "./schedule-rules.js";
 import { ICON_CALENDAR, ICON_MAP_PIN, ICON_SHARE } from "./icons.js";
-import { TIME_ZONE, countdownText, displayTeamName, relativeAge } from "./view-rules.js";
-
-const HTTP_STATUS = /^HTTP (\d+)$/;
+import { TIME_ZONE, countdownText, displayTeamName } from "./view-rules.js";
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
 const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ${g.time ? `ore ${g.time}` : "orario da definire"}`;
@@ -203,27 +202,6 @@ export function renderSchedule(data, now, pageUrl = globalThis.location?.href, f
     `<section class="round"><h3 class="month">${esc(label)}</h3><ul>${games.map((g) => rowHtml(g, ctx)).join("")}</ul></section>`);
   return filtersHtml(chosen) + (groups.length ? groups.join("") : emptyFilteredHtml(chosen));
 }
-
-// A failed load, in plain words: network down, server error, or a page opened as a local file
-export function errorCause(err, protocol) {
-  const status = HTTP_STATUS.exec(err?.message ?? "");
-  if (status) return `Il server ha risposto con un errore (${status[1]}). Riprova tra poco.`;
-  const local = protocol === "file:" ? " La pagina è aperta come file locale e il browser blocca la lettura dei dati: aprila dal sito pubblicato o con un server locale." : "";
-  return err instanceof TypeError ? `Connessione non riuscita: controlla la rete e riprova.${local}` : `I dati ricevuti non sono leggibili. Riprova tra poco.${local}`;
-}
-
-const RETRY = '<button type="button" class="btn" id="retry">Riprova</button>';
-
-export const renderError = (err, protocol) =>
-  `<div class="state err" role="alert"><strong>Impossibile caricare i dati delle partite.</strong>${esc(errorCause(err, protocol))}<br>${RETRY}</div>`;
-
-export const renderEmpty = () =>
-  `<div class="state"><strong>Calendario non ancora disponibile</strong>La FIPAV non ha ancora pubblicato le partite dell'Asd Fenice per questo girone.<br>${RETRY}</div>`;
-
-export const renderLoading = () =>
-  '<div class="state" role="status"><span class="sr-only">Caricamento dei dati in corso</span><div class="skeleton" aria-hidden="true"><i></i><i></i><i></i></div></div>';
-
-export const renderChecked = (iso, now) => `Dati FIPAV controllati ${relativeAge(iso, now)}`;
 
 // Last played game as one compact row: verdict chip, where it sits in the season, the two sides home first,
 // the sets, and the score on the right. The form strip lives in the "Andamento" section (analysis-view.js)

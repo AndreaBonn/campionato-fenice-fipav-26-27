@@ -1,5 +1,6 @@
 // Loads data.json and status.json and renders the page; the DOM and the network are passed in.
-import { renderCalendarFeed, renderChecked, renderError, renderHero, renderLastResult, renderLoading, renderSchedule } from "./games-view.js";
+import { renderCalendarFeed, renderHero, renderLastResult, renderSchedule } from "./games-view.js";
+import { renderChecked, renderError, renderLoading } from "./states-view.js";
 import { renderStandings } from "./tables-view.js";
 import { installCrestFallback } from "./crest-view.js";
 import { newNoticesCount, noticeBadgeHtml, renderNotices } from "./notices-view.js";
