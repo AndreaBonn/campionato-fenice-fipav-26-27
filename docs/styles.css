@@ -52,7 +52,7 @@ header.site { background: var(--plum); color: var(--on-plum); }
 .brand h1 { margin: 0; font-size: 1.25rem; line-height: 1.2; font-weight: 700; }
 .brand p { margin: 0; font-size: 0.875rem; opacity: 0.92; }
 
-main { padding-block: 1.25rem 2rem; display: grid; gap: 1.75rem; }
+main { padding-block: 1.25rem 2rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
 h2 { margin: 0 0 0.75rem; font-size: 1.125rem; line-height: 1.3; }
 
 .hero { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--plum); border-radius: var(--radius); padding: 1rem; }
