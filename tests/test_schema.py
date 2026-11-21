@@ -115,3 +115,26 @@ def test_inconsistent_document_is_rejected(sample: dict[str, Any], kind: str) ->
     assert errors
     if kind.startswith("extra"):
         assert any("unexpected key" in error for error in errors)
+
+
+def _notice(kind: object) -> dict[str, Any]:
+    return {
+        "id": 1,
+        "title": "Indizione Seconda Divisione",
+        "url": "https://fipavcagliari.it/x",
+        "date": "2026-09-01",
+        "kind": kind,
+    }
+
+
+@pytest.mark.parametrize("kind", ["seconda-divisione", "indizione"])
+def test_notice_with_known_kind_is_valid(sample: dict[str, Any], kind: str) -> None:
+    sample["notices"] = [_notice(kind)]
+    assert validate_data(sample) == []
+
+
+@pytest.mark.parametrize("kind", ["news", "", "Indizione", 3])
+def test_notice_with_unknown_kind_is_rejected(sample: dict[str, Any], kind: object) -> None:
+    sample["notices"] = [_notice(kind)]
+    errors = validate_data(sample)
+    assert any(error.startswith("notices[0].kind") for error in errors)

@@ -1,7 +1,7 @@
 import math
 from datetime import date, datetime, time
 from types import UnionType
-from typing import Any, TypedDict, get_args, get_origin, get_type_hints, is_typeddict
+from typing import Any, Literal, TypedDict, get_args, get_origin, get_type_hints, is_typeddict
 from zoneinfo import ZoneInfo
 
 MAX_ROUND = 18
@@ -92,12 +92,15 @@ class Row(TypedDict):
     point_ratio: float | None
 
 
+NoticeKind = Literal["seconda-divisione", "indizione"]
+
+
 class Notice(TypedDict):
     id: int
     title: str
     url: str
     date: str
-    kind: str
+    kind: NoticeKind
 
 
 class Data(TypedDict):
@@ -129,6 +132,10 @@ def _validate_type(value: Any, expected: Any, path: str) -> list[str]:
             for index, item in enumerate(value)
             for error in _validate_type(item, get_args(expected)[0], f"{path}[{index}]")
         ]
+    if origin is Literal:
+        return (
+            [] if value in get_args(expected) else [f"{path}: expected one of {get_args(expected)}"]
+        )
     if is_typeddict(expected):
         if not isinstance(value, dict):
             return [f"{path}: expected object"]

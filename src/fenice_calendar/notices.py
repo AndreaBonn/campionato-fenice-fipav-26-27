@@ -14,7 +14,7 @@ from fenice_calendar.config import (
     WP_SEARCH_TERM,
 )
 from fenice_calendar.fetch import FetchError
-from fenice_calendar.schema import Notice
+from fenice_calendar.schema import Notice, NoticeKind
 
 SECOND_DIVISION = re.compile(r"\b(?:seconda|2[ªa°])\s+divisione\b", re.IGNORECASE)
 OTHER_COMPETITION = re.compile(
@@ -32,7 +32,7 @@ def _is_division_indizione(title: str) -> bool:
     return bool(SECOND_DIVISION.search(normalized) or not OTHER_COMPETITION.search(normalized))
 
 
-def _notice(post: Any, kind: str) -> Notice | None:
+def _notice(post: Any, kind: NoticeKind) -> Notice | None:
     title = " ".join(HTML_TAG.sub("", html.unescape(post["title"]["rendered"])).split())
     url = post["link"]
     parsed = urlsplit(url)
@@ -53,7 +53,11 @@ def _notice(post: Any, kind: str) -> Notice | None:
 
 def select_notices(*, search_posts: list[Any], indizione_posts: list[Any]) -> list[Notice]:
     selected: dict[int, Notice] = {}
-    for posts, kind in ((search_posts, "seconda-divisione"), (indizione_posts, "indizione")):
+    sources: tuple[tuple[list[Any], NoticeKind], ...] = (
+        (search_posts, "seconda-divisione"),
+        (indizione_posts, "indizione"),
+    )
+    for posts, kind in sources:
         if not isinstance(posts, list):
             raise TypeError("Invalid notices payload")
         for post in posts:
