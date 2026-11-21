@@ -165,15 +165,21 @@ def _valid_datetime(value: str, field: str) -> bool:
         return False
 
 
-def _game_errors(game: dict[str, Any], team_ids: set[str], path: str) -> list[str]:
-    errors = []
-    lat, lng = game["venue"]["lat"], game["venue"]["lng"]
+def _venue_errors(venue: dict[str, Any], path: str) -> list[str]:
+    """Both coordinates or neither, each within its limit."""
+    lat, lng = venue["lat"], venue["lng"]
     if (
         (lat is None) != (lng is None)
         or (lat is not None and not -LAT_LIMIT <= lat <= LAT_LIMIT)
         or (lng is not None and not -LNG_LIMIT <= lng <= LNG_LIMIT)
     ):
-        errors.append(f"{path}.venue: invalid coordinates")
+        return [f"{path}.venue: invalid coordinates"]
+    return []
+
+
+def _format_errors(game: dict[str, Any], team_ids: set[str], path: str) -> list[str]:
+    """Each field on its own: round range, known teams, date and time formats, pairs."""
+    errors = []
     if not 1 <= game["round"] <= MAX_ROUND:
         errors.append(f"{path}.round: out of range")
     for field in ("home_id", "away_id"):
@@ -186,7 +192,15 @@ def _game_errors(game: dict[str, Any], team_ids: set[str], path: str) -> list[st
         errors.append(f"{path}.sets_won: expected pair")
     if any(len(pair) != 2 for pair in game["sets"]):
         errors.append(f"{path}.sets: expected pairs")
-    errors.extend(_game_consistency_errors(game, path))
+    return errors
+
+
+def _game_errors(game: dict[str, Any], team_ids: set[str], path: str) -> list[str]:
+    errors = _venue_errors(game["venue"], path) + _format_errors(game, team_ids, path)
+    errors.extend(_result_errors(game, path))
+    if game["home_id"] == game["away_id"]:
+        errors.append(f"{path}.away_id: same as home team")
+    errors.extend(_start_errors(game, path))
     errors.extend(_referee_errors(game, path))
     if not set(game["changes"]) <= {"date", "time", "venue"}:
         errors.append(f"{path}.changes: invalid value")
@@ -205,33 +219,37 @@ def _referee_errors(game: dict[str, Any], path: str) -> list[str]:
 FORFEIT_SCORES = ([3, 0], [0, 3])
 
 
-def _game_consistency_errors(game: dict[str, Any], path: str) -> list[str]:
-    errors = []
+def _result_errors(game: dict[str, Any], path: str) -> list[str]:
+    """A played game has a result that matches its set scores; a game to play has none."""
     sets, won = game["sets"], game["sets_won"]
-    if game["played"]:
-        if won is None or (not sets and won not in FORFEIT_SCORES):
-            errors.append(f"{path}.sets: played game needs results")
-        elif sets and len(won) == 2 and all(len(pair) == 2 for pair in sets):
-            counts = [sum(pair[side] > pair[1 - side] for pair in sets) for side in (0, 1)]
-            if won != counts or any(score < 0 for pair in sets for score in pair):
-                errors.append(f"{path}.sets: inconsistent scores")
-    elif won is not None or sets:
-        errors.append(f"{path}.sets: unplayed game has results")
-    if game["home_id"] == game["away_id"]:
-        errors.append(f"{path}.away_id: same as home team")
+    if not game["played"]:
+        return [f"{path}.sets: unplayed game has results"] if won is not None or sets else []
+    if won is None or (not sets and won not in FORFEIT_SCORES):
+        return [f"{path}.sets: played game needs results"]
+    # malformed pairs are reported by _format_errors, counting them would only add noise
+    if not sets or len(won) != 2 or any(len(pair) != 2 for pair in sets):
+        return []
+    counts = [sum(pair[side] > pair[1 - side] for pair in sets) for side in (0, 1)]
+    if won != counts or any(score < 0 for pair in sets for score in pair):
+        return [f"{path}.sets: inconsistent scores"]
+    return []
+
+
+def _start_errors(game: dict[str, Any], path: str) -> list[str]:
+    """starts_at is the date and time in Rome, and exists only when both are known."""
     day, clock, start = game["date"], game["time"], game["starts_at"]
     if day is None or clock is None:
-        if start is not None:
-            errors.append(f"{path}.starts_at: requires date and time")
-    elif all(_valid_datetime(v, f) for v, f in ((day, "date"), (clock, "time"))):
-        expected = datetime.combine(date.fromisoformat(day), time.fromisoformat(clock), LOCAL_TZ)
-        if (
-            start is None
-            or not _valid_datetime(start, "starts_at")
-            or datetime.fromisoformat(start) != expected
-        ):
-            errors.append(f"{path}.starts_at: inconsistent date and time")
-    return errors
+        return [] if start is None else [f"{path}.starts_at: requires date and time"]
+    if not (_valid_datetime(day, "date") and _valid_datetime(clock, "time")):
+        return []
+    expected = datetime.combine(date.fromisoformat(day), time.fromisoformat(clock), LOCAL_TZ)
+    if (
+        start is None
+        or not _valid_datetime(start, "starts_at")
+        or datetime.fromisoformat(start) != expected
+    ):
+        return [f"{path}.starts_at: inconsistent date and time"]
+    return []
 
 
 def _ratio_errors(row: Row, path: str) -> list[str]:
