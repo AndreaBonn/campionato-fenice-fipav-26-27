@@ -203,6 +203,8 @@ def test_parse_game_validates_coordinates(
         ("A", "B", ["A", "B"], False),
         ("DESIGNATO", "B", ["B"], False),
         ("DESIGNATO", "DESIGNATO", [], True),
+        ("Designato", "designato", [], True),
+        ("designato", "Bianchi Luca", ["Bianchi Luca"], False),
     ],
 )
 def test_parse_game_referees_filters_placeholders(

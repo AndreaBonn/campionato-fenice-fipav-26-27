@@ -91,7 +91,7 @@ def _parse_venue(raw: dict[str, Any]) -> Venue:
 def _parse_referees(raw: dict[str, Any]) -> tuple[list[str], bool]:
     """Real referee names, and whether a game still to play waits for its designation."""
     names = [_clean(_optional_text(raw.get(key))) for key in ("1referee", "2referee")]
-    real = [name for name in names if name and name != REFEREE_PENDING_LABEL]
+    real = [name for name in names if name and name.upper() != REFEREE_PENDING_LABEL]
     # a played game without a published name is not waiting for anything
     return real, not real and not bool(raw["played"])
 
