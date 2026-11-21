@@ -104,7 +104,7 @@ test("map url: null without coordinates, but a zero coordinate is a coordinate",
 const FENICE = "232642";
 const played = (id, sets_won) => ({ id, home_id: FENICE, away_id: "x", played: true, sets_won, sets: [] });
 
-test("last played: the latest played game in the file order, null when none is played", () => {
+test("last played: the latest played game, null when none is played", () => {
   const games = [played("a", [3, 0]), played("b", [0, 3]), { id: "c", home_id: FENICE, away_id: "x", played: false, sets_won: null, sets: [] }];
   assert.equal(lastPlayed(games).id, "b");
   assert.equal(lastPlayed([games[2]]), null);
@@ -149,4 +149,15 @@ test("changeDetail: none without the changes key, one known field, an unknown ke
   assert.equal(changeDetail({ changes: ["venue"] }), "cambiata la palestra");
   assert.equal(changeDetail({ changes: ["x"] }), "cambiata la x");
   assert.equal(changeDetail({ changes: ["date", "time", "venue"] }), "cambiati data, ora e palestra");
+});
+
+test("a postponed game played after later rounds is the last result and the newest in the form", () => {
+  const at = (game, starts_at) => ({ ...game, starts_at });
+  // round 2 was postponed: played on 30 Nov, after round 3 of 23 Nov
+  const games = [at(played("r1", [3, 0]), "2026-11-09T18:00:00+01:00"), at(played("r2", [0, 3]), "2026-11-30T18:00:00+01:00"),
+    at(played("r3", [3, 1]), "2026-11-23T18:00:00+01:00")];
+  assert.equal(lastPlayed(games).id, "r2");
+  assert.deepEqual(form(games, FENICE), ["won", "won", "lost"]);
+  const inOrder = [games[0], games[2], games[1]];
+  assert.equal(lastPlayed(inOrder).id, "r2");
 });

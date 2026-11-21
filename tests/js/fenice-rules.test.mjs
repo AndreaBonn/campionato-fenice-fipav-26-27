@@ -94,3 +94,11 @@ test("setStats rounds five wins out of seventeen down to 29 percent", () => {
 test("setStats rounds eleven wins out of seventeen up to 65 percent", () => {
   assert.equal(setStats(FENICE, synthetic).wonPct, 65);
 });
+
+test("streak follows the date the games were played, not their round", () => {
+  const at = (g, starts_at) => ({ ...g, starts_at });
+  const games = [at(sweep, "2026-11-09T18:00:00+01:00"), at(lateLoss, "2026-11-30T18:00:00+01:00"),
+    at(sweep, "2026-11-23T18:00:00+01:00")];
+  assert.deepEqual(streak(FENICE, games), { outcome: "lost", length: 1 });
+  assert.deepEqual(streak(FENICE, [games[0], games[2]]), { outcome: "won", length: 2 });
+});

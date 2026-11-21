@@ -49,7 +49,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 ### Squadre e Fenice, fase 4
 
 - R18. Scheda avversaria (dialog nativo) aperta dalla prossima gara e da ogni nome in classifica: scontri diretti con la Fenice, rendimento casa/trasferta, gare rimaste.
-- R19. Sezione analisi Fenice: serie in corso, set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). La forma delle ultime 5 gare sta nel box dell'ultimo risultato, non nell'analisi. Prima della prima gara giocata: stato empty con spiegazione.
+- R19. Sezione analisi Fenice: serie in corso, set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). La forma delle ultime 5 gare sta nel box dell'ultimo risultato, non nell'analisi. Serie, forma e ultimo risultato seguono la data in cui la gara è stata giocata, non la giornata: una gara rinviata conta quando si gioca (decisione dell'utente del 2026-11-21). Prima della prima gara giocata: stato empty con spiegazione.
 
 ### Notizie e locandine, fase 5
 

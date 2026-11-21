@@ -1,11 +1,11 @@
 // Pure statistics of the followed club over its played games: no DOM, tested with node --test.
-import { isHome, outcome } from "./game-rules.js";
+import { isHome, outcome, playedInOrder } from "./game-rules.js";
 
 const TIE_BREAK_SET = 5;
 const PERCENT = 100;
 
 const involves = (game, teamId) => game.home_id === teamId || game.away_id === teamId;
-const results = (teamId, games) => games.filter((g) => involves(g, teamId) && g.played && g.sets_won);
+const results = (teamId, games) => playedInOrder(games.filter((g) => involves(g, teamId)));
 // [mine, theirs] pairs of every set, seen from the team's side
 const setPairs = (game, teamId) => game.sets.map(([h, a]) => (isHome(game, teamId) ? [h, a] : [a, h]));
 const sum = (pairs, index) => pairs.reduce((total, pair) => total + pair[index], 0);
@@ -59,7 +59,7 @@ export function comebacks(teamId, games) {
   return { won: won.length, fromTwoZero: won.filter((pairs) => pairs[1][0] < pairs[1][1]).length };
 }
 
-// Current run of equal outcomes, newest game last in the file order; null with no result
+// Current run of equal outcomes, newest game last by play date; null with no result
 export function streak(teamId, games) {
   const outcomes = results(teamId, games).map((g) => outcome(g, teamId));
   if (!outcomes.length) return null;

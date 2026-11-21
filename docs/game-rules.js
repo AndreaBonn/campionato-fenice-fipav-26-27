@@ -58,12 +58,19 @@ export const mapUrl = (venue) => (venue.lat == null || venue.lng == null ? null 
 const FORM_LENGTH = 5;
 const CHANGE_NOUNS = { date: "data", time: "ora", venue: "palestra" };
 
-// Last played game in the file order (rounds go forward in time); null when none is played
-export const lastPlayed = (games) => games.filter((g) => g.played && g.sets_won).at(-1) ?? null;
+const startTime = (g) => (g.starts_at ? Date.parse(g.starts_at) : -Infinity);
+
+// Played games with a result, oldest first by the date they were played: a postponed game
+// counts when it was played, not in its round. The sort is stable, so games without a date
+// keep the file order
+export const playedInOrder = (games) => games.filter((g) => g.played && g.sets_won).sort((a, b) => startTime(a) - startTime(b));
+
+// Last played game by play date; null when none is played
+export const lastPlayed = (games) => playedInOrder(games).at(-1) ?? null;
 
 // Outcomes of the last FORM_LENGTH played games, oldest first: ["won", "lost", ...]
 export const form = (games, teamId) =>
-  games.filter((g) => g.played && g.sets_won).slice(-FORM_LENGTH).map((g) => outcome(g, teamId));
+  playedInOrder(games).slice(-FORM_LENGTH).map((g) => outcome(g, teamId));
 
 // "Arbitri: A, B" / "Arbitro: A" from the names, "Arbitro da designare" while pending, null otherwise
 export function refereesLabel(game) {
