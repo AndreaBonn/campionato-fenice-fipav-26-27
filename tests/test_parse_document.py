@@ -145,3 +145,14 @@ def test_parse_document_forfeit_without_set_scores_is_valid() -> None:
     game = next(g for g in document["games"] if g["id"] == str(match["id"]))
     assert (game["played"], game["sets_won"], game["sets"]) == (True, [3, 0], [])
     assert validate_data(dict(document)) == []
+
+
+def test_parse_document_config_blocks_are_copies_not_shared_with_config(
+    document: dict[str, Any],
+) -> None:
+    before = copy.deepcopy((SOURCE, FORMULA, TIE_BREAK))
+    document["source"]["name"] = "changed"
+    document["formula"]["promotion"] = 99
+    document["tie_break"]["criteria"].append("changed")
+
+    assert before == (SOURCE, FORMULA, TIE_BREAK)

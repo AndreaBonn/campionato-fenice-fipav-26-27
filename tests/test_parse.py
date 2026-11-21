@@ -240,3 +240,34 @@ def test_parse_game_played_without_referee_is_not_pending(girone_b: list[dict[st
     assert game["referee_pending"] is False
     raw["played"] = False
     assert parse_game(raw, index_for(girone_b))["referee_pending"] is True
+
+
+def test_parse_game_venue_with_two_parts_is_name_and_city(girone_a: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["stadium"] = "PALAZZETTO - SELARGIUS"
+    venue = parse_game(raw, index_for(girone_a))["venue"]
+    assert (venue["name"], venue["address"], venue["city"]) == ("PALAZZETTO", None, "SELARGIUS")
+
+
+@pytest.mark.parametrize(("lat", "lng"), [("-90.1", "9"), ("39", "-180.1")])
+def test_parse_game_coordinates_below_the_lower_limit_are_dropped(
+    girone_a: list[dict[str, Any]], lat: str, lng: str
+) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["lat-stadium"], raw["lng-stadium"] = lat, lng
+    venue = parse_game(raw, index_for(girone_a))["venue"]
+    assert (venue["lat"], venue["lng"]) == (None, None)
+
+
+def test_parse_game_round_label_must_be_only_the_round(girone_a: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["day"] = "Ritorno Giornata 3"
+    with pytest.raises(ParseError, match="Unrecognized round label"):
+        parse_game(raw, index_for(girone_a))
+
+
+def test_parse_game_set_scores_of_unequal_length_raise(girone_b: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(next(m for m in girone_b if m["played"]))
+    raw["pt_a"] = [*raw["pt_a"], "25"]
+    with pytest.raises(ValueError, match="zip"):
+        parse_game(raw, index_for(girone_b))

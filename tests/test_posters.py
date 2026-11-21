@@ -63,3 +63,12 @@ def test_posters_malformed_entry_is_dropped_and_valid_neighbours_stay(bad: Any) 
 
     assert sorted(result) == ["1", "3"]
     assert result["1"]["width"] == good["width"]
+
+
+def test_posters_accept_a_gif_flyer() -> None:
+    good = valid_entry()
+    gif = {**good, "key": good["key"].rsplit(".", 1)[0] + ".gif"}
+
+    result = fetch_posters(lambda path: {"data": {"1": gif}})
+
+    assert result["1"]["url"].endswith(".gif")

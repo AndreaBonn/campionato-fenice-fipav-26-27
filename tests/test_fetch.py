@@ -174,3 +174,14 @@ def test_fetch_json_default_delay_waits_one_second(monkeypatch: pytest.MonkeyPat
     assert fetch_json("/test", opener=opener) == {"ok": True}
     assert fetch_json("/test", opener=opener) == {"ok": True}
     assert sleeps == [0.75]
+
+
+def test_fetch_json_accepts_json_with_a_charset_parameter() -> None:
+    urls: list[str] = []
+
+    def opener(request: Request, timeout: int) -> Response:
+        urls.append(request.full_url)
+        return Response(b'{"data": 1}', "application/json; charset=utf-8")
+
+    assert fetch_json("/test", opener=opener, delay=0) == {"data": 1}
+    assert urls == [PRIMARY_URL + "/test"]

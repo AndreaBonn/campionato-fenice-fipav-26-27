@@ -147,3 +147,28 @@ def test_write_if_changed_interrupted_write_removes_temporary_file(
     assert not path.with_name("data.json.tmp").exists()
     assert write_if_changed(path=path, data=sample()) is True
     assert json.loads(path.read_text()) == sample()
+
+
+def test_write_all_atomic_moves_files_in_the_given_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # the caller puts status.json last: a run stopped between two renames must not look successful
+    first, last = tmp_path / "data.json", tmp_path / "status.json"
+    first.write_text("old data")
+    last.write_text("old status")
+    original_replace = Path.replace
+    moved: list[str] = []
+
+    def replace_once(source: Path, target: Path) -> Path:
+        if moved:
+            raise OSError("disk gone")
+        moved.append(Path(target).name)
+        return original_replace(source, target)
+
+    monkeypatch.setattr(Path, "replace", replace_once)
+    with pytest.raises(OSError, match="disk gone"):
+        write_all_atomic([(first, "new data"), (last, "new status")])
+
+    assert moved == ["data.json"]
+    assert (first.read_text(), last.read_text()) == ("new data", "old status")
+    assert not list(tmp_path.glob("*.tmp"))
