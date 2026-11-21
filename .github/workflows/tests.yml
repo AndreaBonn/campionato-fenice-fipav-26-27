@@ -40,7 +40,8 @@ jobs:
           npm test --
           --test-reporter=spec --test-reporter-destination=stdout
           --test-reporter=junit --test-reporter-destination="$REPORTS/node.xml"
-      # a red run still publishes: the badge must show the failure, not the last green
+      # a red run still publishes: the badge must show the failure, not the last green;
+      # missing reports (a setup that failed early) become the error and unknown badges
       - name: Build badge files
         if: ${{ !cancelled() }}
         run: >
@@ -54,12 +55,6 @@ jobs:
           REPO: ${{ github.repository }}
         # one-commit orphan branch, replaced on every run: badge history has no value
         run: |
-          # setup failed before any report: publish an error, never keep the last green
-          if [ ! -f "$REPORTS/badges/tests.json" ]; then
-            mkdir -p "$REPORTS/badges"
-            echo '{"schemaVersion": 1, "label": "tests", "message": "error", "color": "red"}' > "$REPORTS/badges/tests.json"
-            echo '{"schemaVersion": 1, "label": "coverage", "message": "unknown", "color": "lightgrey"}' > "$REPORTS/badges/coverage.json"
-          fi
           cd "$REPORTS/badges"
           git init -q -b badges
           git config user.name "github-actions[bot]"

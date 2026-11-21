@@ -223,3 +223,22 @@ def test_main_existing_output_directory_replaces_badges(tmp_path: Path) -> None:
 
     assert json.loads((out / "tests.json").read_text())["message"] == "1 passed"
     assert json.loads((out / "coverage.json").read_text())["message"] == "90%"
+
+
+def test_main_without_any_report_publishes_error_and_unknown_badges(tmp_path: Path) -> None:
+    out = tmp_path / "badges"
+    args = [
+        "--junit",
+        str(tmp_path / "absent.xml"),
+        "--coverage",
+        str(tmp_path / "absent.json"),
+        "--out",
+        str(out),
+    ]
+
+    assert badges.main(args) == 0
+
+    tests = json.loads((out / "tests.json").read_text())
+    coverage = json.loads((out / "coverage.json").read_text())
+    assert (tests["message"], tests["color"]) == ("error", "red")
+    assert (coverage["message"], coverage["color"]) == ("unknown", "lightgrey")

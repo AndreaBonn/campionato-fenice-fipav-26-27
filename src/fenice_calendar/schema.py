@@ -2,14 +2,12 @@ import math
 from datetime import date, datetime, time
 from types import UnionType
 from typing import Any, Literal, TypedDict, get_args, get_origin, get_type_hints, is_typeddict
-from zoneinfo import ZoneInfo
+
+from fenice_calendar.config import LAT_LIMIT, LNG_LIMIT, LOCAL_TZ
 
 MAX_ROUND = 18
 DATE_LENGTH = 10
 TIME_LENGTH = 5
-LAT_LIMIT = 90
-LNG_LIMIT = 180
-LOCAL_TZ = ZoneInfo("Europe/Rome")
 
 
 class Source(TypedDict):

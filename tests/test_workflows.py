@@ -61,3 +61,9 @@ def test_service_worker_is_stamped_after_the_data_commit_and_before_the_upload()
     upload = content.find("actions/upload-pages-artifact")
     assert stamp != -1, "sw.js would ship with the dev version and never update"
     assert commit < stamp < upload
+
+
+def test_badge_json_is_produced_only_by_fenice_badges() -> None:
+    content = WORKFLOW.with_name("tests.yml").read_text()
+    assert "uv run fenice-badges" in content
+    assert "schemaVersion" not in content

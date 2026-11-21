@@ -3,12 +3,19 @@ import math
 import re
 from datetime import UTC, datetime
 from typing import Any, cast
-from zoneinfo import ZoneInfo
 
-from fenice_calendar.config import FORMULA, SEASON, SOURCE, TEAM_COD, TIE_BREAK
+from fenice_calendar.config import (
+    FORMULA,
+    LAT_LIMIT,
+    LNG_LIMIT,
+    LOCAL_TZ,
+    SEASON,
+    SOURCE,
+    TEAM_COD,
+    TIE_BREAK,
+)
 from fenice_calendar.schema import Data, Formula, Game, League, Row, Source, Team, TieBreak, Venue
 
-LOCAL_TZ = ZoneInfo("Europe/Rome")
 DATE_FORMAT = "%d/%m/%Y"
 TIME_FORMAT = "%H.%M"
 REFEREE_PENDING_LABEL = "DESIGNATO"
@@ -16,8 +23,6 @@ VENUE_SEPARATOR = " - "
 LIVE_URL = "https://escore.fipavonline.it?gara={game_id}"
 ROUND_PATTERN = re.compile(r"Giornata\s+(\d+)")
 FLAG_ON = "1"
-LAT_LIMIT = 90
-LNG_LIMIT = 180
 
 
 SCHEMA_VERSION = 1

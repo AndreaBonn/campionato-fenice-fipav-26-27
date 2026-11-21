@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from fenice_calendar.config import PAGE_URL
+from fenice_calendar.config import ICS_UID_DOMAIN, PAGE_URL, TEAM_DISPLAY_NAME, TIMEZONE_NAME
 from fenice_calendar.output import _write_atomic
 from fenice_calendar.schema import Data, Game
 
@@ -11,7 +11,7 @@ GAME_DURATION = timedelta(hours=2)
 LOCAL_FORMAT = "%Y%m%dT%H%M%S"
 ROME_TIMEZONE = [
     "BEGIN:VTIMEZONE",
-    "TZID:Europe/Rome",
+    f"TZID:{TIMEZONE_NAME}",
     "BEGIN:DAYLIGHT",
     "TZOFFSETFROM:+0100",
     "TZOFFSETTO:+0200",
@@ -55,11 +55,11 @@ def _event(game: Game, names: dict[str, str], stamp: str) -> list[str]:
     description = f"Giornata {game['round']}\nAggiornamenti: {PAGE_URL}"
     return [
         "BEGIN:VEVENT",
-        f"UID:{game['id']}@campionato-fenice-fipav-26-27",
+        f"UID:{game['id']}@{ICS_UID_DOMAIN}",
         f"DTSTAMP:{stamp}",
         "SEQUENCE:0",
-        f"DTSTART;TZID=Europe/Rome:{start.strftime(LOCAL_FORMAT)}",
-        f"DTEND;TZID=Europe/Rome:{(start + GAME_DURATION).strftime(LOCAL_FORMAT)}",
+        f"DTSTART;TZID={TIMEZONE_NAME}:{start.strftime(LOCAL_FORMAT)}",
+        f"DTEND;TZID={TIMEZONE_NAME}:{(start + GAME_DURATION).strftime(LOCAL_FORMAT)}",
         f"SUMMARY:{escape_text(summary)}",
         f"LOCATION:{escape_text(game['venue']['raw'])}",
         f"DESCRIPTION:{escape_text(description)}",
@@ -72,7 +72,7 @@ def build_ics(document: Data, generated_at: datetime) -> str:
     """Build a subscribable calendar containing dated Fenice games."""
     fenice = next(team["id"] for team in document["teams"] if team["cod"] == document["team_cod"])
     names = {
-        team["id"]: ("Fenice" if team["id"] == fenice else team["name"].title())
+        team["id"]: (TEAM_DISPLAY_NAME if team["id"] == fenice else team["name"].title())
         for team in document["teams"]
     }
     stamp = generated_at.astimezone(UTC).strftime("%Y%m%dT%H%M%SZ")

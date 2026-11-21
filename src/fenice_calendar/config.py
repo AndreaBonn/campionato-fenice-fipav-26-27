@@ -1,4 +1,5 @@
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 PRIMARY_URL = "https://data.fipavonline.it"
 FALLBACK_URL = "https://app.fipavonline.it"
@@ -7,6 +8,12 @@ TABLES_PATH = "/api/v2/tables/{group}"
 POSTERS_PATH = "/public/locandine/{committee}.json"
 GROUP_ID = "64444"
 TEAM_COD = "190920448"
+TEAM_DISPLAY_NAME = "Fenice"
+TIMEZONE_NAME = "Europe/Rome"
+LOCAL_TZ = ZoneInfo(TIMEZONE_NAME)
+LAT_LIMIT = 90
+LNG_LIMIT = 180
+ICS_UID_DOMAIN = "campionato-fenice-fipav-26-27"
 COMMITTEE_CODE = "19092"
 SEASON = "2026/27"
 USER_AGENT = (
