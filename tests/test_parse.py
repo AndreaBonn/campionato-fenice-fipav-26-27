@@ -229,3 +229,14 @@ def test_parse_game_null_second_referee_keeps_the_first(girone_a: list[dict[str,
     game = parse_game(raw, index_for(girone_a))
     assert game["referees"] == ["Rossi Mario"]
     assert game["referee_pending"] is False
+
+
+def test_parse_game_played_without_referee_is_not_pending(girone_b: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(find(girone_b, "12995174"))
+    raw["1referee"], raw["2referee"] = "", "DESIGNATO"
+    game = parse_game(raw, index_for(girone_b))
+    assert game["played"] is True
+    assert game["referees"] == []
+    assert game["referee_pending"] is False
+    raw["played"] = False
+    assert parse_game(raw, index_for(girone_b))["referee_pending"] is True

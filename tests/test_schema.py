@@ -194,3 +194,32 @@ def test_notice_with_unknown_kind_is_rejected(sample: dict[str, Any], kind: obje
     sample["notices"] = [_notice(kind)]
     errors = validate_data(sample)
     assert any(error.startswith("notices[0].kind") for error in errors)
+
+
+def test_validate_data_referee_pending_only_for_games_to_play(sample: dict[str, Any]) -> None:
+    assert validate_data(sample) == []
+    played = next(g for g in sample["games"] if g["played"] and not g["referees"])
+    to_play = next(g for g in sample["games"] if not g["played"] and not g["referees"])
+    played["referee_pending"] = True
+    to_play["referee_pending"] = False
+    errors = validate_data(sample)
+    index = {g["id"]: i for i, g in enumerate(sample["games"])}
+    assert (
+        f"games[{index[played['id']]}].referee_pending: inconsistent with played and referees"
+        in errors
+    )
+    assert (
+        f"games[{index[to_play['id']]}].referee_pending: inconsistent with played and referees"
+        in errors
+    )
+
+
+def test_validate_data_named_referee_is_never_pending(sample: dict[str, Any]) -> None:
+    game = next(g for g in sample["games"] if not g["played"])
+    game["referees"], game["referee_pending"] = ["Rossi Mario"], True
+    assert any(
+        e.endswith("referee_pending: inconsistent with played and referees")
+        for e in validate_data(sample)
+    )
+    game["referee_pending"] = False
+    assert validate_data(sample) == []

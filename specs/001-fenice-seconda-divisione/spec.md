@@ -23,7 +23,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 - R2. Le richieste vanno prima a `data.fipavonline.it`, poi a `app.fipavonline.it` sulla stessa risorsa; ogni richiesta porta lo User-Agent di progetto personale. Errore HTTP, timeout o corpo non JSON (pagina di challenge Cloudflare) su entrambi gli host del calendario o della classifica: il run esce con codice diverso da 0, `docs/data.json`, `docs/calendario.ics` e `docs/status.json` restano byte per byte com'erano.
 - R3. `docs/data.json` viene riscritto solo se il contenuto cambia (`updated_at` escluso dal confronto): due run consecutivi sulla stessa risposta lasciano il file identico. `docs/status.json` (`checked_at`) è riscritto a ogni run riuscito, è in `.gitignore` e arriva al sito solo con l'artefatto Pages.
 - R4. Normalizzazione di ogni gara: giornata intera da "Giornata N", data ISO `YYYY-MM-DD` da `dd/mm/yyyy`, ora `HH:MM` da `HH.MM`, `starts_at` ISO 8601 con offset Europe/Rome, nomi squadra senza spazi ai bordi, `\'` del campo impianto decodificato, parziali come coppie `[casa, ospite]`. Esempio: Given la gara 1 della Fenice nella fixture 64444, When la sync la normalizza, Then `date` = `2026-11-21`, `time` = `17:00`, `starts_at` = `2026-11-21T17:00:00+01:00`, `round` = 1.
-- R5. Arbitri: il segnaposto "DESIGNATO" e il campo vuoto non compaiono come nomi; `referee_pending` è vero finché non c'è un nome.
+- R5. Arbitri: il segnaposto "DESIGNATO" e il campo vuoto non compaiono come nomi; `referee_pending` è vero finché non c'è un nome, solo per le gare da giocare (decisione dell'utente del 2026-11-21): una gara giocata senza nome non è in attesa.
 
 ### Pagina, fase 1
 

@@ -187,9 +187,18 @@ def _game_errors(game: dict[str, Any], team_ids: set[str], path: str) -> list[st
     if any(len(pair) != 2 for pair in game["sets"]):
         errors.append(f"{path}.sets: expected pairs")
     errors.extend(_game_consistency_errors(game, path))
+    errors.extend(_referee_errors(game, path))
     if not set(game["changes"]) <= {"date", "time", "venue"}:
         errors.append(f"{path}.changes: invalid value")
     return errors
+
+
+def _referee_errors(game: dict[str, Any], path: str) -> list[str]:
+    """R5: only a game still to play and without a referee name is pending."""
+    expected = not game["played"] and not game["referees"]
+    if game["referee_pending"] != expected:
+        return [f"{path}.referee_pending: inconsistent with played and referees"]
+    return []
 
 
 def _game_consistency_errors(game: dict[str, Any], path: str) -> list[str]:
