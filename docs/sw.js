@@ -12,6 +12,7 @@ const SHELL = [
   "./",
   "index.html",
   "styles.css",
+  "app.js",
   "update.js",
   "update-rules.js",
   "view-rules.js",
