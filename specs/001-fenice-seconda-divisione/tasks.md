@@ -12,7 +12,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T006 | fetch.py con fallback data./app. e rifiuto HTML | dip: T004 | R2 | ok | revert
 - [x] T007 | parse_game: normalizzazione data/ora/parziali/arbitri | dip: T005 | R4, R5 | seq | revert
 - [x] T008 | parse documento, Fenice per cod, fixture data-64353.json | dip: T007 | R1 | seq | revert
-- [ ] T009 | output.py: write_if_changed, write_status | dip: T005 | R3 | ok | revert
+- [x] T009 | output.py: write_if_changed, write_status | dip: T005 | R3 | ok | revert
 - [ ] T010 | cli.py main con exit 1 senza scritture su errore | dip: T006,T008,T009 | R2, R3 | seq | revert
 - [ ] T011 | Prima sync reale e controllo di docs/data.json | dip: T010 | R1 | seq | revert
 - [ ] T012 | index.html base, styles.css palette, view-rules.js | dip: T005 | R6, R8 | ok | revert
