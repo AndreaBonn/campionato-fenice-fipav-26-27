@@ -78,9 +78,3 @@ export function changeDetail(game) {
   const list = nouns.length > 1 ? `${nouns.slice(0, -1).join(", ")} e ${nouns.at(-1)}` : nouns[0];
   return `${nouns.length > 1 ? "cambiati" : "cambiata la"} ${list}`;
 }
-
-// "Spostata: cambiati data e palestra"; null for a game that did not move
-export function changeLabel(game) {
-  const detail = changeDetail(game);
-  return detail === null ? null : `Spostata: ${detail}`;
-}

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { changeDetail, changeLabel, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setsLabel } from "../../docs/game-rules.js";
+import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setsLabel } from "../../docs/game-rules.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -126,15 +126,7 @@ test("referees label: names when present, a fixed phrase when pending, null othe
   assert.equal(refereesLabel(base), null);
 });
 
-test("change label: says what moved, null for a game that did not move", () => {
-  assert.equal(changeLabel({ changes: [] }), null);
-  assert.equal(changeLabel({ changes: ["date"] }), "Spostata: cambiata la data");
-  assert.equal(changeLabel({ changes: ["date", "time", "venue"] }), "Spostata: cambiati data, ora e palestra");
-  assert.equal(changeLabel({ changes: ["time", "venue"] }), "Spostata: cambiati ora e palestra");
-});
-
 test("changeDetail is the moved part only, null when nothing changed", () => {
   assert.equal(changeDetail({ changes: [] }), null);
   assert.equal(changeDetail({ changes: ["date", "time"] }), "cambiati data e ora");
-  assert.equal(changeLabel({ changes: ["date", "time"] }), `Spostata: ${changeDetail({ changes: ["date", "time"] })}`);
 });

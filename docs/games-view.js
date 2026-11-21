@@ -1,7 +1,7 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
 import { FEED_HTTPS_URL, FEED_WEBCAL_URL, googleCalendarUrl, teamsById } from "./calendar-rules.js";
-import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
+import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores, setsLabel } from "./game-rules.js";
 import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const TIME_ZONE = "Europe/Rome";
@@ -63,9 +63,10 @@ ${venueHtml(g)}${live}${posterHtml(data, g)}
 ${opponentButton}<p class="countdown">${c.lead ? `<span class="lead">${c.lead}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
 }
 
+// Verdict beside the row; the score with its sets sits on its own line (setsLabel)
 function resultHtml(g, teamId) {
   const won = outcome(g, teamId) === "won";
-  return `<div class="res"><b>${esc(scoreLabel(g, teamId))}</b><span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></div>`;
+  return `<div class="res"><span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></div>`;
 }
 
 const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel(g))}</p>` : "");
@@ -79,11 +80,11 @@ function addToCalendarHtml(data, g, teamId) {
 }
 
 function rowHtml(data, g, teamId, isNext) {
-  const score = scoreLabel(g, teamId), parts = setScores(g, teamId);
+  const score = setsLabel(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out

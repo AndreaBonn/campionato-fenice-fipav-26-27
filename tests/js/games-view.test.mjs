@@ -98,8 +98,8 @@ test("schedule: 18 rows grouped under 18 round headings", () => {
 
 test("schedule: a played game shows the result and the sets from the Fenice side", () => {
   const html = renderSchedule(girone, new Date("2026-11-20T10:00:00Z"));
-  assert.match(html, /<b>0-3<\/b>/);
-  assert.match(html, /12-25, 19-25, 18-25/);
+  assert.match(html, /0-3 \(12-25, 19-25, 18-25\)/);
+  assert.equal(count(html, "Set:"), 0);
   assert.match(html, /Persa/);
   assert.equal(count(html, "Da giocare"), 7);
 });
@@ -109,12 +109,12 @@ test("schedule: a game without a date says so", () => {
   assert.match(html, /Data da definire/);
 });
 
-test("schedule: a played game without sets (forfeit) shows the score and no empty «Set:» line", () => {
+test("schedule: a played game without sets (forfeit) shows the bare score, no empty brackets", () => {
   const forfeit = structuredClone(girone);
   for (const g of forfeit.games.filter((x) => x.played)) g.sets = [];
   const html = renderSchedule(forfeit, new Date("2026-11-20T10:00:00Z"));
-  assert.match(html, /<b>0-3<\/b>/);
-  assert.equal(count(html, "Set:"), 0);
+  assert.match(html, /class="sets">0-3</);
+  assert.equal(count(html, "()"), 0);
 });
 
 test("schedule: a game with a date but no time says the time is to be defined", () => {
