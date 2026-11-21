@@ -338,3 +338,76 @@ def test_main_changed_game_rewrites_data_calendar_and_status_together(env: Env) 
     after = env.data.read_bytes(), ics.read_bytes(), env.status.read_bytes()
     assert all(old != new for old, new in zip(before, after, strict=True))
     assert not list(env.data.parent.glob("*.tmp"))
+
+
+def test_main_standings_with_an_unknown_team_exits_1_and_says_why(
+    env: Env, caplog: pytest.LogCaptureFixture
+) -> None:
+    env.overrides[TABLES_PATH.format(group=GROUP_ID)] = json.loads(
+        (FIXTURES / "standings-64353.json").read_text()
+    )
+
+    assert env.run(calendar()) == 1
+
+    assert not env.data.exists()
+    assert not env.status.exists()
+    assert "Sync failed: Standings contain an unknown team" in caplog.text
+
+
+@pytest.mark.parametrize(
+    "broken",
+    ["round_label", "calendar_without_data", "empty_standings"],
+)
+def test_main_malformed_fipav_answer_exits_1_and_writes_nothing(env: Env, broken: str) -> None:
+    # ParseError, KeyError and IndexError: each is a failure the run reports, never a traceback
+    payload: Any = copy.deepcopy(calendar())
+    if broken == "round_label":
+        payload["data"]["matches"][0]["day"] = "Andata 3"
+    elif broken == "calendar_without_data":
+        payload = {}
+    else:
+        env.overrides[TABLES_PATH.format(group=GROUP_ID)] = []
+
+    assert env.run(payload) == 1
+
+    assert not env.data.exists()
+    assert not env.status.exists()
+
+
+def test_main_previous_data_that_is_not_an_object_is_ignored_on_outage(env: Env) -> None:
+    env.data.parent.mkdir(parents=True)
+    env.data.write_text("[]")
+    env.overrides[
+        WP_POSTS_URL
+        + "?search=seconda%20divisione&per_page=20&_fields=id,date,link,title,categories"
+    ] = FetchError("down")
+    env.overrides[POSTERS_PATH.format(committee=COMMITTEE_CODE)] = FetchError("down")
+
+    assert env.run(calendar()) == 0
+
+    result = json.loads(env.data.read_text())
+    assert result["notices"] == []
+    assert all(game["poster"] is None for game in result["games"])
+
+
+def test_main_moved_venue_is_recorded_as_a_change(env: Env) -> None:
+    payload = copy.deepcopy(calendar())
+    match = payload["data"]["matches"][0]
+    match["stadium"] = "PALESTRA NUOVA - VIA ROMA 1 - CAGLIARI"
+
+    assert env.run(payload) == 0
+
+    data = json.loads(env.data.read_text())
+    moved = next(game for game in data["games"] if game["id"] == str(match["id"]))
+    assert moved["changes"] == ["venue"]
+    assert sum(1 for game in data["games"] if game["changes"]) == 1
+
+
+def test_season_baseline_has_every_game_of_the_girone_with_the_compared_fields() -> None:
+    baseline = json.loads(
+        (Path(__file__).parent.parent / "data" / "calendario-iniziale.json").read_text()
+    )
+    games = parse_document(calendar(), generated_at=FIRST_RUN)["games"]
+
+    assert set(baseline) == {game["id"] for game in games}
+    assert all(set(entry) == {"date", "time", "venue_raw"} for entry in baseline.values())

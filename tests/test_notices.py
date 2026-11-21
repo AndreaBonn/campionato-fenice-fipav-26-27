@@ -117,6 +117,8 @@ def test_selection_keeps_only_https_links_on_the_committee_site() -> None:
         "Indizione Volley S3",
         "Indizione Prima Divisione",
         "Indizione Terza Divisione",
+        "Indizione 1ª Divisione",
+        "Indizione 3a Divisione",
     ],
 )
 def test_selection_drops_indizioni_naming_another_competition(title: str) -> None:
@@ -159,4 +161,15 @@ def test_fetch_notices_non_list_payload_fails(failing: str) -> None:
         return error_payload if failing + "=" in url else [post(1, "Notizia")]
 
     with pytest.raises(FetchError):
+        fetch_notices(fetch)
+
+
+def test_fetch_notices_post_without_title_fails_as_a_unit() -> None:
+    broken = post(1, "Indizione Seconda Divisione")
+    del broken["title"]
+
+    def fetch(url: str) -> Any:
+        return [broken] if "search=" in url else []
+
+    with pytest.raises(FetchError, match="Could not fetch notices"):
         fetch_notices(fetch)
