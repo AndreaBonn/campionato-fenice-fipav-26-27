@@ -1,5 +1,7 @@
 # Campionato Fenice 2026/27
 
+![Test](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/tests.json) ![Copertura](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/coverage.json)
+
 Pagina non ufficiale con calendario e risultati della ASD Fenice, Seconda Divisione Femminile Girone A, Comitato Territoriale FIPAV di Cagliari, stagione 2026/27.
 
 Indirizzo del sito: https://andreabonn.github.io/campionato-fenice-fipav-26-27/

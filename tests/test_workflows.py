@@ -1,18 +1,22 @@
 import re
 from pathlib import Path
 
+import pytest
+
 WORKFLOW = Path(__file__).resolve().parents[1] / ".github/workflows/sync.yml"
 
 
-def test_actions_are_pinned_to_full_commit_shas() -> None:
-    content = WORKFLOW.read_text()
+@pytest.mark.parametrize("workflow", [WORKFLOW, WORKFLOW.with_name("tests.yml")])
+def test_actions_are_pinned_to_full_commit_shas(workflow: Path) -> None:
+    content = workflow.read_text()
     actions = re.findall(r"(?m)^\s*(?:-\s*)?uses:\s*(\S+)", content)
     assert actions
     assert all(re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", action) for action in actions)
 
 
-def test_each_checkout_disables_persisted_credentials() -> None:
-    content = WORKFLOW.read_text()
+@pytest.mark.parametrize("workflow", [WORKFLOW, WORKFLOW.with_name("tests.yml")])
+def test_each_checkout_disables_persisted_credentials(workflow: Path) -> None:
+    content = workflow.read_text()
     checkouts = re.findall(
         r"(?ms)^\s*- uses: actions/checkout@[^\n]+\n(.*?)(?=^\s*- |^  [a-z][\w-]*:|\Z)",
         content,
