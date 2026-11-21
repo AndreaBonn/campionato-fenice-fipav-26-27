@@ -73,7 +73,7 @@ def _parse_venue(raw: dict[str, Any]) -> Venue:
 def _parse_referees(raw: dict[str, Any]) -> tuple[list[str], bool]:
     names = [_clean(str(raw.get(key, ""))) for key in ("1referee", "2referee")]
     real = [name for name in names if name and name != REFEREE_PENDING_LABEL]
-    return real, REFEREE_PENDING_LABEL in names
+    return real, not real
 
 
 def _team_id(raw: dict[str, Any], key: str, teams_index: dict[str, Team]) -> str:

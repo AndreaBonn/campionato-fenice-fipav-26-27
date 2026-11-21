@@ -101,12 +101,12 @@ def test_parse_game_pending_referee_is_not_a_name(girone_a: list[dict[str, Any]]
     assert game["referee_pending"] is True
 
 
-def test_parse_game_no_referee_is_not_pending(girone_a: list[dict[str, Any]]) -> None:
+def test_parse_game_no_referee_is_pending(girone_a: list[dict[str, Any]]) -> None:
     raw = copy.deepcopy(find(girone_a, "13002244"))
     raw["1referee"] = ""
     game = parse_game(raw, index_for(girone_a))
     assert game["referees"] == []
-    assert game["referee_pending"] is False
+    assert game["referee_pending"] is True
 
 
 def test_parse_game_two_referees_keep_real_names(girone_a: list[dict[str, Any]]) -> None:
@@ -114,7 +114,7 @@ def test_parse_game_two_referees_keep_real_names(girone_a: list[dict[str, Any]])
     raw["1referee"], raw["2referee"] = "Rossi Mario", "DESIGNATO"
     game = parse_game(raw, index_for(girone_a))
     assert game["referees"] == ["Rossi Mario"]
-    assert game["referee_pending"] is True
+    assert game["referee_pending"] is False
 
 
 def test_parse_game_venue_split_in_name_address_city(girone_a: list[dict[str, Any]]) -> None:
