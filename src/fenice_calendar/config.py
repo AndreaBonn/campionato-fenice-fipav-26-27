@@ -23,7 +23,6 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_PATH = ROOT / "docs" / "data.json"
 STATUS_PATH = ROOT / "docs" / "status.json"
 BASELINE_PATH = ROOT / "data" / "calendario-iniziale.json"
-ICS_PATH = ROOT / "docs" / "calendario.ics"
 
 WP_POSTS_URL = "https://fipavcagliari.it/wp-json/wp/v2/posts"
 WP_CATEGORY_INDIZIONI = 3
