@@ -66,3 +66,28 @@ La pagina con calendario e risultati della Fenice è pronta in locale. Si aggior
 ### Note per il Cliente (aggiornamento)
 
 La pagina ora mostra tutto quello che serviva: calendario e risultati con i punteggi dei set, classifica ufficiale, le posizioni che ogni squadra può ancora raggiungere, la scheda di ogni avversaria, un'analisi della stagione della Fenice, le notizie del Comitato e il calendario da aggiungere al telefono. Si può installare sul telefono come un'app e avvisa quando c'è una versione nuova. Usa il logo ufficiale della società e i suoi colori. Il campionato non ha ancora una formula pubblicata (promozioni e retrocessioni): finché il Comitato non la comunica, la pagina non indica zone di classifica e dichiara che l'ordine a parità di punti è provvisorio. Il sito non è ancora online: restano da fare i passi del README e una verifica finale.
+
+## 2026-11-21 - Correzione dei finding dell'analisi finale (T044-T055)
+
+L'utente ha chiesto di correggere tutti i 19 finding dell'analisi di coerenza (risposta "Q1 O2") e ha confermato le decisioni N1-N4.
+
+### Cosa è cambiato
+
+- Codice più piccolo e testato: l'avviso di aggiornamento (`update.js`) è diviso in funzioni corte; il caricamento della pagina è uscito da `index.html` ed è in `app.js`, con i suoi test.
+- Locandina mostrata come immagine (con misure, testo alternativo e caricamento differito) invece che come link.
+- Risultati nella lista nel formato "3-0 (25-12, 25-19, 25-18)".
+- "Aggiungi a Google Calendar" solo sulle gare ancora da giocare.
+- Scheda avversaria: le posizioni delle prossime avversarie vengono dalla classifica ufficiale FIPAV, penalità comprese.
+- Una sola fonte per indirizzo del sito, fuso orario e altre costanti, in Python e in JS; il link al calendario si ricava dall'indirizzo della pagina e non compare se la pagina è aperta da disco.
+- Le icone dell'app sono disponibili anche offline.
+- Il tipo delle notizie è controllato dallo schema.
+- Badge: il JSON scritto a mano nel workflow è stato tolto; se `uv` non parte, i badge si costruiscono col Python del runner.
+- Nuovi test: tempo del calcolo delle posizioni sotto 0,3 s, manifest e icona apple opaca, ordine dei passi e commit condizionato in `sync.yml`.
+- Piano, spec e CLAUDE.md allineati al codice e alle decisioni (logo ufficiale, palette, moduli, DoD spuntata).
+
+### Verifiche
+
+- 177 test Python (copertura 98%) e 199 test JS verdi, `ruff` e `mypy` puliti.
+- Review del codice: nessun difetto bloccante; corretti i due rilievi fondati (badge senza `uv`, link del calendario su file://).
+- a11y-gate 5/5 sulla pagina con gare giocate; render a 375 e 1280 px senza scorrimento orizzontale; click-through della scheda avversaria (apertura, Tab, Esc, Chiudi, ritorno del focus), nessun errore in console.
+- Non verificati: il workflow su GitHub e il caricamento reale delle locandine FIPAV in un browser (in automatico Cloudflare risponde 403).

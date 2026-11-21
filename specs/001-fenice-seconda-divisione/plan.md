@@ -11,17 +11,17 @@ Fenice nel girone FIPAV 64444, e un workflow che la riallinea a FIPAV Online ogn
 
 ## Definition of Done
 
-- [ ] `uv run fenice-sync` contro le fixture reali produce `docs/data.json` valido per lo schema, con 90 gare, 10 squadre, 18 gare Fenice (R1, R4, R5)
-- [ ] Rete giù o pagina Cloudflare al posto del JSON: exit ≠ 0, file in `docs/` invariati (R2); seconda run uguale: `data.json` identico byte per byte (R3)
-- [ ] Prossima gara Fenice con countdown, lista gare con parziali e mappa, attribuzione FIPAV Online, osservate in browser a 375 e 1280 px (R6-R8)
-- [ ] Classifica dall'API coincidente con quella ricalcolata dalle gare sulla fixture 64353 (R11, R12)
-- [ ] `docs/calendario.ics` con 18 VEVENT, link Google Calendar e diretta eScoreVolley quando `escorevolley` = "1" (R13, R14)
-- [ ] Posizioni possibili uguali alla forza bruta su campionati sintetici, < 0,3 s al massimo enumerato (R16, R17)
-- [ ] Scheda avversaria e analisi Fenice con valori concreti sulle fixture e stato empty prima della prima gara (R18, R19)
-- [ ] Notizie e locandine: outage della fonte non fa fallire il run e conserva i dati precedenti (R20, R21)
-- [ ] PWA installabile, service worker network-first, versione stampata solo nell'artefatto (R22, R23)
-- [ ] `ruff`, `mypy --strict`, `pytest --cov` ≥ 80%, `npm test` verdi; a11y-gate senza violazioni sulle fasi UI (R25, R26)
-- [ ] `git log` locale con un commit per fase, `git status` pulito; nessun push (D5)
+- [x] `uv run fenice-sync` contro le fixture reali produce `docs/data.json` valido per lo schema, con 90 gare, 10 squadre, 18 gare Fenice (R1, R4, R5) (`tests/test_cli.py::test_main_success_writes_valid_data_and_status`)
+- [x] Rete giù o pagina Cloudflare al posto del JSON: exit ≠ 0, file in `docs/` invariati (R2); seconda run uguale: `data.json` identico byte per byte (R3) (`tests/test_cli.py::test_main_network_down_exits_1_and_leaves_files_untouched`, `::test_main_second_run_keeps_data_but_refreshes_status`)
+- [x] Prossima gara Fenice con countdown, lista gare con parziali e mappa, attribuzione FIPAV Online, osservate in browser a 375 e 1280 px (R6-R8) (render e click-through registrati in `docs/REPORT_ATTIVITA.md`, T015; test di vista in `tests/js/games-view.test.mjs`)
+- [x] Classifica dall'API coincidente con quella ricalcolata dalle gare sulla fixture 64353 (R11, R12) (`tests/js/standings-rules.test.mjs`, fixture `data-64353.json`)
+- [x] `docs/calendario.ics` con 18 VEVENT, link Google Calendar e diretta eScoreVolley quando `escorevolley` = "1" (R13, R14) (`tests/test_ics.py`, `tests/js/calendar-rules.test.mjs`, `tests/js/games-view.test.mjs`)
+- [x] Posizioni possibili uguali alla forza bruta su campionati sintetici, < 0,3 s al massimo enumerato (R16, R17) (`tests/js/standings-math.test.mjs`)
+- [x] Scheda avversaria e analisi Fenice con valori concreti sulle fixture e stato empty prima della prima gara (R18, R19) (`tests/js/opponent-view.test.mjs`, `tests/js/analysis-view.test.mjs`)
+- [x] Notizie e locandine: outage della fonte non fa fallire il run e conserva i dati precedenti (R20, R21) (`tests/test_cli.py::test_extra_sources_outage_preserves_previous_values`)
+- [x] PWA installabile, service worker network-first, versione stampata solo nell'artefatto (R22, R23) (`tests/test_manifest.py`, `tests/js/sw.test.mjs`, `tests/test_appversion.py`)
+- [x] `ruff`, `mypy --strict`, `pytest --cov` ≥ 80%, `npm test` verdi (verificato il 2026-11-21: ruff e mypy puliti, 177 test Python con copertura 98%, 199 test JS); a11y-gate 5/5 (stati e axe in chiaro e scuro, responsive) sulla pagina con gare giocate il 2026-11-21, registrato in `docs/REPORT_ATTIVITA.md` (R25, R26)
+- [ ] `git log` locale con un commit per fase, `git status` pulito; nessun push (D5). Per richiesta dell'utente i commit sono atomici, uno per task e non uno per fase (decisione "Un commit per task" in `.pilota/decisioni.md`, N1 in `.pilota/MATTINA.md`, 2026-11-21). Non spuntato: l'albero è pulito solo a fine lavoro e il workflow non è mai girato su GitHub, quindi l'accesso dai runner a Cloudflare e il SIGNAL restano da osservare dopo il push dell'utente
 
 SIGNAL: `curl -s https://andreabonn.github.io/campionato-fenice-fipav-26-27/status.json` → `checked_at` | atteso più recente di 4 h 30 min e `data.json` con `games` lungo 90 | entro 5 h dal primo push dell'utente e poi a ogni controllo. Il segnale si produce in T009 (`status.json`) e T016 (deploy); prima del push resta non osservabile.
 
@@ -35,7 +35,7 @@ Già misurate in Research (2026-11-21, su copie reali):
 Mie, rivedibili:
 - A1. `date` + `time` sono autorevoli; `ts_gara` non si usa (non so quale dei due FIPAV aggiorna per primo su un rinvio). Data o ora vuota → `null` e gara "da programmare".
 - A2. L'impianto si divide su `" - "` in nome / indirizzo / città best effort; la stringa originale resta in `venue.raw`.
-- A3. Loghi delle squadre e locandine in hotlink dagli URL FIPAV (lazy, dimensioni esplicite); solo lo stemma Fenice è copiato in `docs/logo-fenice.jpg` (sorgente delle icone, offline).
+- A3. Loghi delle squadre e locandine in hotlink dagli URL FIPAV (lazy, dimensioni esplicite); solo il logo ufficiale della Fenice, fornito dall'utente, è copiato in `docs/logo-fenice.png` (sorgente `assets/logo-fenice.png`, base delle icone, offline).
 - A4. Notizie: ricerca WordPress `search=seconda divisione` più i post di categoria "Indizioni Campionati" che nominano la Seconda Divisione; max 10. Le categorie id 1-3 vengono riverificate in T035 prima di scrivere il filtro.
 - A5. Rimonta = vittoria in una gara in cui la Fenice ha perso il primo set; "da 0-2" ne è il sottoinsieme.
 - A6. Evento Google Calendar e VEVENT di durata 2 ore.
@@ -50,7 +50,7 @@ Mie, rivedibili:
 - Opzione B: Pages da branch `main` cartella `/docs` → niente job di deploy, ma `status.json` va committato a ogni run (un commit ogni 4 ore) e la versione dell'app va committata.
 - Raccomandata: A, perché è il pattern già collaudato nel gemello e non sporca la storia con commit di solo timestamp.
 
-Residuo dallo schedule D5 (da far decidere, non cambio): le gare infrasettimanali (01/12 martedì 21:00) con il solo cron a 4 ore mostrano il risultato fino a 4 ore dopo. Aggiungere `47 18-22 * * 1-5` (sere feriali) costa ~25 run a settimana su un repo pubblico. Default del piano: D5 così com'è.
+Residuo dallo schedule D5 (da far decidere, non cambio): le gare infrasettimanali (01/12 martedì 21:00) con il solo cron a 4 ore mostrano il risultato fino a 4 ore dopo. Aggiungere `47 18-22 * * 1-5` (sere feriali) costa ~25 run a settimana su un repo pubblico. Default del piano: D5 così com'è (D5 approvato dall'utente: repo `campionato-fenice-fipav-26-27`, Pages su https://andreabonn.github.io/campionato-fenice-fipav-26-27/).
 
 ## Approccio
 
@@ -108,6 +108,10 @@ Le chiavi delle fasi successive esistono da subito con valore vuoto (`standings:
 - `schema.py` con `validate_data()` scritto a mano → contratto R1 fra Python e JS | scartata: dipendenza `jsonschema`, perché aggiunge una dipendenza di runtime per ~60 righe e lato JS non si userebbe comunque (nessuna dipendenza npm).
 - Iniezione di `opener` in `fetch.py` → testabilità senza rete (R2) | scartata: mock di `urlopen` via monkeypatch, più fragile e lega i test all'implementazione.
 - `data/calendario-iniziale.json` → R15 | scartata: confronto con il `data.json` precedente, perché perde lo spostamento dopo il primo commit.
+- `enrich.py` → R20-R21: un'interruzione di notizie o locandine mantiene quelle precedenti di `docs/data.json` e il run non fallisce | scartata: far fallire il run, perché una fonte accessoria spegnerebbe l'aggiornamento di calendario e classifica.
+- `output.py` → R3 e atomicità: scrittura via file temporaneo e rename, riscrittura solo se il contenuto cambia (`updated_at` escluso) | scartata: scrivere a ogni run, perché produrrebbe un commit dati ogni 4 ore e un file mezzo scritto in caso di errore.
+- `config.py` → unico posto delle costanti (`TEAM_COD`, `TEAM_DISPLAY_NAME`, `LOCAL_TZ`, `TIMEZONE_NAME`, `LAT_LIMIT`, `LNG_LIMIT`, `ICS_UID_DOMAIN`, `FORMULA`, URL e limiti) | scartata: costanti nei singoli moduli, già duplicate fra parse, ics e schema.
+- Moduli ES in `docs/` (`app.js`, `game-rules.js`, `games-view.js`, `calendar-rules.js`, `view-rules.js`, `standings-rules.js`, `standings-math.js`, `tables-view.js`, `team-rules.js`, `opponent-rules.js`, `opponent-view.js`, `fenice-rules.js`, `analysis-view.js`, `notices-view.js`, `update-rules.js`, `update.js`, `sw.js`) → regole pure separate dalle viste, testate con `node --test` senza dipendenze (R16-R19, R22-R23) | scartata: script inline in `index.html`, che supera 300 righe e non si testa.
 - Dipendenze: nessuna di runtime (stdlib: `urllib`, `json`, `zoneinfo`); dev: pytest, pytest-cov, ruff, mypy. `scripts/make_icons.py` porta Pillow nel proprio manifesto PEP 723. Niente BeautifulSoup né Pillow nel progetto (il gemello li usava per HTML e loghi).
 
 ## Operazioni
@@ -134,7 +138,7 @@ T001. git init, `.gitignore` (`.venv/`, caches, `.coverage`, `docs/status.json`,
     verify: `git rev-parse --is-inside-work-tree` stampa `true` e `git check-ignore docs/status.json` stampa il path (oggi: "not a git repository") | livello: e2e | dip: - | par: seq | rollback: rimuovere `.git/` (passo utente)
 T002. `pyproject.toml` (package `fenice_calendar`, scripts `fenice-sync`/`fenice-stamp-sw`/`fenice-badges`, ruff come il gemello, mypy strict su src+tests, coverage branch), `package.json` con i verbi di § Operazioni, `src/fenice_calendar/__init__.py`, `uv sync` → `uv.lock` - file: `pyproject.toml`, `package.json`, `uv.lock` - rischio: basso
     verify: `npm run setup && npm run lint` esce 0 (oggi: nessun package.json) | livello: integrazione | dip: T001 | par: seq | rollback: revert
-T003. Copia delle fixture dalla scratchpad: `r2/cal64444.raw` → `tests/fixtures/calendar-64444.json`, `r2/tab64444.raw` → `standings-64444.json`, `r4/r2cal.raw` → `calendar-64353.json`, `r4/r2tab.raw` → `standings-64353.json`, `r1/posters.raw` → `posters-19092.json`, `fenice-logo.jpg` → `docs/logo-fenice.jpg`; `tests/test_fixtures.py` con i conteggi misurati - file: `tests/fixtures/*`, `docs/logo-fenice.jpg`, `tests/test_fixtures.py` - rischio: medio (la scratchpad può sparire: farlo per primo)
+T003. Copia delle fixture dalla scratchpad: `r2/cal64444.raw` → `tests/fixtures/calendar-64444.json`, `r2/tab64444.raw` → `standings-64444.json`, `r4/r2cal.raw` → `calendar-64353.json`, `r4/r2tab.raw` → `standings-64353.json`, `r1/posters.raw` → `posters-19092.json`, `fenice-logo.jpg` → `docs/logo-fenice.jpg` (poi sostituito dal logo ufficiale `assets/logo-fenice.png`, copia `docs/logo-fenice.png`); `tests/test_fixtures.py` con i conteggi misurati - file: `tests/fixtures/*`, `docs/logo-fenice.jpg`, `tests/test_fixtures.py` - rischio: medio (la scratchpad può sparire: farlo per primo)
     verify: `uv run pytest tests/test_fixtures.py` verde con 90 gare/18 Fenice sul 64444 e 30 gare/8 giocate sul 64353 | livello: unit | dip: T002 | par: ok | rollback: revert
 T004. `config.py`: URL primario e fallback (calendar, tables, locandine), `GROUP_ID`, `TEAM_COD`, `COMMITTEE_CODE` "19092", `USER_AGENT` di progetto personale con URL del repo, timeout, pausa 1 s, `FORMULA` vuota (D3), `TIE_BREAK`, `SEASON` - file: `src/fenice_calendar/config.py`, `tests/test_config.py` - rischio: basso
     verify: `uv run pytest tests/test_config.py` (TEAM_COD presente 18 volte nella fixture 64444; FORMULA tutta a zero) | livello: unit | dip: T003 | par: ok | rollback: revert
@@ -152,7 +156,7 @@ T010. `cli.py` `main()`: fetch calendario, build, write, status; logging; exit 1
     verify: `uv run pytest tests/test_cli.py` con fetch finto: successo → 3 file scritti; rete giù → exit 1 e i tre file identici byte per byte a prima; seconda run → `data.json` non riscritto | livello: integrazione | dip: T006, T008, T009 | par: seq | rollback: revert
 T011. Prima sync reale: `npm run sync` (3 richieste a FIPAV), controllo del risultato - file: `docs/data.json` - rischio: medio (Cloudflare può rispondere diversamente da quanto misurato)
     verify: `uv run python -c` che conta in `docs/data.json` 90 gare, 18 Fenice, `validate_data()` vuoto | livello: e2e | dip: T010 | par: seq | rollback: revert
-T012. Base della pagina: `docs/index.html` (lang it, stati, attribuzione R8, stemma piccolo), `styles.css` con token OKLCH prugna/arancio chiaro+scuro (riga `DIAL:` nel commit), `view-rules.js` dal gemello (countdown, data relativa it-IT, title case dei nomi) con test - file: `docs/index.html`, `docs/styles.css`, `docs/view-rules.js`, `tests/js/view-rules.test.mjs` - rischio: medio
+T012. Base della pagina: `docs/index.html` (lang it, stati, attribuzione R8, logo ufficiale piccolo), `styles.css` con token OKLCH dalla palette del logo (indaco #2C1B73, arancio-rosso #F25034, oro #FB9827) chiaro+scuro (riga `DIAL:` nel commit), `view-rules.js` dal gemello (countdown, data relativa it-IT, title case dei nomi) con test - file: `docs/index.html`, `docs/styles.css`, `docs/view-rules.js`, `tests/js/view-rules.test.mjs` - rischio: medio
     verify: `npm test` verde con casi countdown (giorni/ore, "in corso", passato) e title case "ASD FENICE" → "Asd Fenice" | livello: unit | dip: T005 | par: ok | rollback: revert
 T013. `game-rules.js`: `feniceGames()`, `nextGame(games, now)`, `setsLabel()` ("3-0 (25-12, 25-19, 25-18)"), `mapUrl(venue)` (null senza coordinate), `isHome()` - file: `docs/game-rules.js`, `tests/js/game-rules.test.mjs` - rischio: basso
     verify: `npm test`: su `data-sample.json` prossima gara corretta prima e dopo l'ultima, mappa null senza lat | livello: unit | dip: T005 | par: ok | rollback: revert
@@ -216,12 +220,12 @@ T036. `notices.py` dal gemello: fonte e filtro di A4, outage → notizie precede
     verify: `uv run pytest tests/test_notices.py`: fixture → N notizie con titolo HTML decodificato; WordPress 500 → notizie precedenti, exit 0 | livello: integrazione | dip: T035 | par: seq | rollback: revert
 T037. `posters.py`: lista locandine, regex della chiave, abbinamento per id gara, outage → locandine precedenti - file: `src/fenice_calendar/posters.py`, `cli.py`, test - rischio: basso
     verify: `uv run pytest tests/test_posters.py`: la chiave reale `13012625` accettata, chiave con `..` rifiutata, gara senza locandina → `null` | livello: unit | dip: T035 | par: ok | rollback: revert
-T038. Pagina: sezione notizie (empty se vuota) e locandina nella gara (`loading="lazy"`, width/height); render, a11y-gate, commit di fase - file: `docs/notice-rules.js`, `games-view.js`, `index.html`, test - rischio: basso
+T038. Pagina: sezione notizie (empty se vuota) e locandina nella gara (`loading="lazy"`, width/height); render, a11y-gate, commit di fase - file: `docs/notices-view.js`, `games-view.js`, `index.html`, test - rischio: basso
     verify: `npm test`; a11y-gate 0 violazioni; immagine con `alt` descrittivo | livello: unit + e2e | dip: T036, T037 | par: seq | rollback: revert
 
 ### Fase 6 - App installabile e badge (R22-R24)
 
-T039. `scripts/make_icons.py` (PEP 723, Pillow) che disegna il monogramma "F" nella palette: 192, 512, maskable, apple-touch opaca, favicon; `manifest.webmanifest` con `start_url` e `scope` relativi - file: `scripts/make_icons.py`, `docs/icons/*`, `docs/favicon.ico`, `docs/manifest.webmanifest` - rischio: basso
+T039. `scripts/make_icons.py` (PEP 723, Pillow) che genera dal logo ufficiale (`assets/logo-fenice.png`): 192, 512, maskable, apple-touch opaca, favicon; `manifest.webmanifest` con `start_url` e `scope` relativi - file: `scripts/make_icons.py`, `docs/icons/*`, `docs/favicon.ico`, `docs/manifest.webmanifest` - rischio: basso
     verify: `uv run --script scripts/make_icons.py` poi controllo dimensioni e canale alfa assente sulla apple-touch; mypy strict dello script come nel gemello | livello: e2e | dip: T038 | par: ok | rollback: revert
 T040. `sw.js` network-first con SHELL di tutti i moduli, `appversion.py` + `fenice-stamp-sw`, step nel workflow prima dell'upload; `sw.test.mjs` e `test_appversion.py` dal gemello - file: `docs/sw.js`, `src/fenice_calendar/appversion.py`, `sync.yml`, test - rischio: medio
     verify: `npm test` (ogni import della pagina è in SHELL); `uv run pytest tests/test_appversion.py` (doppio stamp fallisce, dati esclusi dall'hash) | livello: integrazione | dip: T039 | par: seq | rollback: revert
@@ -248,13 +252,13 @@ T043. Chiusura: CLAUDE.md aggiornato (PWA, posizioni possibili, MAX misurato), r
 | `.gitignore`, `LICENSE` | nuovo | repo, status.json fuori da git |
 | `pyproject.toml`, `uv.lock`, `package.json` | nuovo | progetto uv, runner dei verbi |
 | `src/fenice_calendar/{config,schema,fetch,parse,output,cli}.py` | nuovo | sync di fase 1 |
-| `src/fenice_calendar/{merge,ics,notices,posters,appversion,badges}.py` | nuovo (ics/notices/appversion/badges da gemello) | fasi 2, 5, 6 |
+| `src/fenice_calendar/{merge,ics,notices,posters,enrich,appversion,badges}.py` | nuovo (ics/notices/appversion/badges da gemello) | fasi 2, 5, 6 |
 | `data/calendario-iniziale.json` | nuovo | baseline di `changes` |
-| `tests/fixtures/*.json`, `docs/logo-fenice.jpg` | nuovo | copie reali del 2026-11-21, contratto Python ↔ JS |
+| `tests/fixtures/*.json`, `assets/logo-fenice.png`, `docs/logo-fenice.png` | nuovo | copie reali del 2026-11-21, contratto Python ↔ JS |
 | `tests/test_*.py`, `tests/js/*.test.mjs` | nuovo | test per modulo |
 | `docs/index.html`, `docs/styles.css` | nuovo | pagina, palette Fenice |
-| `docs/{view,game,standings,calendar,team,opponent,fenice,notice,update}-rules.js` | nuovo (view/update da gemello) | regole pure |
-| `docs/{games,tables,opponent,analysis}-view.js`, `docs/standings-math.js`, `docs/update.js`, `docs/sw.js` | nuovo (adattati) | render e PWA |
+| `docs/{view,game,standings,calendar,team,opponent,fenice,update}-rules.js` | nuovo (view/update da gemello) | regole pure |
+| `docs/{games,tables,opponent,analysis,notices}-view.js`, `docs/standings-math.js`, `docs/app.js`, `docs/update.js`, `docs/sw.js` | nuovo (adattati) | render, wiring e PWA |
 | `docs/manifest.webmanifest`, `docs/icons/*`, `docs/favicon.ico`, `scripts/make_icons.py` | nuovo | installabilità |
 | `scripts/bench-standings.mjs` | nuovo | misura di MAX_ENUMERATED_GAMES |
 | `.github/workflows/sync.yml`, `tests.yml` | nuovo | schedule, deploy, badge |

@@ -65,15 +65,15 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 
 ## Fase 9 - Finding di /analyze (risposta Q1 O2 del 2026-11-21)
 
-- [ ] T044 | A1: `setupUpdates` in update.js diviso in funzioni di modulo sotto 30 righe, comportamento invariato | dip: T043 | R25 | ok | revert
-- [ ] T045 | A2: `load()` dell'index.html spostato in `docs/app.js` testabile, sotto 30 righe, con test e voce nel SHELL | dip: T043 | R25 | ok | revert
-- [ ] T046 | A19: apple-touch-icon, icon-512 e favicon.ico nel SHELL di sw.js | dip: T045 | R22 | seq | revert
-- [ ] T047 | A5: locandina come `<img loading="lazy" width height alt>` dentro il link | dip: T043 | R21 | ok | revert
-- [ ] T048 | A12, A11: punteggio nel formato R7 "3-0 (25-12, ...)" con `setsLabel`; rimossi i simboli morti `changeLabel` e `ICS_PATH` | dip: T043 | R7 | ok | revert
-- [ ] T049 | A16: "Aggiungi a Google Calendar" solo per gare con inizio futuro | dip: T048 | R14 | seq | revert
-- [ ] T050 | A6, A13, A11: posizioni nella scheda avversaria da `data.standings`; forma nella scheda (usa `form`) | dip: T043 | R15 | ok | revert
-- [ ] T051 | A14: una costante per URL del sito, fuso, limiti lat/lng, UID ICS e nome breve; JSON dei badge in tests.yml da badges.py | dip: T043 | R25 | ok | revert
-- [ ] T052 | A18: `Notice.kind` come Literal, controllato da `validate_data` | dip: T043 | R1 | ok | revert
-- [ ] T053 | A7, A8, A9: test di tempo 300 ms sulle posizioni, test su manifest e apple-touch, test sull'ordine dei passi e sul commit condizionato in sync.yml | dip: T043 | R16, R22, R9 | ok | revert
-- [ ] T054 | A3, A4, A10, A15, A17: plan e spec allineati (Complessità con enrich/output/config e moduli JS, DoD spuntata, R19, decisioni D4/D5) | dip: T044,T045,T046,T047,T048,T049,T050,T051,T052,T053 | R10 | seq | revert
-- [ ] T055 | Verifica finale: code-reviewer, a11y-gate, render 375/1280, click-through, report attività | dip: T054 | R10, R25 | seq | revert
+- [x] T044 | A1: `setupUpdates` in update.js diviso in funzioni di modulo sotto 30 righe, comportamento invariato | dip: T043 | R25 | ok | revert
+- [x] T045 | A2: `load()` dell'index.html spostato in `docs/app.js` testabile, sotto 30 righe, con test e voce nel SHELL | dip: T043 | R25 | ok | revert
+- [x] T046 | A19: apple-touch-icon, icon-512 e favicon.ico nel SHELL di sw.js | dip: T045 | R22 | seq | revert
+- [x] T047 | A5: locandina come `<img loading="lazy" width height alt>` dentro il link | dip: T043 | R21 | ok | revert
+- [x] T048 | A12, A11: punteggio nel formato R7 "3-0 (25-12, ...)" con `setsLabel`; rimossi i simboli morti `changeLabel` e `ICS_PATH` | dip: T043 | R7 | ok | revert
+- [x] T049 | A16: "Aggiungi a Google Calendar" solo per gare con inizio futuro | dip: T048 | R14 | seq | revert
+- [x] T050 | A6, A13, A11: posizioni nella scheda avversaria da `data.standings`; forma nella scheda (usa `form`) | dip: T043 | R15 | ok | revert
+- [x] T051 | A14: una costante per URL del sito, fuso, limiti lat/lng, UID ICS e nome breve; JSON dei badge in tests.yml da badges.py | dip: T043 | R25 | ok | revert
+- [x] T052 | A18: `Notice.kind` come Literal, controllato da `validate_data` | dip: T043 | R1 | ok | revert
+- [x] T053 | A7, A8, A9: test di tempo 300 ms sulle posizioni, test su manifest e apple-touch, test sull'ordine dei passi e sul commit condizionato in sync.yml | dip: T043 | R16, R22, R9 | ok | revert
+- [x] T054 | A3, A4, A10, A15, A17: plan e spec allineati (Complessità con enrich/output/config e moduli JS, DoD spuntata, R19, decisioni D4/D5) | dip: T044,T045,T046,T047,T048,T049,T050,T051,T052,T053 | R10 | seq | revert
+- [x] T055 | Verifica finale: code-reviewer, a11y-gate, render 375/1280, click-through, report attività | dip: T054 | R10, R25 | seq | revert

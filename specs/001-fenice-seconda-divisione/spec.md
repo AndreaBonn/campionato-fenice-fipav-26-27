@@ -10,8 +10,8 @@ risultati, classifica e analisi della squadra ASD FENICE (cod_aff_societa `19092
 - D1: repo nuovo, copia selettiva dei moduli del progetto `campionato-serie-c-26-27`, nessun fork git.
 - D2: perimetro pagina come da R1-R26; fuori v1 PDF dei comunicati e statistiche individuali.
 - D3: nessuna zona promozione/retrocessione finché la formula non è pubblicata; parità vittorie → quoziente set → quoziente punti, marcata "criterio provvisorio".
-- D4: palette dal logo FIPAV (prugna ~#830A4B, arancio-rosso ~#AE3945/#D36E67), stemma originale piccolo, icone app come monogramma "F".
-- D5: repo `campionato-fenice-fipav-26-27`, Pages su `https://andreabonn.github.io/campionato-fenice-fipav-26-27/`, schedule ogni 4 ore (D7, 2026-11-21: niente cron orario nel weekend), attribuzione "Fonte: FIPAV Online". Repo remoto e push li fa l'utente.
+- D4: logo ufficiale di ASD Fenice Volley fornito dall'utente (`assets/logo-fenice.png`, copia in `docs/logo-fenice.png`); palette ricavata dal logo (indaco #2C1B73, arancio-rosso #F25034, oro #FB9827, dichiarata in OKLCH in `docs/styles.css`); icone app generate dal logo con `scripts/make_icons.py`.
+- D5: repo `campionato-fenice-fipav-26-27`, Pages su `https://andreabonn.github.io/campionato-fenice-fipav-26-27/`, schedule ogni 4 ore (D7, 2026-11-21: niente cron orario nel weekend), attribuzione "Fonte: FIPAV Online". Approvato dall'utente. Repo remoto e push li fa l'utente.
 
 ## Requisiti
 
@@ -49,7 +49,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 ### Squadre e Fenice, fase 4
 
 - R18. Scheda avversaria (dialog nativo) aperta dalla prossima gara e da ogni nome in classifica: scontri diretti con la Fenice, rendimento casa/trasferta, gare rimaste.
-- R19. Sezione analisi Fenice: forma (ultime 5), set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). Prima della prima gara giocata: stato empty con spiegazione.
+- R19. Sezione analisi Fenice: serie in corso, set vinti/persi, punti medi per set fatti e subiti, tie-break vinti/persi, rimonte (vittorie dopo aver perso il primo set, di cui da 0-2). La forma delle ultime 5 gare sta nel box dell'ultimo risultato, non nell'analisi. Prima della prima gara giocata: stato empty con spiegazione.
 
 ### Notizie e locandine, fase 5
 
@@ -58,7 +58,7 @@ Ogni requisito è verificabile da un test, un comando o un'osservazione del rend
 
 ### App, fase 6
 
-- R22. Installabile: manifest con `start_url` relativo al sotto-percorso Pages, icone monogramma "F" generate da script, apple-touch opaca.
+- R22. Installabile: manifest con `start_url` relativo al sotto-percorso Pages, icone generate dal logo ufficiale da script, apple-touch opaca.
 - R23. Service worker network-first, versione app = hash di `docs/` esclusi i dati, stampata solo nell'artefatto (`VERSION = "dev"` nel repo); avviso di aggiornamento "Aggiorna"/"Più tardi".
 - R24. `tests.yml` su push pubblica badge test e coverage nel README.
 
