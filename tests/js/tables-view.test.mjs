@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { crestFallbackHtml, installCrestFallback, renderStandings } from "../../docs/tables-view.js";
+import { renderStandings } from "../../docs/tables-view.js";
+import { crestFallbackHtml } from "../../docs/crest-view.js";
 
 const girone = JSON.parse(readFileSync(new URL("../fixtures/data-64353.json", import.meta.url), "utf8"));
 const count = (html, needle) => html.split(needle).length - 1;
@@ -67,28 +68,9 @@ test("returns nothing for a league without teams", () => {
   assert.equal(renderStandings({ ...girone, teams: [], standings: [], games: [] }), "");
 });
 
-test("crest fallback is a same-size initials badge, aria-hidden, escaped", () => {
-  const html = crestFallbackHtml("ASD FENICE");
-  assert.match(html, /^<span class="crest-fallback" aria-hidden="true">AF<\/span>$/);
-  assert.equal(crestFallbackHtml("<b>x"), '<span class="crest-fallback" aria-hidden="true">B</span>');
-});
-
 test("each crest image carries the team name so the fallback can name it", () => {
   const html = renderStandings(girone);
   assert.equal(count(html, 'data-crest-name="'), 6);
-});
-
-test("a failed crest image is replaced by the initials; other errors are ignored", () => {
-  const listeners = [];
-  const root = { addEventListener: (type, fn, capture) => listeners.push({ type, fn, capture }) };
-  installCrestFallback(root);
-  assert.deepEqual(listeners.map((l) => [l.type, l.capture]), [["error", true]]);
-  const calls = [];
-  const img = { tagName: "IMG", dataset: { crestName: "ASD FENICE" }, insertAdjacentHTML: (...a) => calls.push(a), remove: () => calls.push("removed") };
-  listeners[0].fn({ target: img });
-  assert.deepEqual(calls, [["afterend", crestFallbackHtml("ASD FENICE")], "removed"]);
-  const other = { tagName: "SCRIPT", dataset: {}, insertAdjacentHTML: () => assert.fail("touched"), remove: () => assert.fail("touched") };
-  listeners[0].fn({ target: other });
 });
 
 // Every game played, the team listed first in data.teams always wins 3-0: a strict order, all positions decided
@@ -133,18 +115,6 @@ test("published zones mark all six positions including the relegation boundary",
   const data = { ...girone, formula: { published: true, promotion: 1, playoff: 2, relegation: 1 } };
   const classes = rows(renderStandings(data)).map((row) => row.match(/zone-(?:promotion|playoff|relegation)/)?.[0] ?? "none");
   assert.deepEqual(classes, ["zone-promotion", "zone-playoff", "zone-playoff", "none", "none", "zone-relegation"]);
-});
-
-test("crest errors ignore images without names and named non-images", () => {
-  let listener;
-  installCrestFallback({ addEventListener: (_, fn) => { listener = fn; } });
-  const calls = [];
-  const target = (tagName, dataset) => ({ tagName, dataset, insertAdjacentHTML: () => calls.push("insert"), remove: () => calls.push("remove") });
-  listener({ target: target("IMG", {}) });
-  listener({ target: target("DIV", { crestName: "Fenice" }) });
-  assert.deepEqual(calls, []);
-  listener({ target: target("IMG", { crestName: "Fenice" }) });
-  assert.deepEqual(calls, ["insert", "remove"]);
 });
 
 test("a team without a logo shows its initials, like the team card, instead of an image", () => {

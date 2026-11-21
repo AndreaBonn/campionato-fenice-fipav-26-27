@@ -6,7 +6,7 @@ import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
 import { TIME_ZONE, displayTeamName } from "./view-rules.js";
 import { esc } from "./html.js";
-import { crestFallbackHtml, installCrestFallback } from "./tables-view.js";
+import { crestHtml, installCrestFallback } from "./crest-view.js";
 
 const NEXT_SHOWN = 5;
 // team ids are FIPAV digits, but the selector must not break on anything else
@@ -20,11 +20,6 @@ const dayText = (g) => (g.starts_at
   : "Data da definire");
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-function crestHtml(team) {
-  if (!team.logo_url) return crestFallbackHtml(team.name);
-  return `<img src="${esc(team.logo_url)}" alt="" data-crest-name="${esc(team.name)}" width="${CREST_SIZE}" height="${CREST_SIZE}">`;
-}
-
 // "Posizione finale possibile" line, only when the range is narrower than first-to-last
 function rangeLine(data, teamId) {
   const ranges = positionRanges(data), range = ranges.get(teamId);
@@ -36,7 +31,7 @@ function rangeLine(data, teamId) {
 function headerHtml(data, team) {
   const pos = data.standings.find((r) => r.team_id === team.id)?.pos;
   const place = pos ? `<p>${pos}° in classifica</p>` : "";
-  return `<header class="opp-head">${crestHtml(team)}<div><h2 id="opp-title">${nameOf(team)}</h2>${place}${rangeLine(data, team.id)}</div></header>`;
+  return `<header class="opp-head">${crestHtml(team, CREST_SIZE)}<div><h2 id="opp-title">${nameOf(team)}</h2>${place}${rangeLine(data, team.id)}</div></header>`;
 }
 
 // Wording of a head-to-head game without a result, by its lifecycle status (gameStatus)

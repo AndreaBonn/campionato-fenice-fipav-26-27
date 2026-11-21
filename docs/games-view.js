@@ -2,11 +2,12 @@
 // everything comes in as arguments, so the output is tested with node --test.
 import { feedUrls, googleCalendarUrl, teamsById } from "./calendar-rules.js";
 import { esc } from "./html.js";
+import { crestHtml } from "./crest-view.js";
 import { changeDetail, feniceGames, feniceTeamId, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { lastResultMeta, matchSides, matchTitle, opponentChipTexts, teamSummary } from "./hero-rules.js";
 import { DEFAULT_FILTER, SIDE_OPTIONS, WHEN_OPTIONS, andataGame, effectiveFilter, emptyMessage, filterGames, groupByMonth, roundLabel, roundsPerHalf } from "./schedule-rules.js";
 import { ICON_CALENDAR, ICON_MAP_PIN, ICON_SHARE } from "./icons.js";
-import { TIME_ZONE, countdownText, displayTeamName, relativeAge, teamInitials } from "./view-rules.js";
+import { TIME_ZONE, countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const HTTP_STATUS = /^HTTP (\d+)$/;
 
@@ -42,22 +43,18 @@ function stateHtml(title, text) {
 }
 
 const CREST_SIZE = 34;
-const crestFallback = (name) => `<span class="crest-fallback" aria-hidden="true">${esc(teamInitials(name))}</span>`;
 
 // Crest of one side of the title: the local logo for the Fenice, the FIPAV image of the opponent
 // (data-crest-name lets installCrestFallback swap in the initials when it does not load), nothing for an unknown team
-function crestHtml(data, side) {
+function sideCrestHtml(data, side) {
   if (side.isFenice) return `<img src="logo-fenice.png" alt="" width="${CREST_SIZE}" height="${CREST_SIZE}">`;
   const team = data.teams.find((t) => t.id === side.id);
-  if (!team) return "";
-  return team.logo_url
-    ? `<img src="${esc(team.logo_url)}" alt="" data-crest-name="${esc(team.name)}" width="${CREST_SIZE}" height="${CREST_SIZE}">`
-    : crestFallback(team.name);
+  return team ? crestHtml(team, CREST_SIZE) : "";
 }
 
 // Home side first; the dash is dropped on a narrow screen (the sides stack), so a screen reader gets "contro"
 function matchHtml(data, g) {
-  const sides = matchSides(data, g).map((s) => `<span class="tm">${crestHtml(data, s)}<span class="nm">${esc(s.name)}</span></span>`);
+  const sides = matchSides(data, g).map((s) => `<span class="tm">${sideCrestHtml(data, s)}<span class="nm">${esc(s.name)}</span></span>`);
   return `<p class="match">${sides.join('<span class="vs" aria-hidden="true">-</span><span class="sr-only"> contro </span>')}</p>`;
 }
 

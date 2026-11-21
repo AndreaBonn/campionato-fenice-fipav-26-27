@@ -1,7 +1,8 @@
 // HTML of the standings section as a string. No DOM access: everything comes in as arguments.
 import { feniceTeamId } from "./game-rules.js";
 import { tableFromGames } from "./standings-rules.js";
-import { displayTeamName, teamInitials } from "./view-rules.js";
+import { displayTeamName } from "./view-rules.js";
+import { crestHtml } from "./crest-view.js";
 import { esc } from "./html.js";
 import { decidedFacts, positionRanges } from "./standings-math.js";
 import { howToRead, lastFive, preseasonNote } from "./standings-notes.js";
@@ -20,21 +21,8 @@ function zoneClass(formula, pos, total) {
   return "";
 }
 
-// Initials badge shown in place of a crest image that did not load (e.g. a 403 or a blocked response)
-export const crestFallbackHtml = (name) => `<span class="crest-fallback" aria-hidden="true">${esc(teamInitials(name))}</span>`;
-
-// Image error events do not bubble: one capturing listener on the container covers every crest
-export function installCrestFallback(root) {
-  root.addEventListener("error", (e) => {
-    const img = e.target;
-    if (img.tagName !== "IMG" || img.dataset.crestName === undefined) return;
-    img.insertAdjacentHTML("afterend", crestFallbackHtml(img.dataset.crestName));
-    img.remove();
-  }, true);
-}
-
 function teamCell(team, isMe) {
-  const crest = team.logo_url ? `<img src="${esc(team.logo_url)}" alt="" data-crest-name="${esc(team.name)}" loading="lazy" width="${CREST_SIZE}" height="${CREST_SIZE}">` : crestFallbackHtml(team.name);
+  const crest = crestHtml(team, CREST_SIZE, { lazy: true });
   const name = esc(displayTeamName(team.name));
   const label = isMe ? `<span>${name}<span class="sr-only"> (la tua squadra)</span></span>` : `<button type="button" class="team" data-opponent="${esc(team.id)}">${name}</button>`;
   return `<td class="name"><span class="nm">${crest}${label}</span></td>`;
