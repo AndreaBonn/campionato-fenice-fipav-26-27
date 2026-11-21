@@ -170,26 +170,38 @@ Quando il Comitato non ha notizie sulla Seconda Divisione la pagina non mostra p
 
 - Audit della qualità dei test con la skill `test-audit`. Punto di partenza: copertura già al 100% di righe e rami in Python e 98,49% di rami in JS, ma dei mutanti provati ne venivano uccisi solo 11 su 29 in Python e 9 su 58 in JS. La copertura misurava le righe eseguite, non i comportamenti verificati.
 - Sei worker in sola lettura, uno per area. I finding sono stati verificati con mutation testing in copie temporanee. Alcuni sono stati smentiti dalla verifica: `ts_gara`, le costanti di `config.py` e l'offset del fuso nell'ICS.
-- Rimedio: 50 finding (F1-F50) chiusi con test nuovi o irrigiditi, in sei commit per area: 52fd1dd, 5b628cb, 55e7e22, 72ab97e, 388dadc, b501f9b. Nessun file di produzione toccato.
+- Rimedio: 50 finding (F1-F50) chiusi con test nuovi o irrigiditi, in sei commit per area: 52fd1dd, 5b628cb, 55e7e22, 72ab97e, 388dadc, b501f9b. Nessun file di produzione toccato in questa fase (le correzioni successive sono nella sezione sull'esito delle domande).
 - Risultato: test Python da 299 a 318, test JS da 488 a 533, copertura dei rami JS al 99,09%. Mutanti uccisi: Python 27 su 29, JS 57 su 58. I 4 mutanti di controllo nuovi sono stati tutti uccisi.
 - Report completo dell'audit in `.pilota/audit-test.md` (fuori da git).
 
-### Sopravvissuti di proposito e domande aperte per l'utente
+### Esito delle domande A1-A9
 
-- A1: le gare a tavolino nei box casa/trasferta divergono da CLAUDE.md.
-- A2: il casing di "Squadra sconosciuta".
+L'utente ha approvato tutte le raccomandazioni.
+
+Corretti nel codice, ciascuno con un test visto rosso prima del fix:
+
+- A1: le gare a tavolino restano fuori da set e punti dei box casa/trasferta (c52b2b4).
+- A2: "Squadra sconosciuta" è scritta con la minuscola ovunque (99ce3f7).
+- A5: `starts_at` deve avere l'offset di Roma scritto (d06e6a8).
+- A7: `DESIGNATO` è riconosciuto in qualunque maiuscola (3ac4c79).
+- A4: nessuna riga vuota nel blocco "Già deciso" (3904e85).
+- A9, caso `relativeAge`: la riga dell'ultimo controllo è nascosta se `status.json` ha una data illeggibile, invece di mostrare "NaN giorni fa" (008fa5e).
+
+Lasciati così per scelta:
+
 - A3: il service worker offline con query string.
-- A4: la riga vuota in "Già deciso" a formula pubblicata.
-- A5: `starts_at` con offset UTC è accettato.
-- A6: il filtro degli avvisi lavora sul titolo.
-- A7: `DESIGNATO` è confrontato in modo case-sensitive.
-- A8: le tarature (timeout 30 s, tick 60 s, conferma 2,5 s) sono fissate nei test come requisiti.
-- A9: due casi limite, uno nell'hero e uno in `relativeAge`.
+- A6: il filtro degli avvisi sul titolo.
+- A8: le tarature non pinnate (timeout 30 s, tick 60 s, conferma 2,5 s).
+- A9, caso hero: l'ordine fra gara in attesa e gara da definire.
+
+Non toccato e segnalato: il testa a testa della scheda squadra conta ancora i set 3-0 delle gare a tavolino.
+
+Test finali: Python 321, JS 537, lint pulito.
 
 ### Note per il Cliente
 
-Il funzionamento della pagina non cambia: non è stato modificato nessun file del sito. Abbiamo rafforzato i controlli automatici, che ora si accorgono di molti più errori piccoli di prima. Restano nove punti da decidere insieme, elencati sopra.
+L'audit ha rafforzato i controlli automatici, che ora si accorgono di molti più errori piccoli di prima. Dalle decisioni prese sono nate sei correzioni di dettaglio alla pagina: le gare assegnate a tavolino non falsano più le statistiche casa/trasferta, il nome "Squadra sconosciuta" è scritto sempre allo stesso modo, la riga "Già deciso" non mostra più righe vuote e l'ultimo controllo non compare con una data illeggibile. Due ulteriori correzioni riguardano i dati ricevuti da FIPAV, che ora vengono controllati con più rigore. Resta un solo punto aperto: nella scheda di una squadra, il confronto diretto con la Fenice conta ancora i set 3-0 delle gare a tavolino.
 
 ### Riepilogo
 
-Complessità: media. Stato: completato, nessun commit di questa entry; le domande A1-A9 attendono una decisione.
+Complessità: media. Stato: completato. Le domande A1-A9 sono chiuse.
