@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { NEW_NOTICE_DAYS, isNewNotice, newNoticesCount, noticeBadgeHtml, renderNotices } from "../../docs/notices-view.js";
@@ -25,13 +26,20 @@ test("notices: titles are escaped", () => {
   assert.equal(html.includes("<b>Seconda"), false);
 });
 
-test("notices: empty list gives an explicit state with a link to the committee site", () => {
-  for (const data of [{ notices: [] }, {}]) {
-    const html = renderNotices(data);
-    assert.match(html, /<p class="note">Ancora nessuna notizia sulla Seconda Divisione\. <a href="https:\/\/fipavcagliari\.it" target="_blank" rel="noopener">Sito del Comitato FIPAV Cagliari<span class="sr-only"> \(si apre in una nuova scheda\)<\/span><\/a><\/p>/);
-    assert.equal(html.includes("<strong"), false);
-    assert.equal(html.includes("<li"), false);
-  }
+// The committee publishes nothing on the Seconda Divisione for months (measured 2026-11-21): an empty
+// section would sit on the page all season, so no notices means no markup and the section stays hidden
+test("notices: an empty or missing list gives no markup, one notice gives a list", () => {
+  for (const data of [{ notices: [] }, {}]) assert.equal(renderNotices(data), "");
+  assert.match(renderNotices({ notices: NOTICES.slice(0, 1) }), /^<ul class="notices"><li class="notice">/);
+});
+
+test("the committee site stays reachable from the footer when the notices section is hidden", () => {
+  const html = readFileSync(new URL("../../docs/index.html", import.meta.url), "utf8");
+  const footer = html.slice(html.indexOf('<footer class="site">'), html.indexOf("</footer>"));
+  assert.match(footer, /<a href="https:\/\/fipavcagliari\.it" target="_blank" rel="noopener">Comitato FIPAV Cagliari<span class="sr-only"> \(si apre in una nuova scheda\)<\/span><\/a>/);
+  assert.match(html, /<section id="notices" aria-labelledby="notices-title" hidden>/);
+  // hidden before nav.js runs too, so the link does not flash on a page without notices
+  assert.match(html, /<li hidden><a href="#notices">/);
 });
 
 test("notices: an unknown or missing kind shows no tag, a known kind shows one", () => {

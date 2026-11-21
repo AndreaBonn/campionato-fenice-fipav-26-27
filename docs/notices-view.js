@@ -2,7 +2,6 @@
 import { esc } from "./html.js";
 import { TIME_ZONE } from "./view-rules.js";
 
-const COMMITTEE_URL = "https://fipavcagliari.it";
 const KIND_LABELS = { indizione: "Indizione", "seconda-divisione": "Seconda Divisione" };
 export const NEW_NOTICE_DAYS = 7;
 const DAY_MS = 24 * 60 * 60e3;
@@ -33,10 +32,9 @@ function noticeHtml(n, now) {
 <p class="opp"><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}<span class="sr-only"> (si apre in una nuova scheda)</span></a></p></li>`;
 }
 
+// No notices, no markup: the page hides the section and its nav link (the committee site is linked in the footer)
 export function renderNotices(data, now = new Date()) {
   const notices = data.notices ?? [];
-  if (!notices.length) {
-    return `<p class="note">Ancora nessuna notizia sulla Seconda Divisione. <a href="${COMMITTEE_URL}" target="_blank" rel="noopener">Sito del Comitato FIPAV Cagliari<span class="sr-only"> (si apre in una nuova scheda)</span></a></p>`;
-  }
+  if (!notices.length) return "";
   return `<ul class="notices">${notices.map((n) => noticeHtml(n, now)).join("")}</ul>`;
 }

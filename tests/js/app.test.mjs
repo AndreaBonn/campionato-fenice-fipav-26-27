@@ -8,7 +8,7 @@ const SAMPLE = JSON.parse(readFileSync(new URL("./../fixtures/data-sample.json",
 const GIRONE = JSON.parse(readFileSync(new URL("./../fixtures/data-64353.json", import.meta.url), "utf8"));
 const NOW = new Date("2026-11-21T12:00:00+01:00");
 const CHECKED_AT = "2026-11-21T10:00:00+00:00";
-const IDS = ["next", "next-body", "last", "last-body", "standings", "standings-body", "analysis", "analysis-body", "list", "feed", "notices-body", "checked", "opponent", "opp-body", "nav-notices-count"];
+const IDS = ["next", "next-body", "last", "last-body", "standings", "standings-body", "analysis", "analysis-body", "list", "feed", "notices", "notices-body", "checked", "opponent", "opp-body", "nav-notices-count"];
 
 // The page's elements, as plain objects keyed by id.
 function fakePage() {
@@ -169,6 +169,18 @@ test("applyViews hides a section whose markup is empty and shows one that has so
   assert.equal(page.els.standings.hidden, false);
   assert.equal(page.els.last.hidden, true);
   assert.equal(page.els.analysis.hidden, false);
+  assert.equal(page.els["notices-body"].innerHTML, "N");
+});
+
+test("applyViews hides the notices section without notices and shows it when one arrives", () => {
+  const page = fakePage();
+  const views = { hero: "H", list: "L", standings: "S", last: "R", feed: "F", analysis: "A", notices: "" };
+
+  applyViews(page.$, views);
+  assert.equal(page.els.notices.hidden, true);
+
+  applyViews(page.$, { ...views, notices: "N" }, views);
+  assert.equal(page.els.notices.hidden, false);
   assert.equal(page.els["notices-body"].innerHTML, "N");
 });
 

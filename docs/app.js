@@ -27,7 +27,7 @@ export function buildViews(data, now, filter = DEFAULT_FILTER) {
 // view -> [element that receives the markup, section hidden while the markup is empty (or none)]
 const TARGETS = {
   hero: ["next-body", "next"], list: ["list", null], standings: ["standings-body", "standings"], last: ["last-body", "last"],
-  feed: ["feed", null], analysis: ["analysis-body", "analysis"], notices: ["notices-body", null],
+  feed: ["feed", null], analysis: ["analysis-body", "analysis"], notices: ["notices-body", "notices"],
 };
 
 // Writes only the sections whose markup differs from previous (the views already on screen): an untouched
