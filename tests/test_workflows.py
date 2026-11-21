@@ -40,3 +40,11 @@ def test_deploy_depends_on_sync() -> None:
 def test_data_commit_rebases_before_push() -> None:
     content = WORKFLOW.read_text()
     assert re.search(r"git commit[^\n]*\n\s*git pull --rebase[^\n]*\n\s*git push", content)
+
+
+def test_activity_report_is_removed_before_the_pages_upload() -> None:
+    content = WORKFLOW.read_text()
+    removal = content.find("rm -f docs/REPORT_ATTIVITA.md")
+    upload = content.find("actions/upload-pages-artifact")
+    assert removal != -1, "the development report would be published on GitHub Pages"
+    assert removal < upload
