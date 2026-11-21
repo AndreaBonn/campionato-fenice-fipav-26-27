@@ -40,12 +40,13 @@ function factText(fact, name) {
   const parts = [];
   if (fact.position !== null) parts.push(`${fact.position}° posto`);
   for (const [key, label] of ZONE_LABELS) if (fact[key] === true) parts.push(label);
-  return `<li><b>${esc(name)}</b>: ${esc(parts.join(", "))}</li>`;
+  // a team whose zones are only ruled out and whose place is still open has nothing settled to show
+  return parts.length ? `<li><b>${esc(name)}</b>: ${esc(parts.join(", "))}</li>` : "";
 }
 
 function decidedBlock(ranges, formula, byId) {
   const items = decidedFacts(ranges, formula).filter((f) => byId.has(f.team_id))
-    .map((f) => factText(f, displayTeamName(byId.get(f.team_id).name)));
+    .map((f) => factText(f, displayTeamName(byId.get(f.team_id).name))).filter(Boolean);
   return items.length ? `<div class="decided"><h3>Già deciso</h3><ul>${items.join("")}</ul></div>` : "";
 }
 

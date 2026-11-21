@@ -296,3 +296,15 @@ test("C6: Ultime 5 of a team lists its played games oldest first by date", () =>
   // Selargius: won 3-0 at home (30 Oct), lost 0-3 away (5 Nov), lost 0-3 at home (20 Nov)
   assert.deepEqual(lettersOf("232550"), ["V", "P", "P"]);
 });
+
+test("the decided block leaves out a team with nothing settled to say (zones all ruled out, place still open)", () => {
+  const data = decidedSeason();
+  const open = new Set([data.teams[2].id, data.teams[3].id]); // CUS Cagliari and G.S. Aquila Oro
+  for (const g of data.games) if (open.has(g.home_id) && open.has(g.away_id)) Object.assign(g, { played: false, sets_won: null, sets: [] });
+  data.formula = { published: true, promotion: 1, playoff: 0, relegation: 1 };
+  const html = renderStandings(data);
+  assert.ok(html.includes("<li><b>Asd Sporting Club Su Planu</b>: 2° posto</li>"));
+  assert.ok(html.includes("<li><b>Polisportiva Selargius 85 Asd</b>: 5° posto</li>"));
+  assert.ok(!html.includes("</b>: </li>"));
+  assert.ok(!html.includes("<b>CUS Cagliari</b>"));
+});
