@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { mock, test } from "node:test";
 
-import { CLOCK_TICK_MS, REFRESH_AFTER_MS, SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, refresh, startApp } from "../../docs/app.js";
+import { CLOCK_TICK_MS, REFRESH_AFTER_MS, SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, refresh, rerender, startApp } from "../../docs/app.js";
 
 const SAMPLE = JSON.parse(readFileSync(new URL("./../fixtures/data-sample.json", import.meta.url), "utf8"));
 const GIRONE = JSON.parse(readFileSync(new URL("./../fixtures/data-64353.json", import.meta.url), "utf8"));
@@ -735,4 +735,65 @@ test("clock tick: a focused filter button is focused again after the list is rew
   } finally {
     mock.timers.reset();
   }
+});
+
+test("timings from the spec: the slow note after 15 s, a refresh once the data is 10 minutes old", () => {
+  assert.equal(SLOW_LOAD_MS, 15_000);
+  assert.equal(REFRESH_AFTER_MS, 600_000);
+});
+
+test("an older request that fails last never puts an error box over the newer data", async () => {
+  const page = fakePage();
+  let failOld;
+  const oldAnswer = new Promise((_, reject) => (failOld = reject));
+  const answers = [() => oldAnswer, () => respond(GIRONE)];
+  const app = makeApp(page, (url) => (url === "data.json" ? answers.shift()() : respond({}, { ok: false, status: 404 })));
+  const errors = mock.method(console, "error", () => {});
+  try {
+    const first = load(app);
+    await load(app);
+    failOld(new TypeError("network down"));
+    await first;
+  } finally {
+    errors.mock.restore();
+  }
+
+  assert.equal(app.data, GIRONE);
+  assert.doesNotMatch(page.els.list.innerHTML, /Impossibile caricare/);
+  assert.match(page.els.list.innerHTML, /class="filters"/);
+});
+
+test("a background refresh that answers after a newer load is dropped", async () => {
+  const page = fakePage();
+  let releaseRefresh;
+  const slowRefresh = new Promise((resolve) => (releaseRefresh = resolve));
+  const answers = [() => slowRefresh, () => respond(GIRONE)];
+  const app = makeApp(page, (url) => (url === "data.json" ? answers.shift()() : respond({}, { ok: false, status: 404 })));
+
+  const background = refresh(app);
+  await load(app);
+  releaseRefresh({ ok: true, status: 200, json: async () => SAMPLE });
+  await background;
+
+  assert.equal(app.data, GIRONE);
+  assert.match(page.els["standings-body"].innerHTML, /Sporting Club Su Planu/);
+});
+
+test("a re-render that fails keeps what the page shows and logs why", async () => {
+  const page = fakePage();
+  const app = makeApp(page, router({ "data.json": () => respond(SAMPLE) }));
+  await load(app);
+  const shown = page.els.list.innerHTML, views = app.views;
+  app.data = { teams: [] };
+  const warn = mock.method(console, "warn", () => {});
+  try {
+    rerender(app);
+    assert.equal(warn.mock.callCount(), 1);
+    assert.match(String(warn.mock.calls[0].arguments[0]), /re-render failed/);
+  } finally {
+    warn.mock.restore();
+  }
+
+  assert.equal(page.els.list.innerHTML, shown);
+  assert.equal(app.views, views);
 });
