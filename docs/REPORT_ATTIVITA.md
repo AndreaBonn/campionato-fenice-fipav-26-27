@@ -20,7 +20,8 @@ Creato il 2026-11-21. Pagina statica con calendario e risultati della ASD Fenice
 - D4: palette dal logo FIPAV (prugna e arancio-rosso), stemma originale piccolo.
 - D5: repo `campionato-fenice-fipav-26-27`, pubblicazione su GitHub Pages, attribuzione "Fonte: FIPAV Online". Creazione del repo remoto e push li fa l'utente.
 - D7: aggiornamento solo ogni 4 ore, senza passaggi orari nel fine settimana. Conseguenza: le gare infrasettimanali (per esempio martedì 1 dicembre alle 21:00) mostrano il risultato anche 4 ore dopo.
-- D6 e D8: non descritte nei documenti di progetto al momento della scrittura di questo report; da integrare dall'utente.
+- D6: GitHub Pages pubblicato dal workflow con sorgente "GitHub Actions", così status.json e la versione dell'app arrivano al sito.
+- D8: notizie dal sito del Comitato filtrate su "seconda divisione" più la categoria "Indizioni Campionati", al massimo 10.
 
 ### Verifiche
 
