@@ -228,6 +228,12 @@ test("schedule: «Aggiungi a Google Calendar» only on future games with a start
   assert.match(html, /Aggiungi a Google Calendar<span class="sr-only"> la partita contro/);
 });
 
+test("schedule: no «Aggiungi a Google Calendar» once the game has started, even without a result", () => {
+  const html = renderSchedule(sample, new Date("2026-11-21T16:30:00Z"));
+  assert.equal(count(html, "calendar.google.com/calendar/render"), 0);
+  assert.equal(count(html, "Aggiungi a Google Calendar"), 0);
+});
+
 test("calendar feed block: webcal subscribe link and https download link", () => {
   const html = renderCalendarFeed(sample);
   assert.match(html, /Aggiungi al calendario/);

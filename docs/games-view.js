@@ -72,19 +72,20 @@ function resultHtml(g, teamId) {
 const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel(g))}</p>` : "");
 const movedHtml = (g) => (changeDetail(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeDetail(g))}</p>` : "");
 
-function addToCalendarHtml(data, g, teamId) {
-  const url = g.played ? null : googleCalendarUrl(g, teamsById(data));
+// Only for a game still to come: after the whistle the link would add a past event
+function addToCalendarHtml(data, g, teamId, now) {
+  const url = g.played || !(new Date(g.starts_at) > now) ? null : googleCalendarUrl(g, teamsById(data));
   if (!url) return "";
   const who = esc(teamName(data, opponentId(g, teamId)));
   return `<p class="addcal"><a href="${esc(url)}" target="_blank" rel="noopener">Aggiungi a Google Calendar<span class="sr-only"> la partita contro ${who} (si apre in una nuova scheda)</span></a></p>`;
 }
 
-function rowHtml(data, g, teamId, isNext) {
+function rowHtml(data, g, teamId, isNext, now) {
   const score = setsLabel(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
@@ -94,7 +95,7 @@ export function renderSchedule(data, now) {
   const teamId = feniceTeamId(data), next = nextGame(games, now), rounds = new Map();
   for (const g of games) rounds.set(g.round, [...(rounds.get(g.round) ?? []), g]);
   return [...rounds].map(([round, list]) =>
-    `<section class="round"><h3>Giornata ${esc(round)}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next)).join("")}</ul></section>`).join("");
+    `<section class="round"><h3>Giornata ${esc(round)}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next, now)).join("")}</ul></section>`).join("");
 }
 
 // A failed load, in plain words: network down, server error, or a page opened as a local file
