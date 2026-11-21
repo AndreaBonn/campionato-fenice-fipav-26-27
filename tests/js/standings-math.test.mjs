@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { performance } from "node:perf_hooks";
 import { MAX_ENUMERATED_GAMES, positionRanges, decidedFacts } from "../../docs/standings-math.js";
+import { tableFromGames } from "../../docs/standings-rules.js";
 
 const outcomes = [[3, 0], [2, 1], [1, 2], [0, 3]];
 const scores = [[3, 0], [3, 2], [2, 3], [0, 3]];
@@ -209,4 +210,37 @@ test("decided facts with the same best position list the narrower range first", 
   const ranges = new Map([["wide", { best: 1, worst: 3 }], ["narrow", { best: 1, worst: 2 }]]);
   const formula = { published: true, promotion: 3, playoff: 0, relegation: 0 };
   assert.deepEqual(decidedFacts(ranges, formula).map((f) => f.team_id), ["narrow", "wide"]);
+});
+
+// Finished seasons built so that the later tie-break criteria decide: both orders must place them the same way
+function finishedSeason(games) {
+  const ids = [...new Set(games.flatMap((g) => [g.home_id, g.away_id]))];
+  const data = { teams: ids.map((id) => ({ id })), games: games.map((g) => ({ ...g, played: true, sets_won: [g.sets.filter(([h, a]) => h > a).length, g.sets.filter(([h, a]) => a > h).length] })) };
+  return { ...data, standings: tableFromGames(data.games, data.teams) };
+}
+const settledAt = (data) => Object.fromEntries(data.standings.map((r) => [r.team_id, r.pos]));
+const rangesAt = (data) => Object.fromEntries([...positionRanges(data)].map(([id, r]) => [id, r.best === r.worst ? r.best : null]));
+
+test("one tie-break order: on equal points the team with more wins is ahead in the table and in the ranges", () => {
+  // A and B have 4 points; A won twice (3-2, 3-2), B once (3-0) with the better set ratio
+  const data = finishedSeason([
+    { home_id: "A", away_id: "C", sets: [[25, 20], [20, 25], [25, 20], [20, 25], [15, 10]] },
+    { home_id: "A", away_id: "B", sets: [[25, 20], [20, 25], [25, 20], [20, 25], [15, 10]] },
+    { home_id: "B", away_id: "C", sets: [[25, 20], [25, 20], [25, 20]] },
+  ]);
+  assert.deepEqual(settledAt(data), { A: 1, B: 2, C: 3 });
+  assert.deepEqual(rangesAt(data), settledAt(data));
+});
+
+test("one tie-break order: on equal points and wins the set ratio comes before the point ratio, in both", () => {
+  // A and B: 4 points, 1 win each. A has the better set ratio (5-3 against 5-4), B the better point ratio
+  const data = finishedSeason([
+    { home_id: "A", away_id: "C", sets: [[25, 23], [25, 23], [25, 23]] },
+    { home_id: "D", away_id: "A", sets: [[10, 25], [10, 25], [25, 10], [25, 10], [15, 10]] },
+    { home_id: "B", away_id: "D", sets: [[25, 5], [25, 5], [25, 5], [20, 25]] },
+    { home_id: "C", away_id: "B", sets: [[5, 25], [5, 25], [25, 5], [25, 5], [15, 5]] },
+  ]);
+  assert.equal(settledAt(data).A, 1);
+  assert.equal(settledAt(data).B, 2);
+  assert.deepEqual(rangesAt(data), settledAt(data));
 });
