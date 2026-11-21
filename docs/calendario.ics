@@ -1,0 +1,221 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Fenice//Calendar//IT
+CALSCALE:GREGORIAN
+BEGIN:VTIMEZONE
+TZID:Europe/Rome
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:13002244@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20261121T170000
+DTEND;TZID=Europe/Rome:20261121T190000
+SUMMARY:Fenice - Santandreasulcis
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 1\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002250@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20261129T150000
+DTEND;TZID=Europe/Rome:20261129T170000
+SUMMARY:Asd Scuola Volley Solki - Fenice
+LOCATION:PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO
+DESCRIPTION:Giornata 2\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002255@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20261205T163000
+DTEND;TZID=Europe/Rome:20261205T183000
+SUMMARY:Volley Narcao 18 - Fenice
+LOCATION:PAL. COMUNALE - VIA BERLINGUER - NARCAO
+DESCRIPTION:Giornata 3\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002260@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20261212T190000
+DTEND;TZID=Europe/Rome:20261212T210000
+SUMMARY:Fenice - Sardinia Yacht Services Gs Sardegna
+LOCATION:PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI
+DESCRIPTION:Giornata 4\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002264@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20261220T160000
+DTEND;TZID=Europe/Rome:20261220T180000
+SUMMARY:Vsa - Fenice
+LOCATION:PAL. COMUNALE  - VIA RINASCITA - MURAVERA
+DESCRIPTION:Giornata 5\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002266@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270109T200000
+DTEND;TZID=Europe/Rome:20270109T220000
+SUMMARY:Fenice - Polisportiva Selargius 85 Asd
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 6\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002272@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270117T190000
+DTEND;TZID=Europe/Rome:20270117T210000
+SUMMARY:Cus Cagliari - Fenice
+LOCATION:Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI
+DESCRIPTION:Giornata 7\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002278@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270123T163000
+DTEND;TZID=Europe/Rome:20270123T183000
+SUMMARY:Fenice - Asd Sandalyon Quartu
+LOCATION:PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI
+DESCRIPTION:Giornata 8\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002284@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270130T170000
+DTEND;TZID=Europe/Rome:20270130T190000
+SUMMARY:Volley Iglesias - Fenice
+LOCATION:PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS
+DESCRIPTION:Giornata 9\nAggiornamenti: https://andreabonn.github.io/campion
+ ato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002289@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270213T170000
+DTEND;TZID=Europe/Rome:20270213T190000
+SUMMARY:Santandreasulcis - Fenice
+LOCATION:palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA
+DESCRIPTION:Giornata 10\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002295@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270220T170000
+DTEND;TZID=Europe/Rome:20270220T190000
+SUMMARY:Fenice - Asd Scuola Volley Solki
+LOCATION:PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI
+DESCRIPTION:Giornata 11\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002300@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270227T170000
+DTEND;TZID=Europe/Rome:20270227T190000
+SUMMARY:Fenice - Volley Narcao 18
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 12\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002305@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270306T200000
+DTEND;TZID=Europe/Rome:20270306T220000
+SUMMARY:Sardinia Yacht Services Gs Sardegna - Fenice
+LOCATION:PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI
+DESCRIPTION:Giornata 13\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002309@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270313T170000
+DTEND;TZID=Europe/Rome:20270313T190000
+SUMMARY:Fenice - Vsa
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 14\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002311@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270321T183000
+DTEND;TZID=Europe/Rome:20270321T203000
+SUMMARY:Polisportiva Selargius 85 Asd - Fenice
+LOCATION:PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS
+DESCRIPTION:Giornata 15\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002317@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270403T200000
+DTEND;TZID=Europe/Rome:20270403T220000
+SUMMARY:Fenice - Cus Cagliari
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 16\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002323@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270411T110000
+DTEND;TZID=Europe/Rome:20270411T130000
+SUMMARY:Asd Sandalyon Quartu - Fenice
+LOCATION:scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART\, 25 - QUART
+ U SANT'ELENA
+DESCRIPTION:Giornata 17\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+BEGIN:VEVENT
+UID:13002329@campionato-fenice-fipav-26-27
+DTSTAMP:20261121T011316Z
+DTSTART;TZID=Europe/Rome:20270417T200000
+DTEND;TZID=Europe/Rome:20270417T220000
+SUMMARY:Fenice - Volley Iglesias
+LOCATION:PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU
+DESCRIPTION:Giornata 18\nAggiornamenti: https://andreabonn.github.io/campio
+ nato-fenice-fipav-26-27/
+URL:https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+END:VEVENT
+END:VCALENDAR
