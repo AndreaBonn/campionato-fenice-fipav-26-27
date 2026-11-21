@@ -283,3 +283,48 @@ def test_validate_data_boolean_is_not_a_coordinate(sample: dict[str, Any]) -> No
     assert validate_data(sample) == []
     sample["games"][0]["venue"]["lat"] = True
     assert "games[0].venue.lat: invalid type or value" in validate_data(sample)
+
+
+def test_validate_data_unplayed_game_with_a_result_and_no_sets_is_rejected(
+    sample: dict[str, Any],
+) -> None:
+    game = sample["games"][2]
+    assert not game["played"] and game["sets"] == []
+    assert validate_data(sample) == []
+    game["sets_won"] = [3, 0]
+    assert "games[2].sets: unplayed game has results" in validate_data(sample)
+
+
+def test_validate_data_sets_won_with_a_single_number_is_rejected(sample: dict[str, Any]) -> None:
+    assert validate_data(sample) == []
+    sample["games"][0]["sets_won"] = [3]
+    assert "games[0].sets_won: expected pair" in validate_data(sample)
+
+
+def test_validate_data_set_score_with_a_single_number_is_rejected(sample: dict[str, Any]) -> None:
+    assert validate_data(sample) == []
+    sample["games"][0]["sets"] = [[25]]
+    assert "games[0].sets: expected pairs" in validate_data(sample)
+
+
+def test_validate_data_latitude_without_longitude_is_rejected(sample: dict[str, Any]) -> None:
+    sample["games"][0]["venue"].update(lat=39.0, lng=9.0)
+    assert validate_data(sample) == []
+    sample["games"][0]["venue"]["lng"] = None
+    assert "games[0].venue: invalid coordinates" in validate_data(sample)
+
+
+def test_validate_data_string_instead_of_a_game_venue_object_reports_expected_object(
+    sample: dict[str, Any],
+) -> None:
+    assert validate_data(sample) == []
+    sample["games"][0]["venue"] = "x"
+    assert "games[0].venue: expected object" in validate_data(sample)
+
+
+def test_validate_data_string_instead_of_the_source_object_reports_expected_object(
+    sample: dict[str, Any],
+) -> None:
+    assert validate_data(sample) == []
+    sample["source"] = "x"
+    assert "source: expected object" in validate_data(sample)

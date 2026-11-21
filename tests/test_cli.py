@@ -474,9 +474,82 @@ def test_main_unwritable_reports_folder_still_exits_1_and_says_so(
     assert env.run(payload) == 1
 
     assert "Could not save the FIPAV responses" in caplog.text
+    assert "FIPAV responses of the failed run saved in" not in caplog.text
 
 
 def test_failed_run_responses_land_in_the_gitignored_reports_folder() -> None:
     root = Path(__file__).resolve().parents[1]
     assert failure_dir_for(OUTPUT_PATH) == root / "reports" / "sync-failure"
     assert "reports/" in (root / ".gitignore").read_text().splitlines()
+
+
+@pytest.mark.parametrize("broken", ["data_is_null", "matches_is_null"])
+def test_main_calendar_of_the_wrong_shape_exits_1_and_writes_nothing(
+    env: Env, broken: str, caplog: pytest.LogCaptureFixture
+) -> None:
+    # parse_document raises TypeError on these: a failure the run reports, never a traceback
+    payload = copy.deepcopy(calendar())
+    if broken == "data_is_null":
+        payload["data"] = None
+    else:
+        payload["data"]["matches"] = None
+
+    assert env.run(payload) == 1
+
+    failure = next(r for r in caplog.records if r.getMessage().startswith("Sync failed"))
+    assert failure.exc_info is not None and failure.exc_info[0] is TypeError
+    assert not env.data.exists()
+    assert not env.status.exists()
+    assert not (env.data.parent / "calendario.ics").exists()
+
+
+def test_main_posters_outage_ignores_malformed_previous_games(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    previous = json.loads(env.data.read_text())
+    poster = {"url": "https://data.fipavonline.it/example.jpg", "width": 620, "height": 877}
+    previous["games"][0]["poster"] = poster
+    previous["games"] = [5, {}, *previous["games"]]
+    env.data.write_text(json.dumps(previous))
+    env.overrides[POSTERS_PATH.format(committee=COMMITTEE_CODE)] = FetchError("down")
+
+    assert env.run(calendar(), now=SECOND_RUN) == 0
+
+    result = json.loads(env.data.read_text())
+    assert result["games"][0]["poster"] == poster
+
+
+def test_main_saved_responses_are_logged_with_their_folder(
+    env: Env, caplog: pytest.LogCaptureFixture
+) -> None:
+    payload = copy.deepcopy(calendar())
+    payload["data"]["matches"][0]["day"] = "Giornata 99"
+
+    assert env.run(payload) == 1
+
+    assert "FIPAV responses of the failed run saved in" in caplog.text
+    assert "Could not save the FIPAV responses" not in caplog.text
+
+
+def test_main_failed_run_cuts_the_file_name_slug_at_100_characters(env: Env) -> None:
+    payload = copy.deepcopy(calendar())
+    payload["data"]["matches"][0]["day"] = "Giornata 99"
+
+    assert env.run(payload) == 1
+
+    # the committee search URL, non-alphanumeric runs turned into "-", cut after 100 characters
+    assert "03-" + (
+        "https-fipavcagliari-it-wp-json-wp-v2-posts-search-seconda-20divisione"
+        "-per-page-20-fields-id-date-lin"
+    ) + ".json" in saved_responses(env)
+
+
+def test_utc_now_is_the_current_time() -> None:
+    from fenice_calendar.cli import _utc_now
+
+    before = datetime.now(UTC)
+    now = _utc_now()
+    after = datetime.now(UTC)
+
+    assert before <= now <= after
+    # the failure folder stamp ends in "Z": the clock must be UTC, not just the right instant
+    assert now.tzinfo is UTC

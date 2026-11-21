@@ -190,11 +190,21 @@ def test_app_version_changes_when_first_line_of_worker_without_version_line_chan
 
 
 def test_app_version_file_name_and_content_boundary_is_not_ambiguous(tmp_path: Path) -> None:
+    # without a separator both trees feed the hash the same bytes: "a" + "b.html" == "ab.html" + ""
     left = tmp_path / "left"
     right = tmp_path / "right"
     left.mkdir()
     right.mkdir()
-    (left / "a.html").write_text("bc")
-    (right / "ab.html").write_text("c")
+    (left / "a").write_text("b.html")
+    (right / "ab.html").write_text("")
 
     assert app_version(left) != app_version(right)
+
+
+def test_app_version_moving_a_file_to_another_folder_changes_the_version(tmp_path: Path) -> None:
+    docs = make_docs(tmp_path)
+    before = app_version(docs)
+
+    (docs / "icons" / "icon-192.png").rename(docs / "icon-192.png")
+
+    assert app_version(docs) != before
