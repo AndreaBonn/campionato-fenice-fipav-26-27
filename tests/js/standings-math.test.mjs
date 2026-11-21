@@ -132,3 +132,21 @@ test("ranges start from the official standings, which can carry a penalty the ga
   assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 2 });
   assert.deepEqual(positionRanges({ ...data, standings: [] }).get("A"), { best: 1, worst: 1 });
 });
+
+test("six teams with two out of contention match brute force, fixed games included", () => {
+  const ids = ["A", "B", "C", "D", "E", "F"], six = ids.map((id) => ({ id }));
+  const played = (home_id, away_id, sets_won) => ({ home_id, away_id, played: true, sets_won, sets: Array.from({ length: sets_won[0] + sets_won[1] }, (_, i) => (i < sets_won[0] ? [25, 18] : [18, 25])) });
+  const open = (home_id, away_id) => ({ home_id, away_id, played: false, sets_won: null, sets: [] });
+  const games = [
+    ...["A", "B", "C", "D"].flatMap((top) => [played(top, "E", [3, 0]), played("F", top, [0, 3])]),
+    played("A", "B", [3, 1]), played("C", "D", [3, 2]), played("A", "C", [3, 0]), played("B", "D", [3, 0]),
+    open("A", "D"), open("B", "C"), open("E", "F"), open("F", "E"),
+  ];
+  const data = { teams: six, games };
+  const exact = brute(data), ranges = positionRanges(data);
+  assert.deepEqual(ranges, exact);
+  assert.deepEqual(ranges.get("E").worst, 6);
+  // A-D and B-C are the only games that can matter: fixed games must not count against the enumeration limit
+  assert.deepEqual(positionRanges(data, { maxEnumerated: 2 }).get("A"), exact.get("A"));
+  assert.ok(ranges.get("A").best === 1 && ranges.get("F").best >= 5);
+});
