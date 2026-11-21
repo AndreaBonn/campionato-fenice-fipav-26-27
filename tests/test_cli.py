@@ -154,3 +154,18 @@ def test_main_missing_baseline_preserves_files(env: Env, monkeypatch: pytest.Mon
     monkeypatch.setattr("fenice_calendar.cli.BASELINE_PATH", env.data.parent / "missing.json")
     assert env.run(calendar()) == 1
     assert (env.data.read_bytes(), env.status.read_bytes()) == before
+
+
+def test_main_data_write_failure_preserves_calendar_and_status(
+    env: Env, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert env.run(calendar()) == 0
+    ics = env.data.parent / "calendario.ics"
+    before = ics.read_bytes(), env.status.read_bytes()
+
+    def fail_write(*args: Any, **kwargs: Any) -> bool:
+        raise OSError("disk full")
+
+    monkeypatch.setattr("fenice_calendar.cli.write_if_changed", fail_write)
+    assert env.run(calendar(), now=SECOND_RUN) == 1
+    assert (ics.read_bytes(), env.status.read_bytes()) == before
