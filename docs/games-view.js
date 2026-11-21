@@ -1,7 +1,7 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
 import { FEED_HTTPS_URL, FEED_WEBCAL_URL, googleCalendarUrl, teamsById } from "./calendar-rules.js";
-import { changeLabel, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
+import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const TIME_ZONE = "Europe/Rome";
@@ -59,7 +59,7 @@ function resultHtml(g, teamId) {
 }
 
 const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel(g))}</p>` : "");
-const movedHtml = (g) => (changeLabel(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeLabel(g).replace("Spostata: ", ""))}</p>` : "");
+const movedHtml = (g) => (changeDetail(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeDetail(g))}</p>` : "");
 
 function addToCalendarHtml(data, g, teamId) {
   const url = g.played ? null : googleCalendarUrl(g, teamsById(data));

@@ -71,10 +71,16 @@ export function refereesLabel(game) {
   return game.referee_pending ? "Arbitro da designare" : null;
 }
 
-// "Spostata: cambiati data e palestra"; null for a game that did not move
-export function changeLabel(game) {
+// "cambiati data e palestra": what moved, without the "Spostata" lead; null for a game that did not move
+export function changeDetail(game) {
   const nouns = (game.changes ?? []).map((c) => CHANGE_NOUNS[c] ?? c);
   if (!nouns.length) return null;
   const list = nouns.length > 1 ? `${nouns.slice(0, -1).join(", ")} e ${nouns.at(-1)}` : nouns[0];
-  return `Spostata: ${nouns.length > 1 ? "cambiati" : "cambiata la"} ${list}`;
+  return `${nouns.length > 1 ? "cambiati" : "cambiata la"} ${list}`;
+}
+
+// "Spostata: cambiati data e palestra"; null for a game that did not move
+export function changeLabel(game) {
+  const detail = changeDetail(game);
+  return detail === null ? null : `Spostata: ${detail}`;
 }
