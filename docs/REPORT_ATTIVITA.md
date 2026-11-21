@@ -108,3 +108,38 @@ L'utente ha chiesto di correggere tutti i 19 finding dell'analisi di coerenza (r
 - `npm test` 302 passati (23 test nuovi), `pytest` 260 passati, ruff e mypy puliti. Mutazioni sulle guardie nuove: ogni mutazione fa fallire almeno un test.
 - Browser (Chromium headless, 375 e 1280 px, orologio simulato): «tra 2 minuti» diventa «In corso» nell'hero e nella riga senza ricaricare; scheda avversaria aperta e chiusa con focus restituito; errore offline con Riprova, Riprova ripristina il calendario; refresh fallito in background lascia il calendario; nessun errore in console.
 
+
+## 2026-11-21 - Audit dei test con mutazioni e scomposizioni (844b48b..ef9174e)
+
+### Cosa è stato fatto
+
+- Audit della qualità dei test con lente mutazionale: tre worker in sola lettura (Python, regole JS, viste JS), poi verifica con mutanti eseguiti su una copia temporanea. All'inizio sopravvivevano 25 mutanti Python validi su 25, 12 regole JS su 13 e 15 viste JS su 15. Alla fine sono tutti uccisi tranne uno equivalente (`view-rules.js:46`: la clausola dell'iniziale singola è ridondante).
+- Test aggiunti: Python da 260 a 292, JS da 428 a 464. Copertura Python da 99% a 100% di righe e rami; JS da 98,5/98,1 a 98,65/98,34. Le righe JS scoperte rimaste sono il bootstrap del browser e `sw.js` caricato via `vm`, punti ciechi della metrica.
+- Fix: il test di timing R16 viene saltato sotto coverage (la strumentazione lo rallentava di circa 4 volte). `ics_changed` tratta un `calendario.ics` illeggibile o non UTF-8 come cambiato, invece di far fallire ogni run.
+- Scomposizioni: `esc` in `html.js`; stemmi in `crest-view.js`; stati di caricamento in `states-view.js`; `load` e `refresh` di `app.js` su `takeTicket` e `fetchAndShow`; `schema.py` diviso in `_venue_errors`, `_format_errors`, `_result_errors`, `_start_errors`; `plural` e lettere V/P unici in `view-rules.js`.
+- Scartate per guadagno marginale: `cli._fetch_and_build`, `enrich`, `notices._notice`, separazione di hero e schedule.
+
+### Verifica
+
+- Confronto differenziale del vecchio e del nuovo `validate_data` su 8000 documenti perturbati: 0 differenze.
+- Confronto differenziale del markup di `buildViews` e `renderOpponent` prima e dopo le scomposizioni: 360 confronti, 0 differenze.
+- Smoke test Playwright a 375 e 1280 px con click-through su filtri e scheda avversaria: console senza errori.
+- `code-reviewer` sul diff: nessun rilievo bloccante.
+
+### Divergenze aperte per l'utente
+
+- Posizione della striscia forma: la spec (R19) e l'analisi non coincidono.
+- I testi R14 e R7 della spec sono superati dalle proposte UX.
+- `tables-view` ricalcola la classifica dalle gare quando `standings` è vuoto, mentre CLAUDE.md dice che non si ricalcola.
+- La ricerca notizie su WordPress non è filtrata per titolo.
+- La media punti per set esclude il quinto set.
+- Il countdown mostra «Domani ore 00:30» a 45 minuti dall'inizio.
+- Il ramo «data da definire» di `sharePayload` è irraggiungibile.
+
+### Note per il Cliente
+
+Il funzionamento della pagina non cambia. Abbiamo reso i controlli automatici molto più severi: ora si accorgono anche di errori piccoli che prima passavano inosservati. Una correzione evita che il calendario da aggiungere al telefono smetta di aggiornarsi se il file di appoggio risulta danneggiato. Restano sette punti da decidere insieme, elencati sopra.
+
+### Riepilogo
+
+Complessità: media. Stato: completato, nessun commit di questa entry; le divergenze aperte attendono una decisione.
