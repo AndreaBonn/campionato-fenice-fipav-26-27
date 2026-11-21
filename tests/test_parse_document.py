@@ -119,3 +119,18 @@ def test_parse_document_offset_generated_at_converts_to_utc() -> None:
     generated_at = datetime(2026, 11, 21, 13, 0, tzinfo=timezone(timedelta(hours=1)))
     document = parse_document(load("calendar-64444.json"), generated_at=generated_at)
     assert document["updated_at"] == "2026-11-21T12:00:00+00:00"
+
+
+@pytest.mark.parametrize("logo", [None, ""])
+def test_parse_document_missing_logo_is_null(logo: str | None) -> None:
+    calendar = load("calendar-64444.json")
+    for match in calendar["data"]["matches"]:
+        for key in ("team1", "team2"):
+            if match[key]["cod_aff_societa"] == TEAM_COD:
+                match[key]["logo"] = logo
+    document = parse_document(calendar, generated_at=GENERATED_AT)
+    fenice = next(t for t in document["teams"] if t["cod"] == TEAM_COD)
+    other = next(t for t in document["teams"] if t["cod"] != TEAM_COD)
+    assert fenice["logo_url"] is None
+    assert other["logo_url"] is not None and other["logo_url"].startswith("https://")
+    assert validate_data(dict(document)) == []

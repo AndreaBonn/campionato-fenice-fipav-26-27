@@ -213,3 +213,19 @@ def test_parse_game_referees_filters_placeholders(
     game = parse_game(raw, index_for(girone_a))
     assert game["referees"] == expected
     assert game["referee_pending"] is pending
+
+
+def test_parse_game_null_referee_is_pending_not_a_name(girone_a: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["1referee"], raw["2referee"] = None, None
+    game = parse_game(raw, index_for(girone_a))
+    assert game["referees"] == []
+    assert game["referee_pending"] is True
+
+
+def test_parse_game_null_second_referee_keeps_the_first(girone_a: list[dict[str, Any]]) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["1referee"], raw["2referee"] = "Rossi Mario", None
+    game = parse_game(raw, index_for(girone_a))
+    assert game["referees"] == ["Rossi Mario"]
+    assert game["referee_pending"] is False

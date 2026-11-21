@@ -36,6 +36,11 @@ class TeamNotFound(Exception):
     pass
 
 
+def _optional_text(value: Any) -> str:
+    """FIPAV sends null for a missing referee or logo: it is an absence, never the text "None"."""
+    return "" if value is None else str(value)
+
+
 def _clean(text: str) -> str:
     return " ".join(text.replace("\\'", "'").split())
 
@@ -84,7 +89,7 @@ def _parse_venue(raw: dict[str, Any]) -> Venue:
 
 
 def _parse_referees(raw: dict[str, Any]) -> tuple[list[str], bool]:
-    names = [_clean(str(raw.get(key, ""))) for key in ("1referee", "2referee")]
+    names = [_clean(_optional_text(raw.get(key))) for key in ("1referee", "2referee")]
     real = [name for name in names if name and name != REFEREE_PENDING_LABEL]
     return real, not real
 
@@ -144,7 +149,7 @@ def _parse_team(raw: dict[str, Any]) -> Team:
         id=str(raw["id"]),
         cod=str(raw["cod_aff_societa"]),
         name=_clean(str(raw["title"])),
-        logo_url=str(raw["logo"]) or None,
+        logo_url=_optional_text(raw["logo"]) or None,
     )
 
 
