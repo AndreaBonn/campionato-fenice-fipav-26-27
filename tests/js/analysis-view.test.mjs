@@ -18,7 +18,7 @@ test("before the first played game the section says the analysis will come", () 
 test("with played games it shows sets, mean points, tie-break, comebacks and streak", () => {
   const html = renderAnalysis(girone);
   assert.match(html, /Set vinti e persi<\/dt><dd>0 vinti, 9 persi \(0%\)/);
-  assert.match(html, /Punti medi per set<\/dt><dd>15,2 fatti, 2\d,\d subiti/);
+  assert.match(html, /Punti medi per set<\/dt><dd>15,2 fatti, 25,0 subiti/);
   assert.match(html, /Quinto set<\/dt><dd>nessuna gara al quinto set/);
   assert.match(html, /Rimonte<\/dt><dd>0 vittorie dopo aver perso il primo set/);
   assert.match(html, /Serie in corso<\/dt><dd>3 sconfitte di fila/);
@@ -50,6 +50,13 @@ test("games awarded at the table are listed beside played ones without skewing s
   const html = renderAnalysis(data);
   assert.match(html, /Set vinti e persi<\/dt><dd>0 vinti, 9 persi \(0%\)/);
   assert.match(html, /1 gara decisa a tavolino/);
+});
+
+test("the forfeit row appears only when a game was awarded at the table", () => {
+  const data = structuredClone(girone);
+  assert.doesNotMatch(renderAnalysis(data), /Gare a tavolino/);
+  data.games.push({ ...data.games[0], home_id: "232645", played: true, sets: [], sets_won: [3, 0] });
+  assert.match(renderAnalysis(data), /Gare a tavolino<\/dt><dd>1 gara decisa a tavolino/);
 });
 
 test("strip: record, sets and the form letters (V or P as text, not only a colour) lead the section", () => {
@@ -126,6 +133,18 @@ test("tie-break row: with two fifth sets they are listed oldest first and the me
   assert.ok(renderAnalysis(data).includes("<dd>2 gare: 2 vinte, 0 perse; 15-10 con Polisportiva Selargius 85 Asd, 15-13 con CUS Cagliari; scarto medio +3,5</dd>"));
 });
 
+test("tie-break row: two losses have a negative mean margin", () => {
+  const data = lone(girone);
+  data.games[0].sets = [[25, 20], [20, 25], [25, 20], [20, 25], [10, 15]];
+  data.games[0].sets_won = [2, 3];
+  data.games.push({ ...data.games[0], id: "later", sets: [[25, 20], [20, 25], [25, 20], [20, 25], [13, 15]] });
+  assert.match(renderAnalysis(data), /scarto medio -3,5/);
+});
+
+test("tie-break row: an unknown opponent receives a fallback name", () => {
+  assert.match(renderAnalysis(lone(girone, "missing")), /16-14 con Squadra Sconosciuta/);
+});
+
 test("tie-break row: no fifth set played adds nothing to the existing sentence", () => {
   assert.ok(renderAnalysis(girone).includes("<dt>Quinto set</dt><dd>nessuna gara al quinto set</dd>"));
 });
@@ -133,6 +152,20 @@ test("tie-break row: no fifth set played adds nothing to the existing sentence",
 test("close sets row: won and lost sets decided by two points, extra points included", () => {
   // 27-25 W, 25-23 W, 24-26 L, 16-14 W; 20-25 is not close
   assert.ok(renderAnalysis(lone(girone)).includes("<dt>Set punto a punto</dt><dd>3 vinti, 1 perso</dd>"));
+});
+
+test("close sets row: only won close sets still show their count", () => {
+  const data = lone(girone);
+  data.games[0].sets = [[25, 23], [27, 25], [25, 20]];
+  data.games[0].sets_won = [3, 0];
+  assert.match(renderAnalysis(data), /Set punto a punto<\/dt><dd>2 vinti, 0 persi/);
+});
+
+test("close sets row: only lost close sets still show their count", () => {
+  const data = lone(girone);
+  data.games[0].sets = [[23, 25], [25, 27], [20, 25]];
+  data.games[0].sets_won = [0, 3];
+  assert.match(renderAnalysis(data), /Set punto a punto<\/dt><dd>0 vinti, 2 persi/);
 });
 
 test("close sets row: says so when no set was that tight", () => {

@@ -7,6 +7,20 @@ const NOW = new Date("2026-11-20T12:00:00Z");
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
 const ago = (ms) => new Date(NOW.getTime() - ms).toISOString();
 
+test("countdown: exactly three hours after kickoff is still in progress", () => {
+  const start = "2026-11-21T17:00:00+01:00";
+  assert.equal(countdownText(start, new Date(new Date(start).getTime() + 3 * 60 * 60 * 1000)).main, "In corso");
+});
+
+test("countdown: exactly one hour before kickoff shows the time", () => {
+  const start = "2026-11-21T17:00:00+01:00";
+  assert.deepEqual(countdownText(start, new Date(new Date(start).getTime() - 60 * 60 * 1000)), { lead: "", main: "Stasera", sub: "ore 17:00" });
+});
+
+test("relative age: exactly 24 hours ago is yesterday", () => {
+  assert.equal(relativeAge(ago(24 * 60 * 60 * 1000), NOW), "ieri");
+});
+
 test("countdown: two days or more read «tra N giorni» by Rome calendar day", () => {
   assert.deepEqual(countdownText("2026-11-23T17:00:00+01:00", NOW), { lead: "tra", main: "3 giorni", sub: "" });
   assert.deepEqual(countdownText("2026-11-22T17:00:00+01:00", NOW), { lead: "tra", main: "2 giorni", sub: "" });

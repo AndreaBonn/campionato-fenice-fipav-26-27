@@ -70,6 +70,11 @@ test("a worker found installing announces itself once it reaches installed", asy
   await setupUpdates(t.env);
 
   t.registration.waiting = installing;
+  installing.fire("statechange");
+  assert.equal(t.els["update-notice"].hidden, true);
+  installing.state = "redundant";
+  installing.fire("statechange");
+  assert.equal(t.els["update-notice"].hidden, true);
   installing.state = "installed";
   installing.fire("statechange");
 
@@ -101,6 +106,17 @@ test("Aggiorna posts SKIP_WAITING and disables the button; no reload before cont
   assert.equal(t.els["update-apply"].disabled, true);
   assert.equal(t.els["update-apply"].textContent, "Aggiornamento…");
   assert.equal(t.reloads.n, 0);
+});
+
+test("an accepted worker activating does not reset the update button", async () => {
+  const waiting = worker("installed");
+  const t = setup({ waiting });
+  await setupUpdates(t.env);
+  t.els["update-apply"].onclick();
+  waiting.state = "activating";
+  waiting.fire("statechange");
+  assert.equal(t.els["update-apply"].disabled, true);
+  assert.equal(t.els["update-apply"].textContent, "Aggiornamento…");
 });
 
 test("Aggiorna with nothing waiting (another tab accepted) just hides the notice", async () => {
@@ -161,23 +177,27 @@ test("a hidden page neither announces nor checks", async () => {
   await setupUpdates(t.env);
   t.clock.t += 700_000;
   t.doc.visibilityState = "hidden";
+  t.registration.waiting = worker("installed");
 
   t.doc.fire("visibilitychange");
 
   assert.equal(t.registration.updates, 1);
+  assert.equal(t.els["update-notice"].hidden, true);
 });
 
 test("a failed registration is logged and the page keeps working", async () => {
   const t = setup({ registerFails: true });
-  const warn = console.warn;
-  console.warn = () => {};
+  const warnings = captureWarnings();
   try {
     await setupUpdates(t.env);
   } finally {
-    console.warn = warn;
+    warnings.restore();
   }
 
   assert.equal(t.els["update-notice"].hidden, true);
+  assert.equal(warnings.logged.length, 1);
+  assert.equal(warnings.logged[0][0], "service worker non registrato");
+  assert.equal(warnings.logged[0][1].message, "no");
 });
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
