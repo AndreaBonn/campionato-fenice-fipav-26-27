@@ -15,7 +15,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T009 | output.py: write_if_changed, write_status | dip: T005 | R3 | ok | revert
 - [x] T010 | cli.py main con exit 1 senza scritture su errore | dip: T006,T008,T009 | R2, R3 | seq | revert
 - [x] T011 | Prima sync reale e controllo di docs/data.json | dip: T010 | R1 | seq | revert
-- [ ] T012 | index.html base, styles.css palette, view-rules.js | dip: T005 | R6, R8 | ok | revert
+- [x] T012 | index.html base, styles.css palette, view-rules.js | dip: T005 | R6, R8 | ok | revert
 - [ ] T013 | game-rules.js: prossima gara, parziali, mappa | dip: T005 | R6, R7 | ok | revert
 - [ ] T014 | games-view.js e wiring con i quattro stati | dip: T012,T013 | R6, R7, R8 | seq | revert
 - [ ] T015 | Render 375/1280, click-through, a11y-gate di fase 1 | dip: T011,T014 | R26 | seq | revert correzioni
