@@ -3,7 +3,7 @@ import { feniceGames, feniceTeamId, form, outcome, playedInOrder } from "./game-
 import { averagePointsPerSet, closeSets, comebacks, forfeitCount, setStats, setsByNumber, streak, tieBreakDetail, tieBreakRecord } from "./fenice-rules.js";
 import { formListHtml } from "./games-view.js";
 import { esc } from "./html.js";
-import { displayTeamName, plural } from "./view-rules.js";
+import { plural, teamNameOrUnknown } from "./view-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 
 const PERCENT = 100;
@@ -22,7 +22,7 @@ const signed = (n) => (n < 0 ? "-" : "+") + dec(Math.abs(n));
 
 // Each fifth set as "15-12 con Opponent" (Fenice points first), with the mean margin from two sets on
 function tieBreakListText(detail, teams) {
-  const name = (id) => displayTeamName(teams.find((t) => t.id === id)?.name ?? "Squadra sconosciuta");
+  const name = (id) => teamNameOrUnknown(teams.find((t) => t.id === id)?.name);
   const sets = detail.sets.map((s) => `${s.mine}-${s.theirs} con ${name(s.opponentId)}`).join(", ");
   return `; ${sets}${detail.meanMargin === null ? "" : `; scarto medio ${signed(detail.meanMargin)}`}`;
 }

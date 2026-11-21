@@ -142,7 +142,7 @@ test("tie-break row: two losses have a negative mean margin", () => {
 });
 
 test("tie-break row: an unknown opponent receives a fallback name", () => {
-  assert.match(renderAnalysis(lone(girone, "missing")), /16-14 con Squadra Sconosciuta/);
+  assert.match(renderAnalysis(lone(girone, "missing")), /16-14 con Squadra sconosciuta/);
 });
 
 test("tie-break row: no fifth set played adds nothing to the existing sentence", () => {

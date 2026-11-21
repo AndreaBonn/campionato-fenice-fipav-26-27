@@ -23,7 +23,7 @@ test("match title: an away game puts the opponent first", () => {
 });
 
 test("match title: an unknown team reads «Squadra sconosciuta»", () => {
-  assert.equal(matchTitle(sample, { ...homeGame, away_id: "999" }), "ASD Fenice - Squadra Sconosciuta");
+  assert.equal(matchTitle(sample, { ...homeGame, away_id: "999" }), "ASD Fenice - Squadra sconosciuta");
 });
 
 test("share payload: title, text with day, time and place, and the page url", () => {

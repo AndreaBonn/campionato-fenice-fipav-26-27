@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { TIME_ZONE, countdownText, displayTeamName, plural, relativeAge, teamInitials } from "../../docs/view-rules.js";
+import { TIME_ZONE, countdownText, displayTeamName, plural, relativeAge, teamInitials, teamNameOrUnknown } from "../../docs/view-rules.js";
 
 const NOW = new Date("2026-11-20T12:00:00Z");
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -128,4 +128,10 @@ test("plural: the noun agrees with the number, zero takes the plural", () => {
   assert.equal(plural(1, "gara", "gare"), "1 gara");
   assert.equal(plural(0, "gara", "gare"), "0 gare");
   assert.equal(plural(2, "gara", "gare"), "2 gare");
+});
+
+test("teamNameOrUnknown: a missing name reads «Squadra sconosciuta», a FIPAV name is title-cased", () => {
+  assert.equal(teamNameOrUnknown(undefined), "Squadra sconosciuta");
+  assert.equal(teamNameOrUnknown(null), "Squadra sconosciuta");
+  assert.equal(teamNameOrUnknown("ASD SANDALYON QUARTU"), "Asd Sandalyon Quartu");
 });

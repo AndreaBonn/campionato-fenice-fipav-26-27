@@ -70,9 +70,9 @@ test("feed links: null when the page url is unknown", () => {
   assert.equal(feedUrls("file:///home/u/docs/index.html"), null);
 });
 
-test("google calendar url: a team that is not in the list is named «Squadra Sconosciuta»", () => {
+test("google calendar url: a team that is not in the list is named «Squadra sconosciuta»", () => {
   const game = { ...sample.games[3], home_id: "nope" };
-  assert.equal(params(googleCalendarUrl(game, teams, PAGES)).get("text"), "Squadra Sconosciuta - Asd Sandalyon Quartu");
+  assert.equal(params(googleCalendarUrl(game, teams, PAGES)).get("text"), "Squadra sconosciuta - Asd Sandalyon Quartu");
   assert.equal(params(googleCalendarUrl(sample.games[3], teams, PAGES)).get("text"), "Asd Fenice - Asd Sandalyon Quartu");
 });
 

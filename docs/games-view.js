@@ -8,12 +8,12 @@ import { changeDetail, feniceGames, feniceTeamId, gameStatus, isHome, lastPlayed
 import { lastResultMeta, matchSides, matchTitle, opponentChipTexts, teamSummary } from "./hero-rules.js";
 import { DEFAULT_FILTER, SIDE_OPTIONS, WHEN_OPTIONS, andataGame, effectiveFilter, emptyMessage, filterGames, groupByMonth, roundLabel, roundsPerHalf } from "./schedule-rules.js";
 import { ICON_CALENDAR, ICON_MAP_PIN, ICON_SHARE } from "./icons.js";
-import { OUTCOME_LETTERS, TIME_ZONE, countdownText, displayTeamName } from "./view-rules.js";
+import { OUTCOME_LETTERS, TIME_ZONE, countdownText, displayTeamName, teamNameOrUnknown } from "./view-rules.js";
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
 const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ${g.time ? `ore ${g.time}` : "orario da definire"}`;
 
-const teamName = (data, id) => displayTeamName(data.teams.find((t) => t.id === id)?.name ?? "Squadra sconosciuta");
+const teamName = (data, id) => teamNameOrUnknown(data.teams.find((t) => t.id === id)?.name);
 const side = (g, teamId) => (isHome(g, teamId) ? "In casa" : "In trasferta");
 const sideTag = (g, teamId) => `<span class="tag ${isHome(g, teamId) ? "home" : "away"}">${side(g, teamId)}</span>`;
 const opponentId = (g, teamId) => (isHome(g, teamId) ? g.away_id : g.home_id);

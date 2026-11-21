@@ -1,13 +1,13 @@
 // Pure rules of the next-game box and the last-result row: titles, share text, opponent chips. No DOM.
 import { feniceTeamId, form, isHome, outcome, playedInOrder } from "./game-rules.js";
-import { TIME_ZONE, displayTeamName, plural } from "./view-rules.js";
+import { TIME_ZONE, displayTeamName, plural, teamNameOrUnknown } from "./view-rules.js";
 
 // The club as the page writes it in titles; displayTeamName would give "Asd Fenice"
 export const FENICE_LABEL = "ASD Fenice";
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
 
-const teamLabel = (data, id) => (id === feniceTeamId(data) ? FENICE_LABEL : displayTeamName(data.teams.find((t) => t.id === id)?.name ?? "Squadra sconosciuta"));
+const teamLabel = (data, id) => (id === feniceTeamId(data) ? FENICE_LABEL : teamNameOrUnknown(data.teams.find((t) => t.id === id)?.name));
 
 // The two sides in the order they are written, home first: [{ id, name, isFenice }, { ... }]
 export function matchSides(data, game) {

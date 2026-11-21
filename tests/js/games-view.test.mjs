@@ -257,7 +257,7 @@ test("the next game box has no opponent button when the opponent is not among th
   const opponent = next.home_id === "232645" ? next.away_id : next.home_id;
   data.teams = data.teams.filter((t) => t.id !== opponent);
   const html = renderHero(data, now);
-  assert.match(html, /Squadra Sconosciuta/);
+  assert.match(html, /Squadra sconosciuta/);
   assert.equal(count(html, "data-opponent="), 0);
   assert.equal(count(renderHero(girone, now), "data-opponent="), 1);
 });

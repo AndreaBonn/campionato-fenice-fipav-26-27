@@ -4,7 +4,7 @@ import { feniceTeamId, gameStatus } from "./game-rules.js";
 import { headToHead } from "./opponent-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
-import { TIME_ZONE, displayTeamName, plural } from "./view-rules.js";
+import { TIME_ZONE, UNKNOWN_TEAM, displayTeamName, plural } from "./view-rules.js";
 import { esc } from "./html.js";
 import { crestHtml, installCrestFallback } from "./crest-view.js";
 
@@ -78,7 +78,7 @@ function remainingRow(data, r) {
   const opp = data.teams.find((t) => t.id === r.opponentId);
   const place = r.opponentPos ? ` <small>(${r.opponentPos}°)</small>` : "";
   const tag = r.home ? '<span class="tag home">Casa</span>' : '<span class="tag away">Trasferta</span>';
-  return `<li><span class="d">${esc(dayText(r.game))}</span><span>${opp ? nameOf(opp) : "Squadra sconosciuta"}${place}</span>${tag}</li>`;
+  return `<li><span class="d">${esc(dayText(r.game))}</span><span>${opp ? nameOf(opp) : UNKNOWN_TEAM}${place}</span>${tag}</li>`;
 }
 
 const laterLabel = (n) => (n === 1 ? "L'altra gara" : `Le altre ${n} gare`);

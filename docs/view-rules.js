@@ -52,6 +52,10 @@ const keepsCapitals = (w) => /^(\p{L}\.){2,}$/u.test(w) || ACRONYMS.has(w);
 // FIPAV registers names in capitals: same name, only the capitals change
 export const displayTeamName = (name) => name.split(" ").map((w) => (keepsCapitals(w) ? w : titleWord(w))).join(" ");
 
+// A team missing from data.teams: our own wording, so it is not title-cased like a FIPAV name
+export const UNKNOWN_TEAM = "Squadra sconosciuta";
+export const teamNameOrUnknown = (name) => (name == null ? UNKNOWN_TEAM : displayTeamName(name));
+
 const INITIALS_LENGTH = 2;
 
 // Capitals of the first words of a name, shown where the crest image cannot load: "ASD FENICE" -> "AF"
