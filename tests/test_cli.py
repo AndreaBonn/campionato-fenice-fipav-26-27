@@ -186,10 +186,10 @@ def test_main_data_write_failure_preserves_calendar_and_status(
     ics = env.data.parent / "calendario.ics"
     before = ics.read_bytes(), env.status.read_bytes()
 
-    def fail_write(*args: Any, **kwargs: Any) -> bool:
+    def fail_write(*args: Any, **kwargs: Any) -> str:
         raise OSError("disk full")
 
-    monkeypatch.setattr("fenice_calendar.cli.write_if_changed", fail_write)
+    monkeypatch.setattr("fenice_calendar.cli.json_if_changed", fail_write)
     assert env.run(calendar(), now=SECOND_RUN) == 1
     assert (ics.read_bytes(), env.status.read_bytes()) == before
 
@@ -293,3 +293,48 @@ def test_main_corrupt_previous_data_and_outage_uses_empty_enrichments(env: Env) 
     assert result["notices"] == []
     assert len(result["games"]) == 90
     assert all(game["poster"] is None for game in result["games"])
+
+
+def fenice_game_moved() -> dict[str, Any]:
+    """The calendar with one Fenice game moved to 20:30, so data.json and the ICS both change."""
+    payload = copy.deepcopy(calendar())
+    match = next(
+        m
+        for m in payload["data"]["matches"]
+        if TEAM_COD in (m["team1"]["cod_aff_societa"], m["team2"]["cod_aff_societa"])
+    )
+    match["time"] = "20.30"
+    return payload
+
+
+def test_main_status_write_failure_leaves_data_and_calendar_unchanged(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    ics = env.data.parent / "calendario.ics"
+    before = env.data.read_bytes(), ics.read_bytes()
+    payload = fenice_game_moved()
+    blocker = env.data.parent / "blocked"
+    blocker.write_text("a file where a directory is expected")
+    env.status = blocker / "status.json"
+
+    assert env.run(payload, now=SECOND_RUN) == 1
+
+    assert (env.data.read_bytes(), ics.read_bytes()) == before
+    assert sorted(p.name for p in env.data.parent.iterdir()) == [
+        "blocked",
+        "calendario.ics",
+        "data.json",
+        "status.json",
+    ]
+
+
+def test_main_changed_game_rewrites_data_calendar_and_status_together(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    ics = env.data.parent / "calendario.ics"
+    before = env.data.read_bytes(), ics.read_bytes(), env.status.read_bytes()
+    payload = fenice_game_moved()
+
+    assert env.run(payload, now=SECOND_RUN) == 0
+
+    after = env.data.read_bytes(), ics.read_bytes(), env.status.read_bytes()
+    assert all(old != new for old, new in zip(before, after, strict=True))
+    assert not list(env.data.parent.glob("*.tmp"))

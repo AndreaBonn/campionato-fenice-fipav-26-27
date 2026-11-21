@@ -15,9 +15,9 @@ from fenice_calendar.config import (
 )
 from fenice_calendar.enrich import enrich
 from fenice_calendar.fetch import FetchError, fetch_json
-from fenice_calendar.ics import build_ics, write_ics_if_changed
+from fenice_calendar.ics import build_ics, ics_changed
 from fenice_calendar.merge import compute_changes
-from fenice_calendar.output import write_if_changed, write_status
+from fenice_calendar.output import json_if_changed, status_json, write_all_atomic
 from fenice_calendar.parse import ParseError, TeamNotFound, parse_document, parse_standings
 from fenice_calendar.schema import Data, validate_data
 
@@ -50,10 +50,16 @@ def _fetch_and_build(fetch: Fetch, checked_at: datetime, data_path: Path) -> tup
 
 
 def _write_outputs(document: Data, calendar_ics: str, data_path: Path, status_path: Path) -> None:
-    changed = write_if_changed(path=data_path, data=dict(document))
-    write_ics_if_changed(data_path.with_name("calendario.ics"), calendar_ics)
-    write_status(path=status_path, checked_at=document["updated_at"])
-    logger.info("data.json %s", "updated" if changed else "unchanged")
+    files: list[tuple[Path, str]] = []
+    data_json = json_if_changed(path=data_path, data=dict(document))
+    if data_json is not None:
+        files.append((data_path, data_json))
+    ics_path = data_path.with_name("calendario.ics")
+    if ics_changed(ics_path, calendar_ics):
+        files.append((ics_path, calendar_ics))
+    files.append((status_path, status_json(checked_at=document["updated_at"])))
+    write_all_atomic(files)
+    logger.info("data.json %s", "unchanged" if data_json is None else "updated")
 
 
 def main(

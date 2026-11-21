@@ -90,8 +90,8 @@ def build_ics(document: Data, generated_at: datetime) -> str:
     return CRLF.join(fold_line(line) for line in lines) + CRLF
 
 
-def write_ics_if_changed(path: Path, content: str) -> bool:
-    """Write the calendar only when content other than DTSTAMP changes."""
+def ics_changed(path: Path, content: str) -> bool:
+    """Tell whether the calendar on disk differs from ``content`` beyond DTSTAMP."""
 
     def stable(value: str) -> list[str]:
         return [line for line in value.splitlines() if not line.startswith("DTSTAMP:")]
@@ -100,7 +100,12 @@ def write_ics_if_changed(path: Path, content: str) -> bool:
         previous = path.read_text(encoding="utf-8")
     except FileNotFoundError:
         previous = ""
-    if stable(previous) == stable(content):
+    return stable(previous) != stable(content)
+
+
+def write_ics_if_changed(path: Path, content: str) -> bool:
+    """Write the calendar only when content other than DTSTAMP changes."""
+    if not ics_changed(path, content):
         return False
     _write_atomic(path, content)
     return True
