@@ -190,3 +190,14 @@ def test_fold_line_keeps_a_line_of_exactly_75_octets_whole() -> None:
 
     assert fold_line(exact) == exact
     assert fold_line(exact + "Y") == exact + "\r\n Y"
+
+
+def test_ics_changed_unreadable_previous_calendar_counts_as_changed(tmp_path: Path) -> None:
+    # like data.json: a damaged file on disk is replaced by the next run, it never blocks it
+    path = tmp_path / "calendario.ics"
+    path.write_bytes(b"\xff\xfe not utf-8")
+    content = _fixture_ics()
+
+    assert ics_changed(path, content) is True
+    assert write_ics_if_changed(path, content) is True
+    assert ics_changed(path, content) is False

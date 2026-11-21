@@ -97,6 +97,7 @@ def ics_changed(path: Path, content: str) -> bool:
 
     try:
         previous = path.read_text(encoding="utf-8")
-    except FileNotFoundError:
+    # missing or damaged (not UTF-8): rewritten like an unreadable data.json, never blocking the run
+    except (OSError, ValueError):
         previous = ""
     return stable(previous) != stable(content)
