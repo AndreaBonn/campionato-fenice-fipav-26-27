@@ -42,7 +42,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 
 ## Fase 4 - Scheda avversaria e analisi Fenice
 
-- [ ] T030 | team-rules.js: casa/trasferta, gare rimaste, forma | dip: T026 | R18 | ok | revert
+- [x] T030 | team-rules.js: casa/trasferta, gare rimaste, forma | dip: T026 | R18 | ok | revert
 - [ ] T031 | opponent-rules.js: scontri diretti, calendario avversaria | dip: T030 | R18 | seq | revert
 - [ ] T032 | opponent-view.js con dialog nativo e click-through | dip: T031,T021 | R18, R26 | seq | revert
 - [ ] T033 | fenice-rules.js: set, punti medi, tie-break, rimonte | dip: T026 | R19 | ok | revert
