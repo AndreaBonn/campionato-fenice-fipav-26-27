@@ -1,6 +1,6 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
-import { feniceGames, feniceTeamId, isHome, mapUrl, nextGame, outcome, scoreLabel, setScores } from "./game-rules.js";
+import { changeLabel, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const TIME_ZONE = "Europe/Rome";
@@ -57,12 +57,15 @@ function resultHtml(g, teamId) {
   return `<div class="res"><b>${esc(scoreLabel(g, teamId))}</b><span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></div>`;
 }
 
+const refsHtml = (g) => (refereesLabel(g) ? `<p class="refs">${esc(refereesLabel(g))}</p>` : "");
+const movedHtml = (g) => (changeLabel(g) ? `<p class="moved"><span class="tag moved-tag">Spostata</span> ${esc(changeLabel(g).replace("Spostata: ", ""))}</p>` : "");
+
 function rowHtml(data, g, teamId, isNext) {
   const score = scoreLabel(g, teamId), parts = setScores(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
@@ -95,3 +98,18 @@ export const renderLoading = () =>
   '<div class="state" role="status"><span class="sr-only">Caricamento dei dati in corso</span><div class="skeleton" aria-hidden="true"><i></i><i></i><i></i></div></div>';
 
 export const renderChecked = (iso, now) => `Ultimo controllo su FIPAV Online: ${relativeAge(iso, now)}`;
+
+const FORM_TEXT = { won: "V", lost: "P" };
+
+// Last played game with its sets, plus the strip of the last five outcomes (letters, not only colours)
+export function renderLastResult(data) {
+  const teamId = feniceTeamId(data), games = feniceGames(data), g = lastPlayed(games);
+  if (!g) return "";
+  const parts = setScores(g, teamId), won = outcome(g, teamId) === "won";
+  const strip = form(games, teamId).map((o) => `<li class="f ${o}">${FORM_TEXT[o]}</li>`).join("");
+  return `<p class="eyebrow">Ultimo risultato</p>
+<p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
+<p class="when">${esc(shortWhen(g))}</p>
+<p class="score"><b>${esc(scoreLabel(g, teamId))}</b> <span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></p>${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}
+<ol class="form" aria-label="Forma delle ultime partite, dalla più vecchia alla più recente. V vinta, P persa">${strip}</ol>`;
+}

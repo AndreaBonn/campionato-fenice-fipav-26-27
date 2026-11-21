@@ -25,6 +25,10 @@
     <h2 id="next-title" class="sr-only">Prossima partita</h2>
     <div id="next-body"></div>
   </section>
+  <section id="last" class="hero last" aria-labelledby="last-title" hidden>
+    <h2 id="last-title" class="sr-only">Ultimo risultato</h2>
+    <div id="last-body"></div>
+  </section>
   <section id="standings" aria-labelledby="standings-title" hidden>
     <h2 id="standings-title">Classifica</h2>
     <div id="standings-body"></div>
@@ -42,7 +46,7 @@
   </div>
 </footer>
 <script type="module">
-import { renderChecked, renderError, renderHero, renderLoading, renderSchedule } from "./games-view.js";
+import { renderChecked, renderError, renderHero, renderLastResult, renderLoading, renderSchedule } from "./games-view.js";
 import { renderStandings } from "./tables-view.js";
 
 const $ = (id) => document.getElementById(id);
@@ -79,7 +83,7 @@ async function fetchData() {
 // A TypeError while building the markup is bad data, not a dead network: the cause text must not say so
 function build(data, now) {
   try {
-    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data) };
+    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data), last: renderLastResult(data) };
   } catch (err) {
     throw new Error("invalid data", { cause: err });
   }
@@ -94,16 +98,19 @@ async function load() {
   $("next").hidden = true;
   $("next-body").innerHTML = "";
   $("standings").hidden = true;
+  $("last").hidden = true;
   $("list").setAttribute("aria-busy", "true");
   $("list").innerHTML = renderLoading();
   const slow = setTimeout(showSlowNote, SLOW_LOAD_MS);
   loadStatus();
   try {
-    const { hero, list, standings } = build(await fetchData(), new Date());
+    const { hero, list, standings, last } = build(await fetchData(), new Date());
     $("next-body").innerHTML = hero;
     $("next").hidden = !hero;
     $("list").innerHTML = list;
     $("standings-body").innerHTML = standings;
+    $("last-body").innerHTML = last;
+    $("last").hidden = !last;
     $("standings").hidden = !standings;
   } catch (err) {
     console.error("load failed", err);

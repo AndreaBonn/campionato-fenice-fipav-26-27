@@ -54,3 +54,27 @@ export function outcome(game, teamId) {
 
 // Google Maps link on the venue coordinates; null when the venue has none
 export const mapUrl = (venue) => (venue.lat == null || venue.lng == null ? null : `${MAPS_SEARCH}${venue.lat},${venue.lng}`);
+
+const FORM_LENGTH = 5;
+const CHANGE_NOUNS = { date: "data", time: "ora", venue: "palestra" };
+
+// Last played game in the file order (rounds go forward in time); null when none is played
+export const lastPlayed = (games) => games.filter((g) => g.played && g.sets_won).at(-1) ?? null;
+
+// Outcomes of the last FORM_LENGTH played games, oldest first: ["won", "lost", ...]
+export const form = (games, teamId) =>
+  games.filter((g) => g.played && g.sets_won).slice(-FORM_LENGTH).map((g) => outcome(g, teamId));
+
+// "Arbitri: A, B" / "Arbitro: A" from the names, "Arbitro da designare" while pending, null otherwise
+export function refereesLabel(game) {
+  if (game.referees.length) return `${game.referees.length > 1 ? "Arbitri" : "Arbitro"}: ${game.referees.join(", ")}`;
+  return game.referee_pending ? "Arbitro da designare" : null;
+}
+
+// "Spostata: cambiati data e palestra"; null for a game that did not move
+export function changeLabel(game) {
+  const nouns = (game.changes ?? []).map((c) => CHANGE_NOUNS[c] ?? c);
+  if (!nouns.length) return null;
+  const list = nouns.length > 1 ? `${nouns.slice(0, -1).join(", ")} e ${nouns.at(-1)}` : nouns[0];
+  return `Spostata: ${nouns.length > 1 ? "cambiati" : "cambiata la"} ${list}`;
+}

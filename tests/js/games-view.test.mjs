@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { feniceGames } from "../../docs/game-rules.js";
-import { errorCause, renderChecked, renderEmpty, renderError, renderHero, renderSchedule } from "../../docs/games-view.js";
+import { errorCause, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -176,4 +176,47 @@ test("schedule: no games for the club renders the empty state", () => {
 test("checked line: relative age of the last successful sync", () => {
   const now = new Date("2026-11-21T12:00:00Z");
   assert.equal(renderChecked("2026-11-21T09:30:00Z", now), "Ultimo controllo su FIPAV Online: 2 ore fa");
+});
+
+test("last result: score, sets and verdict from the club side", () => {
+  const html = renderLastResult(girone);
+  assert.match(html, /Ultimo risultato/);
+  assert.match(html, /Sarlux Volley Sarroch/);
+  assert.match(html, /<b>0-3<\/b>/);
+  assert.match(html, /10-25, 18-25, 19-25/);
+  assert.match(html, /Persa/);
+});
+
+test("last result: form strip carries V or P as text for every game, not only a colour", () => {
+  const html = renderLastResult(girone);
+  assert.equal(count(html, 'class="f lost">P<'), 3);
+  assert.equal(count(html, 'class="f won">V<'), 0);
+  const won = renderLastResult(sample);
+  assert.equal(count(won, 'class="f won">V<'), 2);
+  assert.match(won, /aria-label="Forma delle ultime partite/);
+});
+
+test("last result: empty string when no game was played", () => {
+  assert.equal(renderLastResult({ ...girone, games: girone.games.map((g) => ({ ...g, played: false, sets_won: null, sets: [] })) }), "");
+});
+
+test("schedule: live link only on the game with a live_url, opening in a new tab safely", () => {
+  const html = renderSchedule(sample, new Date("2026-11-20T10:00:00Z"));
+  assert.equal(count(html, ">Diretta<"), 1);
+  assert.match(html, /href="https:\/\/example\.com\/live" target="_blank" rel="noopener">Diretta/);
+});
+
+test("schedule: referee names, or «Arbitro da designare» when pending", () => {
+  const named = renderSchedule(girone, new Date("2026-11-20T10:00:00Z"));
+  assert.match(named, /Arbitro: Marini Anna/);
+  assert.match(named, /Arbitro da designare/);
+  assert.equal(count(renderSchedule(sample, new Date("2026-11-20T10:00:00Z")), "Arbitro da designare"), 1);
+});
+
+test("schedule: referee names go through escaping", () => {
+  const data = structuredClone(sample);
+  data.games[0].referees = ["<i>Mario</i>"];
+  const html = renderSchedule(data, new Date("2026-11-20T10:00:00Z"));
+  assert.equal(count(html, "<i>Mario"), 0);
+  assert.match(html, /&lt;i&gt;Mario/);
 });
