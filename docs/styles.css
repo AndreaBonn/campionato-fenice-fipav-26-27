@@ -74,7 +74,7 @@ h2 { margin: 0 0 0.75rem; font-size: 1.125rem; line-height: 1.3; }
 .brand .fresh::before { content: ""; flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: oklch(0.78 0.17 150); }
 
 .secnav { position: sticky; top: 0; z-index: 200; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: 0 2px 8px oklch(0.2 0.05 283 / 0.08); }
-.secnav ul { display: flex; gap: 0.15rem; list-style: none; margin: 0 auto; padding: 0.25rem 0; width: min(100% - 2rem, 44rem); overflow-x: auto; }
+.secnav ul { display: flex; gap: 0.15rem; list-style: none; margin: 0 auto; padding: 0.25rem 0; width: min(100% - 2rem, 44rem); overflow-x: auto; position: relative; }
 .secnav li[hidden] { display: none; }
 .secnav a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; padding: 0.4rem 0.7rem; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 0.875rem; white-space: nowrap; }
 .secnav a:hover { background: var(--tint); color: var(--ink); }
