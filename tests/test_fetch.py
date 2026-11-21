@@ -67,3 +67,23 @@ def test_invalid_json_uses_fallback() -> None:
 
     assert fetch_json("/test", opener=opener, delay=0) == {"ok": True}
     assert len(calls) == 2
+
+
+@pytest.mark.parametrize("both_fail", [False, True])
+def test_incomplete_http_read_uses_fallback_or_raises(both_fail: bool) -> None:
+    from http.client import IncompleteRead
+
+    urls: list[str] = []
+
+    def opener(request: Request, timeout: int) -> Response:
+        urls.append(request.full_url)
+        if len(urls) == 1 or both_fail:
+            raise IncompleteRead(b"partial")
+        return Response(b'{"ok": true}', "application/json")
+
+    if both_fail:
+        with pytest.raises(FetchError):
+            fetch_json("/test", opener=opener, delay=0)
+    else:
+        assert fetch_json("/test", opener=opener, delay=0) == {"ok": True}
+    assert urls == [PRIMARY_URL + "/test", FALLBACK_URL + "/test"]
