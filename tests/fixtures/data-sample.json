@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-21T12:00:00+00:00",
+  "source": {
+    "name": "FIPAV Online",
+    "url": "https://www.fipavonline.it"
+  },
+  "season": "2026/27",
+  "league": {
+    "group_id": "64444",
+    "title": "Seconda Divisione Femminile - Girone A"
+  },
+  "team_cod": "190920448",
+  "formula": {
+    "published": false,
+    "promotion": 0,
+    "playoff": 0,
+    "relegation": 0
+  },
+  "tie_break": {
+    "criteria": [
+      "wins",
+      "set_ratio",
+      "point_ratio"
+    ],
+    "provisional": true
+  },
+  "teams": [
+    {
+      "id": "232642",
+      "cod": "190920448",
+      "name": "ASD FENICE",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920448/logo.jpg?v=1762974109"
+    },
+    {
+      "id": "232613",
+      "cod": "190920172",
+      "name": "POLISPORTIVA SELARGIUS 85 ASD",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920172/logo.jpg?v=1543661081"
+    },
+    {
+      "id": "229796",
+      "cod": "190920463",
+      "name": "CUS CAGLIARI",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920463/logo.png?v=1580642590"
+    },
+    {
+      "id": "232656",
+      "cod": "190920486",
+      "name": "VSA",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920486/logo.jpg?v=1699423549"
+    },
+    {
+      "id": "228968",
+      "cod": "190920252",
+      "name": "ASD SANDALYON QUARTU",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920252/logo.jpg?v=1572523297"
+    }
+  ],
+  "games": [
+    {
+      "id": "1",
+      "number": "1168",
+      "round": 1,
+      "date": "2026-11-21",
+      "time": "17:00",
+      "starts_at": "2026-11-21T17:00:00+01:00",
+      "venue": {
+        "raw": "Palestra",
+        "name": "Palestra",
+        "address": null,
+        "city": null,
+        "lat": null,
+        "lng": null
+      },
+      "home_id": "232642",
+      "away_id": "232613",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        3,
+        0
+      ],
+      "sets": [
+        [
+          25,
+          12
+        ],
+        [
+          25,
+          19
+        ],
+        [
+          25,
+          18
+        ]
+      ],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "2",
+      "number": "1169",
+      "round": 2,
+      "date": "2026-11-21",
+      "time": "17:00",
+      "starts_at": "2026-11-21T17:00:00+01:00",
+      "venue": {
+        "raw": "Palestra",
+        "name": "Palestra",
+        "address": null,
+        "city": null,
+        "lat": null,
+        "lng": null
+      },
+      "home_id": "232642",
+      "away_id": "229796",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        3,
+        2
+      ],
+      "sets": [
+        [
+          25,
+          20
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          25,
+          19
+        ],
+        [
+          22,
+          25
+        ],
+        [
+          15,
+          13
+        ]
+      ],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "3",
+      "number": "1170",
+      "round": 3,
+      "date": "2026-11-21",
+      "time": "17:00",
+      "starts_at": "2026-11-21T17:00:00+01:00",
+      "venue": {
+        "raw": "Palestra",
+        "name": "Palestra",
+        "address": null,
+        "city": null,
+        "lat": null,
+        "lng": null
+      },
+      "home_id": "232642",
+      "away_id": "232656",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": true,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "4",
+      "number": "1171",
+      "round": 4,
+      "date": "2026-11-21",
+      "time": "17:00",
+      "starts_at": "2026-11-21T17:00:00+01:00",
+      "venue": {
+        "raw": "Palestra",
+        "name": "Palestra",
+        "address": null,
+        "city": null,
+        "lat": null,
+        "lng": null
+      },
+      "home_id": "232642",
+      "away_id": "228968",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": "https://example.com/live",
+      "poster": {
+        "url": "https://example.com/poster.jpg",
+        "width": 600,
+        "height": 800
+      },
+      "changes": []
+    },
+    {
+      "id": "5",
+      "number": "1172",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "starts_at": null,
+      "venue": {
+        "raw": "Palestra",
+        "name": "Palestra",
+        "address": null,
+        "city": null,
+        "lat": null,
+        "lng": null
+      },
+      "home_id": "232642",
+      "away_id": "232613",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": [
+        "date"
+      ]
+    }
+  ],
+  "standings": [],
+  "notices": []
+}
