@@ -70,8 +70,9 @@ def write_all_atomic(files: list[tuple[Path, str]]) -> None:
         for path, content in files:
             path.parent.mkdir(parents=True, exist_ok=True)
             temporary = path.with_name(path.name + ".tmp")
-            temporary.write_text(content, encoding="utf-8")
+            # tracked before writing, so a write that fails halfway is cleaned up too
             staged.append((temporary, path))
+            temporary.write_text(content, encoding="utf-8")
         for temporary, path in staged:
             temporary.replace(path)
     finally:

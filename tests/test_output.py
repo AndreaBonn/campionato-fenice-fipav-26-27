@@ -5,7 +5,20 @@ from typing import Any
 
 import pytest
 
-from fenice_calendar.output import write_if_changed, write_status
+from fenice_calendar.output import json_if_changed, status_json, write_all_atomic
+
+
+def write_if_changed(path: Path, data: dict[str, Any]) -> bool:
+    """What the cli does for data.json: stage it only when it changed, then write it."""
+    content = json_if_changed(path=path, data=data)
+    if content is None:
+        return False
+    write_all_atomic([(path, content)])
+    return True
+
+
+def write_status(path: Path, checked_at: str) -> None:
+    write_all_atomic([(path, status_json(checked_at=checked_at))])
 
 
 def sample(
