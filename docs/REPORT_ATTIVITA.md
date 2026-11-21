@@ -205,3 +205,18 @@ L'audit ha rafforzato i controlli automatici, che ora si accorgono di molti più
 ### Riepilogo
 
 Complessità: media. Stato: completato. Le domande A1-A9 sono chiuse.
+
+## 2026-11-21 - Documentazione del repository (README e SECURITY bilingui)
+
+README riscritto da zero in inglese (`README.md`) con la traduzione italiana (`README.it.md`), più `SECURITY.md` e `SECURITY.it.md`. La LICENSE MIT resta com'era.
+
+- Schermate catturate con Playwright sulla pagina servita in locale (1280 px, 375 px chiaro e scuro, scheda avversaria), salvate in `assets/screenshots/` e non in `docs/`, che viene pubblicato ed entra nell'hash della versione dell'app.
+- Diagramma Mermaid del flusso dei dati, validato con `mmdc`.
+- SECURITY elenca solo le misure verificate nel codice, con riga; dichiara anche quelle assenti (CSP, scansione delle dipendenze, URL degli stemmi non validati).
+- Il README è scritto come se il repository fosse già pubblico: badge e link al sito funzionano dopo il primo push e il primo deploy.
+
+Test: Python 321, JS 537, `md_audit` pulito sui quattro file.
+
+### Note per il Cliente
+
+Il progetto ha ora una presentazione completa in inglese e in italiano, con le schermate della pagina, e una pagina che spiega come segnalare un problema di sicurezza. Nessun cambiamento alla pagina stessa.

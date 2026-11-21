@@ -1,62 +1,168 @@
+**English** | [Italiano](./README.it.md)
+
 # Campionato Fenice 2026/27
 
-![Test](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/tests.json) ![Copertura](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/coverage.json)
+Unofficial schedule, results and standings page for ASD Fenice in the FIPAV Cagliari Seconda Divisione Femminile, Girone A, 2026/27 season, kept in sync with FIPAV Online every 4 hours.
 
-Pagina non ufficiale con calendario e risultati della ASD Fenice, Seconda Divisione Femminile Girone A, Comitato Territoriale FIPAV di Cagliari, stagione 2026/27.
+Site: https://andreabonn.github.io/campionato-fenice-fipav-26-27/
 
-Indirizzo del sito: https://andreabonn.github.io/campionato-fenice-fipav-26-27/
+![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/tests.json) ![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AndreaBonn/campionato-fenice-fipav-26-27/badges/coverage.json) ![Python](https://img.shields.io/badge/python-%3E%3D3.12-3776ab) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-## Cosa mostra
+The page answers the questions a player, a parent or a supporter asks during the season: when and where the next game is, how the last one ended, where the team stands. Everything is in Italian, works on a phone and can be installed as an app.
 
-- La prossima partita della Fenice, con avversaria, data, ora, palestra, conto alla rovescia, collegamento alla mappa e, quando ci sono, la locandina e il collegamento alla diretta.
-- Il risultato dell'ultima partita giocata e l'andamento delle ultime cinque, in una riga facile da leggere.
-- Il calendario completo, giornata per giornata, con il risultato in set e i punteggi di ogni set, l'arbitro quando è stato designato e un'etichetta sulle partite spostate rispetto al calendario iniziale (data, ora o palestra).
-- La classifica ufficiale FIPAV con la Fenice in evidenza, penalità comprese. Quando la classifica si restringe, indica per ogni squadra le posizioni finali ancora possibili e che cosa è già deciso. Il campionato non ha ancora una formula pubblicata, quindi non ci sono zone di promozione o retrocessione, e a parità di punti l'ordine segue un criterio provvisorio: vittorie, poi quoziente set, poi quoziente punti.
-- Una scheda per ogni avversaria, che si apre dal nome nella classifica o dalla prossima partita: sfida diretta con la Fenice, partite ancora da giocare, rendimento in casa e in trasferta, andamento recente.
-- L'analisi della Fenice: set vinti e persi, punti medi per set, tie-break, rimonte e serie in corso.
-- Le notizie del Comitato di Cagliari sulla Seconda Divisione, con il collegamento alla pagina originale.
-- Il calendario delle partite da aggiungere al telefono: ci si iscrive una volta e si aggiorna da solo, oppure si aggiunge una singola partita a Google Calendar.
-- Un'app installabile: dal browser del telefono si può aggiungere la pagina alla schermata iniziale. Quando esce una versione nuova compare un avviso con il pulsante per aggiornare.
-- La data e l'ora dell'ultimo controllo dei dati.
+A scheduled GitHub Action reads the FIPAV Online JSON API for group `64444`, merges it with the season's initial schedule and the Cagliari committee's notices, and writes a validated `data.json` and an iCalendar feed. The page is static: plain ES modules that render that file, with no build step and no runtime dependencies.
 
-## Da dove arrivano i dati
+## In practice
 
-Fonte: FIPAV Online (https://www.fipavonline.it); le notizie arrivano dal sito del Comitato di Cagliari (https://fipavcagliari.it). Gli stemmi delle avversarie sono quelli pubblicati da FIPAV Online: se non si caricano, la pagina mostra le iniziali della squadra. I dati di gara appartengono alla FIPAV: questa pagina li riporta così come li pubblica FIPAV Online e non è un sito ufficiale della Federazione né della società.
+![Next game and standings on desktop](./assets/screenshots/home-desktop.png)
 
-## Ogni quanto si aggiorna
+<p>
+  <img src="./assets/screenshots/home-mobile.png" alt="Next game on a 375 px phone, light theme" width="260">
+  <img src="./assets/screenshots/home-mobile-dark.png" alt="Next game on a 375 px phone, dark theme" width="260">
+</p>
 
-Il sito controlla FIPAV Online ogni 4 ore, in modo automatico. Un risultato inserito in federazione può quindi comparire in pagina fino a 4 ore dopo. Se FIPAV Online non risponde, la pagina continua a mostrare gli ultimi dati validi e la data dell'ultimo controllo riuscito non cambia.
+Screenshots taken on 21 November 2026, before the first game of the season: every team is still at 0 points.
 
-## Pubblicare il sito
+## What the page shows
 
-Il repository non è ancora online. Per pubblicarlo servono pochi passi, da fare una volta sola:
+- **Next game**: opponent, date, time, venue, countdown, map directions, the game poster and the live score link when FIPAV publishes them.
+- **Last result** and a strip with the last five games.
+- **Schedule and results**, round by round: set scores, the referee once assigned, and a "moved" label on games whose date, time or venue differ from the initial schedule.
+- **Standings** as FIPAV publishes them, penalties included, with the Fenice highlighted. Once the table narrows, each team gets the final positions it can still reach and what is already decided.
+- **Team card** for every opponent, opened from the standings or from the next game: head to head with the Fenice, games left, home and away record.
+- **Analysis of the Fenice**: sets won and lost, tie-breaks, close sets, home and away, run-in.
+- **Committee notices** about the Seconda Divisione, hidden while there are none.
+- **Calendar**: a subscribable `.ics` feed that updates itself, or a single game added to Google Calendar.
+- **Installable app** with an update notice when a new version is published.
 
-1. Crea su GitHub un repository pubblico chiamato `campionato-fenice-fipav-26-27`, vuoto (senza README né licenza).
-2. Nel repository vai su Settings > Pages e, alla voce Source, scegli "GitHub Actions".
-3. Dalla cartella del progetto collega il repository e carica il codice:
+The league formula has not been published yet, so the standings show no promotion or relegation zones and ties are broken by a provisional rule: wins, then set ratio, then point ratio.
 
-   ```bash
-   git remote add origin https://github.com/AndreaBonn/campionato-fenice-fipav-26-27.git
-   git push -u origin main
-   ```
+![Team card of an opponent](./assets/screenshots/team-card-desktop.png)
 
-4. Il caricamento avvia il controllo automatico: i test, la lettura dei dati da FIPAV Online e la pubblicazione. Al termine il sito è raggiungibile all'indirizzo indicato sopra. Lo stato si segue dalla scheda Actions del repository.
+## Data sources
 
-## Sviluppo
+Game data comes from [FIPAV Online](https://www.fipavonline.it) and notices from the [FIPAV Cagliari committee](https://fipavcagliari.it). Opponent crests are loaded from FIPAV Online; when one does not load, the page shows the team initials. The data belongs to FIPAV: this page reports it as published and is not an official site of the Federation or of the club.
 
-Servono [uv](https://docs.astral.sh/uv/) e Node.js.
+If FIPAV Online does not answer, the run fails without writing anything: the page keeps the last valid data and the time of the last successful check does not change. A result entered by the federation can take up to 4 hours to appear.
 
-```bash
-npm run setup     # installa le dipendenze Python
-npm run sync      # scarica il calendario e aggiorna docs/data.json
-npm run serve     # apre la pagina su http://localhost:8000
-npm test          # test delle regole JavaScript
-npm run test:py   # test Python con copertura
-npm run lint      # ruff e mypy
+## Tech stack
+
+- **Sync**: Python 3.12+, standard library only (`urllib`, `json`, `zoneinfo`). Dev tools through [uv](https://docs.astral.sh/uv/): pytest, pytest-cov, ruff, mypy in strict mode.
+- **Page**: HTML, CSS and plain ES modules, no framework, no bundler, no npm dependencies. Service worker and web manifest for offline use and installation.
+- **Hosting and automation**: GitHub Pages, GitHub Actions.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    fipav["FIPAV Online API<br/>calendar, standings, posters"] --> sync
+    wp["fipavcagliari.it<br/>WordPress posts"] --> sync
+    baseline[("data/calendario-iniziale.json")] --> sync
+    cron(["GitHub Actions<br/>every 4 hours"]) --> sync
+    sync["fenice-sync<br/>Python, stdlib only"] --> data[("docs/data.json")]
+    sync --> ics[("docs/calendario.ics")]
+    data --> pages["GitHub Pages"]
+    ics --> pages
+    pages --> page["Web page and PWA<br/>ES modules, no build"]
+    pages --> cal["Subscribed calendars"]
+
+    classDef core fill:#2563eb,stroke:#1d4ed8,color:#fff
+    classDef data fill:#d97706,stroke:#b45309,color:#fff
+    classDef ext fill:#6b7280,stroke:#4b5563,color:#fff
+    classDef engine fill:#059669,stroke:#047857,color:#fff
+    class sync,page core
+    class data,ics,baseline data
+    class fipav,wp,cal ext
+    class cron,pages engine
 ```
 
-I test usano solo copie salvate delle risposte di FIPAV in `tests/fixtures/`, mai la rete. Convenzioni e flusso dei dati sono descritti in `CLAUDE.md`; il piano delle fasi successive è in `specs/001-fenice-seconda-divisione/`.
+`fenice-sync` tries `data.fipavonline.it` first and `app.fipavonline.it` as a fallback, one request per second. The Fenice is identified by its FIPAV club code, not by team name or id. All outputs are built in memory and validated against the schema before any file is written, then moved into place together.
 
-## Licenza
+## Prerequisites
 
-MIT. Vedi il file `LICENSE`.
+- [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 if missing)
+- Node.js, for the JavaScript tests. No minimum version is pinned; the tests use the built-in `node --test` runner.
+
+## Installation
+
+1. Clone the repository and enter it.
+2. Install the Python environment and check the import:
+
+   ```bash
+   npm run setup
+   ```
+
+No `.env` file and no API key are needed: both sources are public.
+
+## Running locally
+
+```bash
+npm run sync      # fetch FIPAV and the committee, update docs/data.json, calendario.ics, status.json
+npm run serve     # static server on docs/ at http://localhost:8000
+```
+
+`npm run sync` uses the network. The page alone can be served with the `docs/data.json` already in the repository.
+
+## Repository structure
+
+```text
+.github/workflows/    sync.yml (sync and deploy), tests.yml (tests and badges)
+assets/               club logo and README screenshots
+data/                 calendario-iniziale.json, the baseline schedule
+docs/                 the published site: index.html, JS modules, styles, data.json, calendario.ics, sw.js
+scripts/              icon generator and standings benchmark
+specs/                requirements, plan and task list
+src/fenice_calendar/  the sync pipeline
+tests/                pytest suites, tests/js for the page, tests/fixtures with frozen responses
+```
+
+## Main modules
+
+| Module | Role |
+|---|---|
+| `fetch.py` | HTTP with fallback host, timeout, rate limit; non-JSON answers rejected |
+| `parse.py`, `merge.py` | FIPAV calendar and standings into games; differences from the initial schedule |
+| `notices.py`, `posters.py`, `enrich.py` | committee notices and game posters; an outage keeps the previous ones |
+| `schema.py` | `data.json` schema (version 1), unexpected keys and inconsistent data rejected |
+| `ics.py` | iCalendar feed, Europe/Rome, stable UID per game |
+| `output.py` | atomic writes, files rewritten only when content changes |
+| `cli.py` | `fenice-sync` entry point; on failure saves the received responses in `reports/sync-failure/` |
+
+Command-line entry points, from `pyproject.toml`:
+
+| Command | Purpose |
+|---|---|
+| `uv run fenice-sync` | run the sync |
+| `uv run fenice-stamp-sw` | stamp the app version into `docs/sw.js` (CI only) |
+| `uv run fenice-badges` | turn JUnit and coverage reports into shields.io JSON (CI only) |
+
+## Testing
+
+```bash
+npm run test:py   # pytest with branch coverage
+npm test          # page rules and views, node --test
+npm run lint      # ruff and mypy --strict on src and tests
+```
+
+Tests never touch the network or the live `docs/data.json`: they run on FIPAV and WordPress responses frozen in `tests/fixtures/`. When FIPAV changes the shape of a response, the failing run uploads what it received as the `fipav-responses` artifact; that file becomes the new fixture.
+
+## Deployment and CI/CD
+
+- `.github/workflows/sync.yml` runs every 4 hours (minute 17), on push to `main` and on demand. It runs both test suites, the sync, commits `data.json` and `calendario.ics` when they changed, stamps the app version into the service worker and deploys `docs/` to GitHub Pages. The development report in `docs/` is removed before publishing.
+- `.github/workflows/tests.yml` runs on push to `main`: tests with coverage, ruff and mypy. It publishes the test and coverage badges to the `badges` branch, also when the run is red.
+
+Actions are pinned to commit SHAs.
+
+## Security
+
+To report a vulnerability, see [SECURITY.md](./SECURITY.md).
+
+## License
+
+Released under the MIT License. See [LICENSE](./LICENSE). The game data belongs to FIPAV.
+
+## Support the project
+
+If the page is useful to you, consider giving the [repository](https://github.com/AndreaBonn/campionato-fenice-fipav-26-27) a star on GitHub.
+
+Maintained by [Andrea Bonacci](https://github.com/AndreaBonn).
