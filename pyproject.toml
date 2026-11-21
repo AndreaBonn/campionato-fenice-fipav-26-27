@@ -1,0 +1,45 @@
+[project]
+name = "fenice-calendar"
+version = "0.1.0"
+description = "Keeps the ASD Fenice Seconda Divisione Femminile 2026/27 page in sync with FIPAV Online"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+fenice-sync = "fenice_calendar.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pytest-cov>=7.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+# standalone PEP 723 script with its own Pillow environment, type-checked there
+exclude = ["^scripts/make_icons\\.py$"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["fenice_calendar"]
+
+[tool.coverage.report]
+show_missing = true
+# the entry-point guard only calls main(), which the tests call directly
+exclude_also = ['if __name__ == "__main__":']

@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "uv sync && uv run python -c \"import fenice_calendar\"",
+    "test": "node --test tests/js/*.test.mjs",
+    "test:py": "uv run pytest --cov",
+    "lint": "uv run ruff check . && uv run mypy",
+    "sync": "uv run fenice-sync",
+    "serve": "uv run python -m http.server -d docs 8000"
+  }
+}

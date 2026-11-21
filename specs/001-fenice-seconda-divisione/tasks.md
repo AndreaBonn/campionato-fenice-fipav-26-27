@@ -5,7 +5,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 ## Fase 1 - Dati e calendario minimo pubblicabile
 
 - [x] T001 | git init, .gitignore, LICENSE | dip: - | R3, R10 | seq | rimuovere .git (utente)
-- [ ] T002 | pyproject, package.json con i verbi, uv.lock | dip: T001 | R25 | seq | revert
+- [x] T002 | pyproject, package.json con i verbi, uv.lock | dip: T001 | R25 | seq | revert
 - [ ] T003 | Copia fixture reali e stemma dalla scratchpad, test dei conteggi | dip: T002 | R1, R12 | ok | revert
 - [ ] T004 | config.py (URL, codice Fenice, UA, formula vuota, tie-break) | dip: T003 | R1, R2, R11 | ok | revert
 - [ ] T005 | Contratto data.json: schema.py, validate_data, data-sample.json | dip: T004 | R1 | contratto | revert
