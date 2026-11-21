@@ -270,3 +270,19 @@ test("C6: Ultime 5 shows coloured V/P letters per team in play-date order, a das
   assert.match(empty, /<td class="c-x">-<\/td><\/tr>/);
   assert.equal(count(empty, "l5"), 0);
 });
+
+test("ratios read with two decimals and a comma, zero included", () => {
+  const fenice = rows(renderStandings(girone)).find((r) => r.includes('class="me"'));
+  // set ratio 0 and point ratio 0.6089 of the Fenice in the fixture
+  assert.match(fenice, /<td class="c-x">0,00<\/td><td class="c-x">0,61<\/td>/);
+  const first = rows(renderStandings(girone))[0];
+  assert.match(first, /<td class="c-x">4,50<\/td><td class="c-x">1,59<\/td>/);
+});
+
+test("the crest url and the team name cannot leave their attributes", () => {
+  const data = structuredClone(girone);
+  for (const t of data.teams) Object.assign(t, { logo_url: 'https://x.test/a.png" onerror="alert(1)', name: 'A"<b>' });
+  const html = renderStandings(data);
+  assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
+  assert.doesNotMatch(html, /onerror="alert/);
+});

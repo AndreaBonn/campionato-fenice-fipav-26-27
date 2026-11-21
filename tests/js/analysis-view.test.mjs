@@ -73,3 +73,22 @@ test("strip: a won game counts on the winning side and the sets span is left out
   assert.match(html, /<b class="n">1-0<\/b> vinte e perse/);
   assert.equal(html.includes("> set<"), false);
 });
+
+test("comebacks count every win after losing the first set, and apart those from 0-2", () => {
+  const data = structuredClone(girone);
+  const last = data.games.find((g) => g.played && g.home_id === "232645");
+  data.games.push(
+    { ...last, id: "from-0-2", starts_at: "2027-03-01T18:00:00+01:00", sets: [[20, 25], [22, 25], [25, 20], [25, 18], [15, 10]], sets_won: [3, 2] },
+    { ...last, id: "from-0-1", starts_at: "2027-03-08T18:00:00+01:00", sets: [[20, 25], [25, 20], [25, 20], [25, 18]], sets_won: [3, 1] },
+  );
+  const html = renderAnalysis(data);
+  assert.match(html, /Rimonte<\/dt><dd>2 vittorie dopo aver perso il primo set, 1 da 0-2/);
+  assert.match(html, /Serie in corso<\/dt><dd>2 vittorie di fila<\/dd>/);
+});
+
+test("a lone win after the losses is a streak of one, without «di fila»", () => {
+  const data = structuredClone(girone);
+  const last = data.games.find((g) => g.played && g.home_id === "232645");
+  data.games.push({ ...last, id: "late", starts_at: "2027-03-01T18:00:00+01:00", sets: [[25, 20], [25, 20], [25, 20]], sets_won: [3, 0] });
+  assert.match(renderAnalysis(data), /Serie in corso<\/dt><dd>1 vittoria<\/dd>/);
+});

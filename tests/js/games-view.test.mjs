@@ -4,7 +4,7 @@ import { test } from "node:test";
 
 import { feniceGames, mapUrl } from "../../docs/game-rules.js";
 import { groupByMonth } from "../../docs/schedule-rules.js";
-import { errorCause, esc, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { errorCause, esc, formListHtml, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -682,4 +682,25 @@ test("schedule: a season over shows Tutte as selected instead of an empty Prossi
   assert.equal(count(html, '<li class="game'), 18);
   assert.match(html, /data-value="all" aria-pressed="true">Tutte/);
   assert.match(html, /data-value="next" aria-pressed="false"/);
+});
+
+test("form strip: V for a win and P for a loss, oldest first, with the label for screen readers", () => {
+  assert.equal(
+    formListHtml(["won", "lost", "won"], "Forma <recente>"),
+    '<ol class="form" aria-label="Forma &lt;recente&gt;"><li class="f won">V</li><li class="f lost">P</li><li class="f won">V</li></ol>',
+  );
+});
+
+test("hero: the Avversaria line ends with the opponent's last outcomes as a form strip", () => {
+  const html = renderHero(girone, new Date("2026-11-20T10:00:00Z"));
+  // the next opponent lost both its games so far
+  assert.match(html, /<span class="chipx">0 vinte, 2 perse<\/span><ol class="form" aria-label="[^"]+"><li class="f lost">P<\/li><li class="f lost">P<\/li><\/ol><\/div>/);
+});
+
+test("hero: the crest url and the team name of the opponent cannot leave their attributes", () => {
+  const data = structuredClone(girone);
+  for (const t of data.teams) if (t.id !== "232645") Object.assign(t, { logo_url: 'https://x.test/a.png" onerror="alert(1)', name: 'A"<b>' });
+  const html = renderHero(data, new Date("2026-11-20T10:00:00Z"));
+  assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
+  assert.doesNotMatch(html, /onerror="alert/);
 });

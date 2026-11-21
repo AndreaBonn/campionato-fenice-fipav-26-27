@@ -78,3 +78,16 @@ test("newNoticesCount and noticeBadgeHtml: the count, and a badge a screen reade
   assert.equal(noticeBadgeHtml(1), '<span class="sr-only">, </span><span aria-hidden="true">1</span><span class="sr-only">1 nuova</span>');
   assert.match(noticeBadgeHtml(3), /3 nuove/);
 });
+
+test("a notice url with quotes cannot leave the href attribute", () => {
+  const html = renderNotices({ notices: [{ ...NOTICES[0], url: 'https://fipavcagliari.it/a" onclick="x' }] }, new Date("2026-11-21T10:00:00Z"));
+  assert.match(html, /href="https:\/\/fipavcagliari\.it\/a&quot; onclick=&quot;x"/);
+  assert.doesNotMatch(html, /onclick="x/);
+});
+
+test("the age of a notice is counted in Rome days: after midnight in Rome the eighth day has begun", () => {
+  const notice = { ...NOTICES[0], date: "2026-11-21" };
+  // 23:30 UTC on the 28th is already the 29th in Rome: 8 days, no longer new
+  assert.equal(isNewNotice(notice, new Date("2026-11-28T23:30:00Z")), false);
+  assert.equal(isNewNotice(notice, new Date("2026-11-28T22:30:00Z")), true);
+});

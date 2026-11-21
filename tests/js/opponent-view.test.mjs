@@ -315,3 +315,20 @@ test("A3: remaining games are rows with a Casa / Trasferta tag, also inside the 
   assert.equal(countOf(html, 'class="orows"'), 2);
   assert.doesNotMatch(html, /, in casa<\/li>|, in trasferta<\/li>/);
 });
+
+test("before any game the range is first to last for everyone, so the card has no range line", () => {
+  const data = structuredClone(girone);
+  data.games = data.games.map((g) => ({ ...g, played: false, sets_won: null, sets: [] }));
+  data.standings = data.standings.map((r) => ({ ...r, points: 0, won: 0, played: 0 }));
+  const html = renderOpponent(data, AQUILA, NOW);
+  assert.match(html, /° in classifica<\/p>/);
+  assert.doesNotMatch(html, /opp-range/);
+});
+
+test("the crest url and the team name in the card header cannot leave their attributes", () => {
+  const data = structuredClone(girone);
+  Object.assign(data.teams.find((t) => t.id === AQUILA), { logo_url: 'https://x.test/a.png" onerror="alert(1)', name: 'A"<b>' });
+  const html = renderOpponent(data, AQUILA, NOW);
+  assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
+  assert.doesNotMatch(html, /onerror="alert/);
+});

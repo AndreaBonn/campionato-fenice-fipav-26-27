@@ -354,3 +354,14 @@ test("every icon of the manifest is in the shell, so the installed app keeps its
   assert.ok(shell.includes("icons/icon-192.png"));
   for (const icon of manifest.icons) assert.ok(shell.includes(icon.src), `${icon.src} missing from SHELL`);
 });
+
+test("install caches the web app manifest the page links, so the installed app opens offline", async () => {
+  const { handlers, storage } = loadWorker();
+
+  await dispatchLifecycle(handlers.install);
+
+  const html = readFileSync(new URL("../../docs/index.html", import.meta.url), "utf8");
+  const manifest = html.match(/<link rel="manifest" href="([\w.-]+)">/)[1];
+  assert.equal(manifest, "manifest.webmanifest");
+  assert.ok(storage.get("fenice-fipav-dev").has(new URL(manifest, PAGE).href));
+});
