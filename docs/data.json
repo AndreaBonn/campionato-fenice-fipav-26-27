@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-21T00:52:30.800453+00:00",
+  "updated_at": "2026-11-21T01:09:12.456962+00:00",
   "source": {
     "name": "FIPAV Online",
     "url": "https://www.fipavonline.it"
@@ -245,7 +245,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -272,7 +272,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -299,7 +299,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -326,7 +326,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -353,7 +353,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -380,7 +380,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -407,7 +407,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -434,7 +434,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -461,7 +461,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -488,7 +488,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -515,7 +515,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -542,7 +542,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -569,7 +569,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -596,7 +596,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -623,7 +623,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -650,7 +650,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -677,7 +677,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -704,7 +704,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -731,7 +731,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -758,7 +758,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -785,7 +785,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -812,7 +812,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -839,7 +839,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -866,7 +866,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -893,7 +893,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -920,7 +920,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -947,7 +947,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -974,7 +974,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1001,7 +1001,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1028,7 +1028,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1055,7 +1055,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1082,7 +1082,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1109,7 +1109,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1136,7 +1136,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1163,7 +1163,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1190,7 +1190,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1217,7 +1217,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1244,7 +1244,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1271,7 +1271,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1298,7 +1298,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1325,7 +1325,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1352,7 +1352,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1379,7 +1379,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1406,7 +1406,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1433,7 +1433,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1460,7 +1460,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1487,7 +1487,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1514,7 +1514,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1541,7 +1541,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1568,7 +1568,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1595,7 +1595,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1622,7 +1622,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1649,7 +1649,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1676,7 +1676,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1703,7 +1703,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1730,7 +1730,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1757,7 +1757,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1784,7 +1784,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1811,7 +1811,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1838,7 +1838,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1865,7 +1865,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1892,7 +1892,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1919,7 +1919,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1946,7 +1946,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -1973,7 +1973,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2000,7 +2000,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2027,7 +2027,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2054,7 +2054,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2081,7 +2081,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2108,7 +2108,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2135,7 +2135,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2162,7 +2162,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2189,7 +2189,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2216,7 +2216,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2243,7 +2243,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2270,7 +2270,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2297,7 +2297,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2324,7 +2324,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2351,7 +2351,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2378,7 +2378,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2405,7 +2405,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2432,7 +2432,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2459,7 +2459,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2486,7 +2486,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2513,7 +2513,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": []
