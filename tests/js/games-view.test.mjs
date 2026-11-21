@@ -49,13 +49,34 @@ test("hero: no map link when the venue has no coordinates", () => {
 });
 
 test("hero: season over states it plainly", () => {
-  const html = renderHero(girone, new Date("2027-06-01T00:00:00Z"));
+  const over = { ...girone, games: girone.games.map((g) => ({ ...g, played: true })) };
+  const html = renderHero(over, new Date("2027-06-01T00:00:00Z"));
   assert.match(html, /Stagione regolare conclusa/);
   assert.equal(count(html, "Domani"), 0);
 });
 
 test("hero: empty string when the club has no games, the page hides the box", () => {
   assert.equal(renderHero({ ...girone, games: [] }, new Date("2026-11-20T10:00:00Z")), "");
+});
+
+test("hero: 60 s after the whistle of the only unplayed game says «In corso», not season over", () => {
+  const one = { ...sample, games: [sample.games[2]] };
+  const html = renderHero(one, new Date("2026-11-21T17:01:00+01:00"));
+  assert.match(html, /<b>In corso<\/b>/);
+  assert.equal(count(html, "Stagione regolare conclusa"), 0);
+  assert.equal(count(html, "0 minuti"), 0);
+});
+
+test("hero: at the exact whistle the countdown says «In corso»", () => {
+  const one = { ...sample, games: [sample.games[2]] };
+  assert.match(renderHero(one, new Date("2026-11-21T17:00:00+01:00")), /<b>In corso<\/b>/);
+});
+
+test("hero: an old unplayed game not yet updated is not «Stagione conclusa»", () => {
+  const one = { ...sample, games: [sample.games[2]] };
+  const html = renderHero(one, new Date("2026-11-21T22:00:00+01:00"));
+  assert.equal(count(html, "Stagione regolare conclusa"), 0);
+  assert.match(html, /Risultato in aggiornamento/);
 });
 
 test("hero: unplayed games without a date read «da definire», not season over", () => {

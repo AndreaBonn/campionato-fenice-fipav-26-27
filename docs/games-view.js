@@ -36,6 +36,7 @@ export function renderHero(data, now) {
   const teamId = feniceTeamId(data), games = feniceGames(data), g = nextGame(games, now);
   if (!games.length) return "";
   if (!g) {
+    if (games.some((x) => !x.played && x.starts_at !== null)) return stateHtml("Risultato in aggiornamento", "L'ultima partita è finita da poco: il risultato apparirà appena la FIPAV lo pubblica.");
     const open = games.some((x) => !x.played && x.starts_at === null);
     return open
       ? stateHtml("Prossima partita da definire", "La FIPAV non ha ancora fissato data e ora delle gare che restano.")

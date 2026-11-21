@@ -13,10 +13,14 @@ export function feniceGames(data) {
   return id === null ? [] : data.games.filter((g) => g.home_id === id || g.away_id === id);
 }
 
-// First unplayed game that starts now or later; games without a start are left out
+// A volleyball match is over well within this window after the first whistle
+export const MATCH_WINDOW_MS = 3 * 60 * 60e3;
+
+// First unplayed game that has not started yet or started less than the match window ago;
+// games without a start are left out
 export function nextGame(games, now) {
   const upcoming = games
-    .filter((g) => !g.played && g.starts_at !== null && new Date(g.starts_at) >= now)
+    .filter((g) => !g.played && g.starts_at !== null && new Date(g.starts_at) >= now - MATCH_WINDOW_MS)
     .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
   return upcoming[0] ?? null;
 }

@@ -34,8 +34,8 @@ test("next game: first unplayed game from now on, boundary included", () => {
   assert.equal(nextGame(games, before).number, "949");
   const atKickoff = new Date("2026-11-30T17:00:00Z"); // 18:00 in Rome, exactly the start
   assert.equal(nextGame(games, atKickoff).number, "949");
-  const afterIt = new Date("2026-11-30T17:00:01Z");
-  assert.equal(nextGame(games, afterIt).number, "953");
+  const afterWindow = new Date("2026-11-30T20:00:01Z"); // 3 h and 1 s after the whistle
+  assert.equal(nextGame(games, afterWindow).number, "953");
 });
 
 test("next game: null once the season is over", () => {
@@ -47,7 +47,18 @@ test("next game: games without a date are left out, played games too", () => {
   const games = feniceGames(sample);
   // 1168 and 1169 are played, 1172 has no date: the first unplayed dated one is 1170
   assert.equal(nextGame(games, new Date("2026-11-20T10:00:00Z")).number, "1170");
-  assert.equal(nextGame(games, new Date("2026-11-21T17:00:01+01:00")), null);
+  assert.equal(nextGame(games, new Date("2026-11-21T20:00:01+01:00")), null);
+});
+
+test("next game: a game just started stays the next one for the match window", () => {
+  const games = feniceGames(girone);
+  assert.equal(nextGame(games, new Date("2026-11-30T17:01:00Z")).number, "949");
+  assert.equal(nextGame(games, new Date("2026-11-30T19:59:59Z")).number, "949");
+});
+
+test("next game: started 4 h ago and still not updated, moves on to the following one", () => {
+  const games = feniceGames(girone);
+  assert.equal(nextGame(games, new Date("2026-11-30T21:00:00Z")).number, "953");
 });
 
 test("next game: picks the earliest start even if the list is not in order", () => {

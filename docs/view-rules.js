@@ -1,10 +1,10 @@
 // Pure display rules of the page (wording, names, countdown): no DOM, no browser API, tested with node --test.
 
+import { MATCH_WINDOW_MS } from "./game-rules.js";
+
 const TIME_ZONE = "Europe/Rome";
 // From this hour on, a game on the same day is "tonight"
 const EVENING_HOUR = 17;
-// A volleyball match is over well within this window after the first whistle
-const MATCH_WINDOW_MS = 3 * 60 * 60e3;
 const MINUTE_MS = 60e3;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
@@ -20,7 +20,7 @@ const romeDay = (date) => Date.parse(date.toLocaleDateString("sv-SE", { timeZone
 export function countdownText(startsAt, now) {
   const start = new Date(startsAt);
   const ms = start.getTime() - now.getTime();
-  if (ms < 0) return { lead: "", main: ms >= -MATCH_WINDOW_MS ? "In corso" : "Conclusa", sub: "" };
+  if (ms <= 0) return { lead: "", main: ms >= -MATCH_WINDOW_MS ? "In corso" : "Conclusa", sub: "" };
   const time = startsAt.slice(11, 16);
   const days = Math.round((romeDay(start) - romeDay(now)) / DAY_MS);
   if (days >= 2) return { lead: "tra", main: `${days} giorni`, sub: "" };
