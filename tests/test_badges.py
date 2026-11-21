@@ -176,7 +176,7 @@ def test_main_with_one_report_missing_says_error(tmp_path: Path) -> None:
 
 
 def test_read_coverage_invalid_reports_return_none_and_unknown_badge(tmp_path: Path) -> None:
-    for content in ('{"totals":', '{}', '{"totals": null}'):
+    for content in ('{"totals":', "{}", '{"totals": null}'):
         report = write(tmp_path / "coverage.json", content)
 
         percent = read_coverage(report)
@@ -194,8 +194,15 @@ def test_read_coverage_invalid_reports_return_none_and_unknown_badge(tmp_path: P
 
 def test_badge_for_coverage_exact_color_boundaries_and_orange_band() -> None:
     for percent, color in [
-        (90, "brightgreen"), (80, "green"), (70, "yellow"), (60, "orange"), (65, "orange"),
-        (89.9, "green"), (79.9, "yellow"), (69.9, "orange"), (59.9, "red"),
+        (90, "brightgreen"),
+        (80, "green"),
+        (70, "yellow"),
+        (60, "orange"),
+        (65, "orange"),
+        (89.9, "green"),
+        (79.9, "yellow"),
+        (69.9, "orange"),
+        (59.9, "red"),
     ]:
         assert badge_for_coverage(percent)["color"] == color
 
