@@ -142,3 +142,51 @@ def test_build_ics_non_utc_generation_converts_timestamp() -> None:
     content = build_ics(document, generated)
 
     assert content.count("DTSTAMP:20261121T113000Z\r\n") == 18
+
+
+def _fixture_ics() -> str:
+    raw = json.loads((FIXTURES / "calendar-64444.json").read_text())
+    document = parse_document(raw, generated_at=datetime(2026, 11, 21, tzinfo=UTC))
+    return build_ics(document, datetime(2026, 11, 21, tzinfo=UTC))
+
+
+def test_build_ics_calendar_header_is_icalendar_2_0_and_ends_the_calendar() -> None:
+    lines = _fixture_ics().split("\r\n")
+
+    assert lines[:4] == [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Fenice//Calendar//IT",
+        "CALSCALE:GREGORIAN",
+    ]
+    assert lines[-2:] == ["END:VCALENDAR", ""]
+
+
+def test_build_ics_rome_switches_on_the_last_sunday_of_march_and_october() -> None:
+    # EU rule since 1996: summer time from the last Sunday of March at 02:00,
+    # back to standard time the last Sunday of October at 03:00
+    zone = _fixture_ics().split("BEGIN:VTIMEZONE\r\n", 1)[1].split("END:VTIMEZONE", 1)[0]
+    daylight = zone.split("BEGIN:DAYLIGHT\r\n", 1)[1].split("END:DAYLIGHT", 1)[0].splitlines()
+    standard = zone.split("BEGIN:STANDARD\r\n", 1)[1].split("END:STANDARD", 1)[0].splitlines()
+
+    assert "DTSTART:19700329T020000" in daylight
+    assert "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU" in daylight
+    assert "DTSTART:19701025T030000" in standard
+    assert "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU" in standard
+
+
+def test_build_ics_description_names_the_round_and_links_the_page() -> None:
+    content = _fixture_ics().replace("\r\n ", "")
+    event = content.split("BEGIN:VEVENT\r\n", 1)[1].split("END:VEVENT", 1)[0].splitlines()
+
+    assert (
+        "DESCRIPTION:Giornata 1\\nAggiornamenti: "
+        "https://andreabonn.github.io/campionato-fenice-fipav-26-27/"
+    ) in event
+
+
+def test_fold_line_keeps_a_line_of_exactly_75_octets_whole() -> None:
+    exact = "X" * 75
+
+    assert fold_line(exact) == exact
+    assert fold_line(exact + "Y") == exact + "\r\n Y"
