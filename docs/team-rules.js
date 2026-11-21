@@ -12,6 +12,8 @@ function addGame(rec, game, teamId) {
   rec.played += 1;
   if (mine > theirs) rec.won += 1;
   else rec.lost += 1;
+  // a forfeit (3-0 at the table, no set scores) counts as a result but not in the set statistics
+  if (!game.sets.length) return;
   rec.setsWon += mine;
   rec.setsLost += theirs;
   for (const [h, a] of game.sets) {

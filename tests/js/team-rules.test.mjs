@@ -58,3 +58,11 @@ test("remainingGames: the average ignores a team missing from the standings inst
   assert.ok(Math.abs(rem.averagePosition - 22 / 6) < 1e-9);
   assert.ok(Math.abs(remainingGames(FENICE, girone.games, girone.standings).averagePosition - 23 / 7) < 1e-9);
 });
+
+test("homeAwayRecord counts a forfeit as a win but keeps it out of sets and points", () => {
+  const index = girone.games.findIndex((g) => g.home_id === FENICE && !g.played);
+  const forfeit = { ...girone.games[index], played: true, sets_won: [3, 0], sets: [] };
+  const games = girone.games.with(index, forfeit);
+  const rec = homeAwayRecord(FENICE, games);
+  assert.deepEqual(rec.home, { played: 3, won: 1, lost: 2, setsWon: 0, setsLost: 6, pointsFor: 88, pointsAgainst: 150 });
+});
