@@ -1,6 +1,6 @@
 import copy
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -113,3 +113,9 @@ def test_parse_document_regenerates_the_64353_fixture() -> None:
     assert validate_data(expected) == []
     sarlux_aquila = next(g for g in expected["games"] if g["id"] == "12995174")
     assert sarlux_aquila["sets_won"] == [2, 3]
+
+
+def test_parse_document_offset_generated_at_converts_to_utc() -> None:
+    generated_at = datetime(2026, 11, 21, 13, 0, tzinfo=timezone(timedelta(hours=1)))
+    document = parse_document(load("calendar-64444.json"), generated_at=generated_at)
+    assert document["updated_at"] == "2026-11-21T12:00:00+00:00"

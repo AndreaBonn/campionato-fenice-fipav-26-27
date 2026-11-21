@@ -195,3 +195,21 @@ def test_parse_game_validates_coordinates(
     raw["lat-stadium"], raw["lng-stadium"] = lat, lng
     venue = parse_game(raw, index_for(girone_a))["venue"]
     assert (venue["lat"], venue["lng"]) == expected
+
+
+@pytest.mark.parametrize(
+    ("first", "second", "expected", "pending"),
+    [
+        ("A", "B", ["A", "B"], False),
+        ("DESIGNATO", "B", ["B"], False),
+        ("DESIGNATO", "DESIGNATO", [], True),
+    ],
+)
+def test_parse_game_referees_filters_placeholders(
+    girone_a: list[dict[str, Any]], first: str, second: str, expected: list[str], pending: bool
+) -> None:
+    raw = copy.deepcopy(find(girone_a, "13002244"))
+    raw["1referee"], raw["2referee"] = first, second
+    game = parse_game(raw, index_for(girone_a))
+    assert game["referees"] == expected
+    assert game["referee_pending"] is pending

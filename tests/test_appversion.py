@@ -175,3 +175,26 @@ def test_app_version_creation_order_does_not_change_twelve_character_hash(tmp_pa
 
     assert version == app_version(second)
     assert len(version) == 12
+
+
+def test_app_version_changes_when_first_line_of_worker_without_version_line_changes(
+    tmp_path: Path,
+) -> None:
+    docs = make_docs(tmp_path)
+    (docs / "sw.js").write_text("// first line v1\nconst CACHE = 'a';\n")
+    before = app_version(docs)
+
+    (docs / "sw.js").write_text("// first line v2\nconst CACHE = 'a';\n")
+
+    assert app_version(docs) != before
+
+
+def test_app_version_file_name_and_content_boundary_is_not_ambiguous(tmp_path: Path) -> None:
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    (left / "a.html").write_text("bc")
+    (right / "ab.html").write_text("c")
+
+    assert app_version(left) != app_version(right)

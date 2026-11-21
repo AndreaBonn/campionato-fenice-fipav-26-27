@@ -265,3 +265,31 @@ def test_posters_outage_tolerates_previous_games_without_poster(env: Env) -> Non
     assert env.run(calendar(), now=SECOND_RUN) == 0
     result = json.loads(env.data.read_text())
     assert all(game["poster"] is None for game in result["games"])
+
+
+def test_utc_now_returns_utc_aware_datetime() -> None:
+    from fenice_calendar.cli import _utc_now
+
+    assert _utc_now().tzinfo is UTC
+
+
+def test_main_corrupt_previous_data_and_outage_uses_empty_enrichments(env: Env) -> None:
+    search_url = (
+        WP_POSTS_URL
+        + "?search=seconda%20divisione&per_page=20&_fields=id,date,link,title,categories"
+    )
+    posts = json.loads((FIXTURES / "wp-search.json").read_text())[:1]
+    posts[0]["date"] = "2026-08-01T12:00:00"
+    env.overrides[search_url] = posts
+    assert env.run(calendar()) == 0
+    previous = json.loads(env.data.read_text())
+    assert previous["notices"]
+    env.data.write_text("not json")
+    env.overrides[search_url] = FetchError("down")
+    env.overrides[POSTERS_PATH.format(committee=COMMITTEE_CODE)] = FetchError("down")
+
+    assert env.run(calendar(), now=SECOND_RUN) == 0
+    result = json.loads(env.data.read_text())
+    assert result["notices"] == []
+    assert len(result["games"]) == 90
+    assert all(game["poster"] is None for game in result["games"])

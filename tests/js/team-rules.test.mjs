@@ -50,3 +50,11 @@ test("remainingGames leaves the position empty for a team missing from the stand
   const rem = remainingGames(FENICE, girone.games, girone.standings.filter((r) => r.team_id !== AQUILA));
   assert.ok(rem.games.some((r) => r.opponentId === AQUILA && r.opponentPos === null));
 });
+
+test("remainingGames: the average ignores a team missing from the standings instead of counting it as 0", () => {
+  // positions of the 7 opponents are [5, 3, 4, 1, 2, 5, 3]; without Aquila (1st) six are left: 22 / 6
+  const rem = remainingGames(FENICE, girone.games, girone.standings.filter((r) => r.team_id !== AQUILA));
+  assert.equal(rem.games.length, 7);
+  assert.ok(Math.abs(rem.averagePosition - 22 / 6) < 1e-9);
+  assert.ok(Math.abs(remainingGames(FENICE, girone.games, girone.standings).averagePosition - 23 / 7) < 1e-9);
+});

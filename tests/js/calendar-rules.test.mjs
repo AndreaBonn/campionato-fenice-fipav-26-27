@@ -69,3 +69,20 @@ test("feed links: null when the page url is unknown", () => {
   // a page opened from disk cannot be subscribed to: no feed links at all
   assert.equal(feedUrls("file:///home/u/docs/index.html"), null);
 });
+
+test("google calendar url: a team that is not in the list is named «Squadra Sconosciuta»", () => {
+  const game = { ...sample.games[3], home_id: "nope" };
+  assert.equal(params(googleCalendarUrl(game, teams, PAGES)).get("text"), "Squadra Sconosciuta - Asd Sandalyon Quartu");
+  assert.equal(params(googleCalendarUrl(sample.games[3], teams, PAGES)).get("text"), "Asd Fenice - Asd Sandalyon Quartu");
+});
+
+test("google calendar url: a venue with only the raw text uses it as the location", () => {
+  const venue = { raw: "PAL. X - VIA Y - CAGLIARI", name: null, address: null, city: null, lat: null, lng: null };
+  const url = googleCalendarUrl({ ...sample.games[3], venue }, teams, PAGES);
+  assert.equal(params(url).get("location"), "PAL. X - VIA Y - CAGLIARI");
+});
+
+test("google calendar url: called without a page url the details have no «Calendario completo»", () => {
+  assert.equal(params(googleCalendarUrl(sample.games[3], teams)).get("details").includes("Calendario completo"), false);
+  assert.match(params(googleCalendarUrl(sample.games[3], teams, PAGES)).get("details"), /Calendario completo: /);
+});

@@ -23,11 +23,21 @@ test("the card has title, head to head, home/away record and remaining games", (
 });
 
 test("the remaining games show the opponent position and put the tail in a details", () => {
+  // Sarroch has 7 games left (opponent position from the standings): the first 5 are listed, the last 2 sit in a details
   const html = renderOpponent(girone, SARROCH);
-  assert.match(html, /<small>\(\d+°\)<\/small>/);
-  assert.match(html, /Posizione media delle avversarie da affrontare: \d+,\d°/);
-  assert.match(html, /<details><summary>Le altre \d+ gare<\/summary>/);
-  assert.equal(html.split("<li>").length - 1 >= 6, true);
+  const shown = [
+    "<li>gio 26 nov: CUS Cagliari <small>(3°)</small>, in trasferta</li>",
+    "<li>lun 30 nov: Polisportiva Selargius 85 Asd <small>(4°)</small>, in casa</li>",
+    "<li>dom 20 dic: G.S. Aquila Oro <small>(1°)</small>, in trasferta</li>",
+    "<li>lun 11 gen: Asd Sporting Club Su Planu <small>(5°)</small>, in trasferta</li>",
+    "<li>lun 18 gen: Asd Fenice <small>(6°)</small>, in casa</li>",
+  ].join("");
+  const later = [
+    "<li>mer 27 gen: CUS Cagliari <small>(3°)</small>, in casa</li>",
+    "<li>ven 29 gen: Polisportiva Selargius 85 Asd <small>(4°)</small>, in trasferta</li>",
+  ].join("");
+  assert.ok(html.includes(`<h3>Prossime gare</h3><ul>${shown}</ul><details><summary>Le altre 2 gare</summary><ul>${later}</ul></details>`));
+  assert.ok(html.includes("Posizione media delle avversarie da affrontare: 3,7°."));
 });
 
 test("the positions of the remaining games match the standings shown in the header", () => {
@@ -108,4 +118,102 @@ test("a game awarded at the table shows its score without empty parentheses", ()
   assert.match(html, /<b>0-3<\/b> persa dalla Fenice/);
   assert.doesNotMatch(html, /\(\)/);
   assert.match(renderOpponent(girone, AQUILA), /\(8-25, 17-25, 16-25\)/);
+});
+
+const clone = () => structuredClone(girone);
+// Marks the unplayed games of the team as played, oldest first, until only `left` remain
+function playUntil(data, teamId, left) {
+  const open = data.games.filter((g) => !g.played && [g.home_id, g.away_id].includes(teamId));
+  for (const g of open.slice(0, open.length - left)) Object.assign(g, { played: true, sets_won: [3, 0], sets: [[25, 1], [25, 1], [25, 1]] });
+  return data;
+}
+const countOf = (html, needle) => html.split(needle).length - 1;
+
+test("the card lists up to 5 remaining games with no details, a sixth one opens the details", () => {
+  assert.equal(countOf(renderOpponent(girone, AQUILA), "<details>"), 1); // 7 left
+  const five = renderOpponent(playUntil(clone(), AQUILA, 5), AQUILA);
+  assert.equal(countOf(five, "<details>"), 0);
+  assert.match(five, /<h3>Prossime gare<\/h3><ul>(<li>[^]*?<\/li>){5}<\/ul><p class="note">/);
+  assert.equal(countOf(renderOpponent(playUntil(clone(), AQUILA, 6), AQUILA), "<details>"), 1);
+});
+
+test("with every game played the card says there is nothing left and shows no average", () => {
+  const data = clone();
+  for (const g of data.games.filter((x) => !x.played)) Object.assign(g, { played: true, sets_won: [3, 0], sets: [[25, 1], [25, 1], [25, 1]] });
+  const html = renderOpponent(data, AQUILA);
+  assert.match(html, /<h3>Prossime gare<\/h3><p>Nessuna gara da giocare\.<\/p>/);
+  assert.equal(countOf(html, "Posizione media"), 0);
+  assert.match(html, /Giornata 7: <b>0-3<\/b> persa dalla Fenice/);
+  assert.equal(countOf(renderOpponent(girone, AQUILA), "Nessuna gara da giocare"), 0);
+});
+
+test("without standings the card shows no average position and no position beside the opponents", () => {
+  const data = clone();
+  data.standings = [];
+  const html = renderOpponent(data, AQUILA);
+  assert.match(html, /<li>[^<]*CUS Cagliari, in trasferta<\/li>/);
+  assert.equal(countOf(html, "Posizione media"), 0);
+  assert.equal(countOf(html, "°)"), 0);
+  assert.equal(countOf(html, "° in classifica"), 0);
+  assert.equal(countOf(renderOpponent(girone, AQUILA), "Posizione media"), 1);
+});
+
+test("a team missing from the standings has no position line and no range line, one in them has both", () => {
+  const data = clone();
+  for (const g of data.games.filter((x) => !x.played)) Object.assign(g, { played: true, sets_won: [3, 0], sets: [[25, 1], [25, 1], [25, 1]] });
+  const listed = renderOpponent(data, AQUILA);
+  assert.match(listed, /<p>1° in classifica<\/p><p class="opp-range">Posizione finale possibile: 1°<\/p>/);
+  data.standings = data.standings.filter((r) => r.team_id !== AQUILA);
+  const missing = renderOpponent(data, AQUILA);
+  assert.equal(countOf(missing, "° in classifica"), 0);
+  assert.equal(countOf(missing, "opp-range"), 0);
+  assert.match(missing, /<h2 id="opp-title">G\.S\. Aquila Oro<\/h2>/);
+});
+
+test("a game without a start date reads «Data da definire» in the head to head and in the remaining games", () => {
+  const data = clone();
+  data.games.find((g) => g.id === "12995193").starts_at = null; // round 7, Aquila at home against the Fenice
+  const html = renderOpponent(data, AQUILA);
+  assert.ok(html.includes("<li>Giornata 7: da giocare, Data da definire</li>"));
+  assert.ok(html.includes("<li>Data da definire: Asd Fenice <small>(6°)</small>, in casa</li>"));
+  assert.ok(renderOpponent(girone, AQUILA).includes("<li>Giornata 7: da giocare, gio 7 gen</li>"));
+});
+
+test("a team that never meets the Fenice has an explicit «Nessuno scontro» line", () => {
+  const data = clone();
+  data.games = data.games.filter((g) => ![g.home_id, g.away_id].every((id) => [FENICE, AQUILA].includes(id)));
+  assert.match(renderOpponent(data, AQUILA), /<h3>Scontri diretti con la Fenice<\/h3><p>Nessuno scontro in calendario\.<\/p>/);
+  assert.equal(countOf(renderOpponent(girone, AQUILA), "Nessuno scontro"), 0);
+});
+
+test("head to head: a game won by the Fenice reads «vinta dalla Fenice» with the sets from its side", () => {
+  const data = clone();
+  Object.assign(data.games.find((g) => g.id === "12995178"), { sets_won: [3, 0], sets: [[25, 8], [25, 17], [25, 16]] }); // Fenice at home
+  const html = renderOpponent(data, AQUILA);
+  assert.ok(html.includes("<li>Giornata 2: <b>3-0</b> vinta dalla Fenice<small> (25-8, 25-17, 25-16)</small></li>"));
+  assert.equal(countOf(html, "persa dalla Fenice"), 0);
+});
+
+test("head to head: a game played by the Fenice away shows the score and sets from the Fenice side", () => {
+  const html = renderOpponent(girone, "232550"); // Selargius at home beat the Fenice 3-0 in round 1
+  assert.ok(html.includes("<li>Giornata 1: <b>0-3</b> persa dalla Fenice<small> (12-25, 19-25, 18-25)</small></li>"));
+});
+
+test("a remaining game against a team that is not in the list reads «Squadra sconosciuta»", () => {
+  const data = clone();
+  data.teams = data.teams.filter((t) => t.id !== SARROCH);
+  const html = renderOpponent(data, AQUILA); // round 6 Aquila at home against Sarroch
+  assert.ok(html.includes("<li>dom 20 dic: Squadra sconosciuta <small>(2°)</small>, in casa</li>"));
+  assert.equal(countOf(renderOpponent(girone, AQUILA), "Squadra sconosciuta"), 0);
+});
+
+test("clicking the control of the followed club or an unknown id leaves the dialog closed and the body untouched", () => {
+  const { dialog, body, control, click } = harness(girone);
+  click(control("[data-opponent]", FENICE));
+  click(control("[data-opponent]", "999999"));
+  assert.equal(dialog.open, false);
+  assert.equal(body.innerHTML, "");
+  click(control("[data-opponent]", AQUILA));
+  assert.equal(dialog.open, true);
+  assert.match(body.innerHTML, /Aquila Oro/);
 });

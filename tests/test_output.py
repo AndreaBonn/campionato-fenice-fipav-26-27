@@ -94,3 +94,43 @@ def test_failed_write_preserves_previous_file(
     assert path.read_text(encoding="utf-8") == "previous"
     write_status(path=path, checked_at="new")
     assert json.loads(path.read_text(encoding="utf-8")) == {"checked_at": "new"}
+
+
+def test_write_if_changed_only_notices_change_rewrites_file(tmp_path: Path) -> None:
+    path = tmp_path / "data.json"
+    initial = {**sample(), "notices": []}
+    changed = {**sample(), "notices": [{"id": 1, "title": "Avviso"}]}
+    assert write_if_changed(path=path, data=initial) is True
+
+    assert write_if_changed(path=path, data=changed) is True
+    assert json.loads(path.read_text()) == changed
+
+
+def test_write_if_changed_previous_json_list_rewrites_file(tmp_path: Path) -> None:
+    path = tmp_path / "data.json"
+    path.write_text("[]")
+
+    assert write_if_changed(path=path, data=sample()) is True
+    assert json.loads(path.read_text()) == sample()
+
+
+def test_write_if_changed_interrupted_write_removes_temporary_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "data.json"
+    path.write_text("previous")
+    original_write = Path.write_text
+
+    def interrupted_write(target: Path, content: str, **kwargs: Any) -> int:
+        original_write(target, content[:3], **kwargs)
+        raise OSError("interrupted write")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "write_text", interrupted_write)
+        with pytest.raises(OSError, match="interrupted write"):
+            write_if_changed(path=path, data=sample())
+
+    assert path.read_text() == "previous"
+    assert not path.with_name("data.json.tmp").exists()
+    assert write_if_changed(path=path, data=sample()) is True
+    assert json.loads(path.read_text()) == sample()

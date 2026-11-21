@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { feniceGames } from "../../docs/game-rules.js";
-import { errorCause, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { errorCause, esc, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -312,4 +312,83 @@ test("poster: no element when poster is null", () => {
   const now = new Date("2026-11-20T10:00:00Z"), bare = { ...sample, games: sample.games.map((g) => ({ ...g, poster: null })) };
   assert.equal(count(renderHero(bare, now), "Locandina"), 0);
   assert.equal(count(renderSchedule(bare, now), "Locandina"), 0);
+});
+
+const NOW_BEFORE = new Date("2026-11-20T10:00:00Z");
+// sample: games 1 and 2 are played by the Fenice at home and won (3-0, 3-2); game 3 is the next one
+const lostAtHome = () => {
+  const data = structuredClone(sample);
+  data.games.find((g) => g.id === "2").sets_won = [2, 3];
+  return data;
+};
+
+test("schedule: a game won by the Fenice reads «Vinta» with the won class, a lost one «Persa» with the lost class", () => {
+  const html = renderSchedule(lostAtHome(), NOW_BEFORE);
+  assert.equal(count(html, '<span class="verdict won">Vinta</span>'), 1);
+  assert.equal(count(html, '<span class="verdict lost">Persa</span>'), 1);
+  assert.equal(count(html, "Vinta"), 1);
+  assert.equal(count(html, "Persa"), 1);
+});
+
+test("last result: a game won by the Fenice reads «Vinta», the score and every set from its side", () => {
+  const html = renderLastResult(sample);
+  assert.match(html, /<b>3-2<\/b> <span class="verdict won">Vinta<\/span>/);
+  assert.match(html, /<p class="sets">Set: 25-20, 20-25, 25-19, 22-25, 15-13<\/p>/);
+  assert.equal(count(html, "Persa"), 0);
+});
+
+test("last result: a game lost by the Fenice reads «Persa» with the lost class, never «Vinta»", () => {
+  const html = renderLastResult(lostAtHome());
+  assert.match(html, /<b>2-3<\/b> <span class="verdict lost">Persa<\/span>/);
+  assert.equal(count(html, "Vinta"), 0);
+});
+
+test("last result: a game awarded at the table (no sets) shows the score and no «Set:» line", () => {
+  const forfeit = structuredClone(sample);
+  Object.assign(forfeit.games.find((g) => g.id === "2"), { sets_won: [3, 0], sets: [] });
+  assert.match(renderLastResult(forfeit), /<b>3-0<\/b>/);
+  assert.equal(count(renderLastResult(forfeit), "Set:"), 0);
+  assert.equal(count(renderLastResult(sample), "Set:"), 1);
+});
+
+test("hero: the next game with a live_url links «Segui la diretta» in a new tab, one without shows no link", () => {
+  const live = structuredClone(sample);
+  live.games.find((g) => g.id === "3").live_url = "https://example.com/live3";
+  assert.match(renderHero(live, NOW_BEFORE), /<a href="https:\/\/example\.com\/live3" target="_blank" rel="noopener">Segui la diretta<\/a>/);
+  assert.equal(count(renderHero(sample, NOW_BEFORE), "Segui la diretta"), 0);
+});
+
+test("hero: a next game without a time says «orario da definire», one with a time says «ore 17:00»", () => {
+  const notime = structuredClone(sample);
+  notime.games.find((g) => g.id === "3").time = null;
+  assert.match(renderHero(notime, NOW_BEFORE), /sabato 21 novembre, orario da definire/);
+  assert.equal(count(renderHero(notime, NOW_BEFORE), "ore null"), 0);
+  assert.match(renderHero(sample, NOW_BEFORE), /sabato 21 novembre, ore 17:00/);
+});
+
+test("error cause: a failure that is not a network error says the data is not readable", () => {
+  const unreadable = "I dati ricevuti non sono leggibili. Riprova tra poco.";
+  assert.equal(errorCause(new SyntaxError("Unexpected token"), "https:"), unreadable);
+  assert.equal(errorCause(new Error("boom"), "https:"), unreadable);
+  assert.equal(errorCause(undefined, "https:"), unreadable);
+  assert.equal(errorCause(new TypeError("x"), "https:"), "Connessione non riuscita: controlla la rete e riprova.");
+});
+
+test("escape: null and undefined become an empty string, other values their text", () => {
+  assert.equal(esc(null), "");
+  assert.equal(esc(undefined), "");
+  assert.equal(esc(0), "0");
+  assert.equal(esc(`a&b<c>"d'e`), "a&amp;b&lt;c&gt;&quot;d&#39;e");
+});
+
+test("escape: quotes and ampersands in live_url and poster url cannot leave the attribute", () => {
+  const evil = structuredClone(sample);
+  const game = evil.games.find((g) => g.id === "3");
+  game.live_url = 'https://example.com/live?a=1&b="x';
+  game.poster = { url: 'https://example.com/p.jpg?a=1&b="y', width: 800, height: 600 };
+  for (const html of [renderHero(evil, NOW_BEFORE), renderSchedule(evil, NOW_BEFORE)]) {
+    assert.match(html, /<a href="https:\/\/example\.com\/p\.jpg\?a=1&amp;b=&quot;y" target="_blank" rel="noopener"><img src="https:\/\/example\.com\/p\.jpg\?a=1&amp;b=&quot;y"/);
+    assert.equal(count(html, 'b="'), 0);
+  }
+  assert.match(renderHero(evil, NOW_BEFORE), /href="https:\/\/example\.com\/live\?a=1&amp;b=&quot;x"/);
 });

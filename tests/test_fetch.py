@@ -1,12 +1,20 @@
 import io
 import json
 from email.message import Message
+from types import SimpleNamespace
 from urllib.error import HTTPError
 from urllib.request import Request
 
 import pytest
 
-from fenice_calendar.config import FALLBACK_URL, PRIMARY_URL, REQUEST_TIMEOUT_S, USER_AGENT
+import fenice_calendar.fetch as fetch_module
+from fenice_calendar.config import (
+    FALLBACK_URL,
+    PRIMARY_URL,
+    REQUEST_DELAY_S,
+    REQUEST_TIMEOUT_S,
+    USER_AGENT,
+)
 from fenice_calendar.fetch import FetchError, fetch_json
 
 
@@ -107,3 +115,62 @@ def test_absolute_url_single_request_and_failure() -> None:
     with pytest.raises(FetchError):
         fetch_json(url, opener=broken, delay=0)
     assert requests == [url, url]
+
+
+@pytest.mark.parametrize("error_type", [TimeoutError, OSError])
+def test_fetch_json_primary_network_error_uses_fallback(error_type: type[OSError]) -> None:
+    urls: list[str] = []
+
+    def opener(request: Request, timeout: int) -> Response:
+        urls.append(request.full_url)
+        if request.full_url.startswith(PRIMARY_URL):
+            raise error_type("unavailable")
+        return Response(b'{"ok": true}', "application/json")
+
+    assert fetch_json("/test", opener=opener, delay=0) == {"ok": True}
+    assert urls == [PRIMARY_URL + "/test", FALLBACK_URL + "/test"]
+
+
+def test_fetch_json_html_with_valid_json_body_rejects_both_hosts() -> None:
+    urls: list[str] = []
+
+    def opener(request: Request, timeout: int) -> Response:
+        urls.append(request.full_url)
+        return Response(b'{"ok": true}', "text/html")
+
+    with pytest.raises(FetchError):
+        fetch_json("/test", opener=opener, delay=0)
+    assert urls == [PRIMARY_URL + "/test", FALLBACK_URL + "/test"]
+
+
+def test_fetch_json_consecutive_requests_wait_for_remaining_delay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    times = iter([10.0, 10.0, 12.0, 15.0])
+    sleeps: list[float] = []
+    fake_time = SimpleNamespace(monotonic=lambda: next(times), sleep=sleeps.append)
+    monkeypatch.setattr("fenice_calendar.fetch.time", fake_time)
+    monkeypatch.setattr(fetch_module, "_last_request", 0.0)
+
+    def opener(request: Request, timeout: int) -> Response:
+        return Response(b'{"ok": true}', "application/json")
+
+    assert fetch_json("/test", opener=opener, delay=5) == {"ok": True}
+    assert fetch_json("/test", opener=opener, delay=5) == {"ok": True}
+    assert sleeps == [3.0]
+
+
+def test_fetch_json_default_delay_waits_one_second(monkeypatch: pytest.MonkeyPatch) -> None:
+    times = iter([10.0, 10.0, 10.25, 11.0])
+    sleeps: list[float] = []
+    fake_time = SimpleNamespace(monotonic=lambda: next(times), sleep=sleeps.append)
+    monkeypatch.setattr("fenice_calendar.fetch.time", fake_time)
+    monkeypatch.setattr(fetch_module, "_last_request", 0.0)
+
+    def opener(request: Request, timeout: int) -> Response:
+        return Response(b'{"ok": true}', "application/json")
+
+    assert REQUEST_DELAY_S == 1
+    assert fetch_json("/test", opener=opener) == {"ok": True}
+    assert fetch_json("/test", opener=opener) == {"ok": True}
+    assert sleeps == [0.75]

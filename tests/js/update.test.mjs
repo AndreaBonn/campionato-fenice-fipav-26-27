@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { setupUpdates } from "../../docs/update.js";
+import { setupUpdates, supportsServiceWorker } from "../../docs/update.js";
 
 // Minimal browser around setupUpdates: event targets, a registration and the three notice elements.
 function target() {
@@ -27,11 +27,15 @@ function setup({ controller = {}, waiting = null, installing = null, registerFai
     registration.updates++;
     return Promise.resolve();
   };
-  sw.register = () => (registerFails ? Promise.reject(new Error("no")) : Promise.resolve(registration));
+  const registered = [];
+  sw.register = (url) => {
+    registered.push(url);
+    return registerFails ? Promise.reject(new Error("no")) : Promise.resolve(registration);
+  };
   const env = { sw, doc, now: () => clock.t, reload: () => reloads.n++ };
   const clock = { t: 1_000_000 };
   const reloads = { n: 0 };
-  return { env, sw, doc, els, registration, clock, reloads };
+  return { env, sw, doc, els, registration, clock, reloads, registered };
 }
 
 const worker = (state) => Object.assign(target(), { state, posted: [], postMessage(m) { this.posted.push(m); } });
@@ -174,4 +178,87 @@ test("a failed registration is logged and the page keeps working", async () => {
   }
 
   assert.equal(t.els["update-notice"].hidden, true);
+});
+
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+
+function captureWarnings() {
+  const warn = console.warn;
+  const logged = [];
+  console.warn = (...args) => logged.push(args);
+  return { logged, restore: () => (console.warn = warn) };
+}
+
+test("supportsServiceWorker is true for a navigator that has serviceWorker", () => {
+  assert.equal(supportsServiceWorker({ serviceWorker: {} }), true);
+});
+
+test("supportsServiceWorker is false without a navigator and for one without serviceWorker", () => {
+  assert.equal(supportsServiceWorker(undefined), false);
+  assert.equal(supportsServiceWorker({ userAgent: "old browser" }), false);
+});
+
+test("register is called with the relative URL sw.js, so it resolves next to the page", async () => {
+  const t = setup();
+
+  await setupUpdates(t.env);
+
+  assert.deepEqual(t.registered, ["sw.js"]);
+});
+
+test("first visit: the first controllerchange does not reload, a second one does", async () => {
+  const t = setup({ controller: null });
+  await setupUpdates(t.env);
+
+  t.sw.fire("controllerchange");
+  assert.equal(t.reloads.n, 0);
+
+  t.sw.fire("controllerchange");
+  assert.equal(t.reloads.n, 1);
+});
+
+test("a worker that became waiting while the tab was hidden shows the notice when the tab turns visible", async () => {
+  const t = setup();
+  await setupUpdates(t.env);
+  t.doc.visibilityState = "hidden";
+  t.registration.waiting = worker("installed");
+  assert.equal(t.els["update-notice"].hidden, true);
+
+  t.doc.visibilityState = "visible";
+  t.doc.fire("visibilitychange");
+
+  assert.equal(t.els["update-notice"].hidden, false);
+});
+
+test("a rejected registration.update is logged with console.warn and does not break the page", async () => {
+  const t = setup();
+  const failure = new Error("offline");
+  t.registration.update = () => Promise.reject(failure);
+  const warnings = captureWarnings();
+  try {
+    await setupUpdates(t.env);
+    await settle();
+  } finally {
+    warnings.restore();
+  }
+
+  assert.equal(warnings.logged.length, 1);
+  assert.match(warnings.logged[0][0], /controllo aggiornamenti non riuscito/);
+  assert.equal(warnings.logged[0][1], failure);
+  assert.equal(t.els["update-notice"].hidden, true);
+});
+
+test("visibilitychange before register resolves neither throws nor asks for an update", async () => {
+  const t = setup();
+  let resolveRegister;
+  t.sw.register = () => new Promise((resolve) => (resolveRegister = resolve));
+  const starting = setupUpdates(t.env);
+
+  t.doc.fire("visibilitychange");
+
+  assert.equal(t.registration.updates, 0);
+  assert.equal(t.els["update-notice"].hidden, true);
+  resolveRegister(t.registration);
+  await starting;
+  assert.equal(t.registration.updates, 1);
 });

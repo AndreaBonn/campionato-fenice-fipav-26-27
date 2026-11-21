@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
-const SOURCE = readFileSync(new URL("../../docs/sw.js", import.meta.url), "utf8");
+const SW_PATH = fileURLToPath(new URL("../../docs/sw.js", import.meta.url));
+const SOURCE = readFileSync(SW_PATH, "utf8");
+// deploy stamps this line (fenice-stamp-sw); the same substitution gives a stamped worker
+const STAMPED_SOURCE = SOURCE.replace('const VERSION = "dev";', 'const VERSION = "abc123";');
 const ORIGIN = "https://andreabonn.github.io";
 const PAGE = `${ORIGIN}/campionato-fenice-fipav-26-27/data.json`;
 
 // The browser around the worker: Cache Storage held in a Map, the network as a function.
-function loadWorker({ network = () => Promise.resolve(new Response("live")), stored = {} } = {}) {
+function loadWorker({ network = () => Promise.resolve(new Response("live")), stored = {}, source = SOURCE } = {}) {
   const handlers = {};
   const storage = new Map(Object.entries(stored).map(([name, entries]) => [name, new Map(entries)]));
   const calls = { fetch: [], skipWaiting: 0, claimed: 0, shell: [] };
@@ -16,7 +20,8 @@ function loadWorker({ network = () => Promise.resolve(new Response("live")), sto
     if (!storage.has(name)) storage.set(name, new Map());
     const entries = storage.get(name);
     return {
-      put: async (request, response) => entries.set(request.url, response),
+      // like Cache.put, it consumes the body: a response the page also reads must be a clone
+      put: async (request, response) => entries.set(request.url, new Response(await response.text())),
       addAll: async (requests) => {
         calls.shell.push(...requests);
         requests.forEach((r) => entries.set(r.url, new Response("shell")));
@@ -54,13 +59,13 @@ function loadWorker({ network = () => Promise.resolve(new Response("live")), sto
     },
   };
   worker.self = worker;
-  vm.runInNewContext(SOURCE, worker);
+  // filename lets V8 attribute the run to docs/sw.js, so the file shows up in the coverage report
+  vm.runInNewContext(source, worker, { filename: SW_PATH });
   return { handlers, storage, calls };
 }
 
 // Dispatch one fetch event; `answer` is undefined when the worker lets the browser handle it.
-async function dispatchFetch(handlers, request) {
-  const pending = [];
+async function dispatchFetch(handlers, request, pending = []) {
   let answer;
   handlers.fetch({
     request,
@@ -257,4 +262,88 @@ test("install caches the icons the page links and the manifest's 'any' icons, so
   assert.ok(fromManifest.includes("icons/icon-512.png"));
   const missing = [...linked, ...fromManifest].filter((name) => !cached.has(new URL(name, PAGE).href));
   assert.deepEqual(missing, []);
+});
+
+const BASE = new URL("./", PAGE).href;
+
+test("the stamp substitution used by these tests really changes the worker source", () => {
+  assert.ok(SOURCE.includes('const VERSION = "dev";'));
+  assert.ok(STAMPED_SOURCE.includes('const VERSION = "abc123";'));
+});
+
+test("install then offline: the PWA start_url './' is answered from the cache", async () => {
+  const { handlers } = loadWorker({ network: offline });
+  await dispatchLifecycle(handlers.install);
+
+  const response = await dispatchFetch(handlers, new Request(BASE));
+
+  assert.equal(await response.text(), "shell");
+});
+
+test("offline without an install: the start_url is a network error, not a cached page", async () => {
+  const { handlers } = loadWorker({ network: offline });
+
+  const response = await dispatchFetch(handlers, new Request(BASE));
+
+  assert.equal(response.type, "error");
+});
+
+test("a stamped worker installs into the cache named after its version", async () => {
+  const { handlers, storage } = loadWorker({ source: STAMPED_SOURCE });
+
+  await dispatchLifecycle(handlers.install);
+
+  assert.deepEqual([...storage.keys()], ["fenice-fipav-abc123"]);
+});
+
+test("a stamped worker's activate deletes the other versions and keeps its own cache and other apps'", async () => {
+  const { handlers, storage } = loadWorker({
+    source: STAMPED_SOURCE,
+    stored: { "fenice-fipav-dev": [], "fenice-fipav-old": [], "fenice-fipav-abc123": [], "assemini-black-1a2b3c": [] },
+  });
+
+  await dispatchLifecycle(handlers.activate);
+
+  assert.deepEqual([...storage.keys()].sort(), ["assemini-black-1a2b3c", "fenice-fipav-abc123"]);
+});
+
+test("online: what is stored is the network body, and the page still gets a readable body", async () => {
+  const { handlers, storage } = loadWorker({
+    network: () => Promise.resolve(new Response("fresh from FIPAV")),
+  });
+
+  const response = await dispatchFetch(handlers, new Request(PAGE));
+
+  assert.equal(await storage.get("fenice-fipav-dev").get(PAGE).text(), "fresh from FIPAV");
+  assert.equal(await response.text(), "fresh from FIPAV");
+});
+
+test("online: the cache write is handed to event.waitUntil, so the worker is not stopped before it ends", async () => {
+  const { handlers } = loadWorker();
+  const waits = [];
+
+  await dispatchFetch(handlers, new Request(PAGE), waits);
+
+  assert.equal(waits.length, 1);
+  assert.equal(typeof waits[0].then, "function");
+});
+
+test("an error answer schedules no cache write", async () => {
+  const { handlers } = loadWorker({ network: () => Promise.resolve(new Response("down", { status: 503 })) });
+  const waits = [];
+
+  await dispatchFetch(handlers, new Request(PAGE), waits);
+
+  assert.equal(waits.length, 0);
+});
+
+test("install caches every local image the page markup shows, so the header crest opens offline", async () => {
+  const { handlers, storage } = loadWorker();
+  await dispatchLifecycle(handlers.install);
+
+  const html = readFileSync(new URL("../../docs/index.html", import.meta.url), "utf8");
+  const images = [...html.matchAll(/<img[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]).filter((src) => !/^https?:/.test(src));
+  const cached = storage.get("fenice-fipav-dev");
+  assert.ok(images.includes("logo-fenice.png"));
+  assert.deepEqual(images.filter((src) => !cached.has(new URL(src, PAGE).href)), []);
 });

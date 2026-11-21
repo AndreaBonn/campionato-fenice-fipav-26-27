@@ -36,4 +36,5 @@ def test_standings_fixtures_list_every_team() -> None:
 
 def test_posters_fixture_maps_game_ids_to_keys() -> None:
     posters = load("posters-19092.json")["data"]
+    assert len(posters) > 0
     assert all(entry["key"].startswith("public/locandine/images/") for entry in posters.values())

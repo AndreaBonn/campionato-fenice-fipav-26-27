@@ -77,3 +77,34 @@ test("teamInitials takes the first letter of the first two words, in capitals", 
 test("time zone: Rome, the one every view formats dates in", () => {
   assert.equal(TIME_ZONE, "Europe/Rome");
 });
+
+test("countdown: minutes are rounded up, so the last seconds before the whistle still read «1 minuto»", () => {
+  const start = "2026-11-21T17:00:00+01:00"; // 16:00:00Z
+  assert.deepEqual(countdownText(start, new Date("2026-11-21T15:15:30Z")), { lead: "tra", main: "45 minuti", sub: "" }); // 44 min 30 s to go
+  assert.deepEqual(countdownText(start, new Date("2026-11-21T15:59:30Z")), { lead: "tra", main: "1 minuto", sub: "" }); // 30 s to go
+  assert.deepEqual(countdownText(start, new Date("2026-11-21T15:15:00Z")), { lead: "tra", main: "45 minuti", sub: "" }); // exact minutes stay
+});
+
+test("countdown: «In corso» just inside three hours after the start, «Conclusa» just past it", () => {
+  const start = "2026-11-21T17:00:00+01:00"; // 16:00:00Z
+  assert.equal(countdownText(start, new Date("2026-11-21T18:59:59Z")).main, "In corso");
+  assert.equal(countdownText(start, new Date("2026-11-21T19:00:01Z")).main, "Conclusa");
+});
+
+test("relative age: minutes and hours are rounded down, the last second before the next unit keeps the lower one", () => {
+  assert.equal(relativeAge(ago(59 * MIN + 59e3), NOW), "59 minuti fa");
+  assert.equal(relativeAge(ago(90 * MIN), NOW), "1 ora fa");
+  assert.equal(relativeAge(ago(HOUR + 59 * MIN + 59e3), NOW), "1 ora fa");
+  assert.equal(relativeAge(ago(DAY - 1e3), NOW), "23 ore fa");
+});
+
+test("relative age: days are rounded down, so 47 hours is still «ieri» and 48 hours is «2 giorni fa»", () => {
+  assert.equal(relativeAge(ago(DAY + MIN), NOW), "ieri");
+  assert.equal(relativeAge(ago(2 * DAY - MIN), NOW), "ieri");
+  assert.equal(relativeAge(ago(2 * DAY), NOW), "2 giorni fa");
+});
+
+test("team name: a number inside the name stays as it is and no empty word is added", () => {
+  assert.equal(displayTeamName("ASD 85 FENICE"), "Asd 85 Fenice");
+  assert.equal(displayTeamName("ASD 85 FENICE").split(" ").length, 3);
+});

@@ -78,3 +78,18 @@ def test_index_links_the_apple_touch_icon_that_exists() -> None:
     html = (DOCS / "index.html").read_text(encoding="utf-8")
 
     assert 'rel="apple-touch-icon" href="icons/apple-touch-icon.png"' in html
+
+
+def test_manifest_has_a_192_any_icon() -> None:
+    icons = _manifest()["icons"]
+    assert isinstance(icons, list)
+
+    assert any(i["sizes"] == "192x192" and i["purpose"] == "any" for i in icons)
+
+
+def test_manifest_declares_name_id_and_an_installable_display_mode() -> None:
+    manifest = _manifest()
+
+    assert isinstance(manifest["name"], str) and manifest["name"].strip()
+    assert isinstance(manifest["id"], str) and manifest["id"].strip()
+    assert manifest["display"] in {"standalone", "fullscreen", "minimal-ui"}

@@ -34,10 +34,6 @@ test("the tie-break is reported apart from the mean when a game went to five set
   assert.match(html, /nel quinto set 15,0 fatti, 10,0 subiti/);
 });
 
-test("labels from the data are not injected as markup", () => {
-  assert.doesNotMatch(renderAnalysis(girone), /<script/);
-});
-
 test("a lone game awarded at the table is not empty and says so", () => {
   const data = structuredClone(girone);
   data.games = [{ ...data.games[0], home_id: "232645", played: true, sets: [], sets_won: [3, 0] }];

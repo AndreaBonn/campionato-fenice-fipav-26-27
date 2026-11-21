@@ -1,5 +1,8 @@
 import json
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from fenice_calendar import badges
 from fenice_calendar.badges import (
@@ -242,3 +245,69 @@ def test_main_without_any_report_publishes_error_and_unknown_badges(tmp_path: Pa
     coverage = json.loads((out / "coverage.json").read_text())
     assert (tests["message"], tests["color"]) == ("error", "red")
     assert (coverage["message"], coverage["color"]) == ("unknown", "lightgrey")
+
+
+def test_tests_badge_error_is_the_whole_shields_document() -> None:
+    assert badge_for_tests(None) == {
+        "schemaVersion": 1,
+        "label": "tests",
+        "message": "error",
+        "color": "red",
+    }
+
+
+def test_read_coverage_string_percent_never_yields_a_wrong_badge(tmp_path: Path) -> None:
+    # the docstring does not say whether "92.5" is a number: accept the value or unknown
+    report = write(tmp_path / "coverage.json", '{"totals": {"percent_covered": "92.5"}}')
+
+    badge = badge_for_coverage(read_coverage(report))
+
+    assert (badge["message"], badge["color"]) in {
+        ("92%", "brightgreen"),
+        ("unknown", "lightgrey"),
+    }
+
+
+def test_main_creates_a_missing_nested_output_directory(tmp_path: Path) -> None:
+    report = write(tmp_path / "pytest.xml", PYTEST_XML)
+    coverage = write(tmp_path / "coverage.json", '{"totals": {"percent_covered": 90}}')
+    out = tmp_path / "a" / "b" / "badges"
+    assert not out.exists()
+
+    code = badges.main(["--junit", str(report), "--coverage", str(coverage), "--out", str(out)])
+
+    assert code == 0
+    assert sorted(p.name for p in out.iterdir()) == ["coverage.json", "tests.json"]
+
+
+@pytest.mark.skipif(not Path("/usr/bin/python3").exists(), reason="no system python3")
+def test_badges_script_runs_with_system_python_without_the_package(tmp_path: Path) -> None:
+    # the CI fallback: `python3 src/fenice_calendar/badges.py` when uv cannot start
+    script = Path(__file__).resolve().parents[1] / "src" / "fenice_calendar" / "badges.py"
+    report = write(tmp_path / "pytest.xml", PYTEST_XML)
+    out = tmp_path / "badges"
+
+    result = subprocess.run(
+        [
+            "/usr/bin/python3",
+            "-I",
+            str(script),
+            "--junit",
+            str(report),
+            "--coverage",
+            str(tmp_path / "absent.json"),
+            "--out",
+            str(out),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (
+        json.loads((out / "tests.json").read_text())["message"] == "1 failed, 2 passed, 1 skipped"
+    )
+    assert json.loads((out / "coverage.json").read_text())["message"] == "unknown"

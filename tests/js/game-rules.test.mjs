@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setsLabel } from "../../docs/game-rules.js";
+import { changeDetail, feniceGames, feniceTeamId, form, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setScores, setsLabel } from "../../docs/game-rules.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -129,4 +129,24 @@ test("referees label: names when present, a fixed phrase when pending, null othe
 test("changeDetail is the moved part only, null when nothing changed", () => {
   assert.equal(changeDetail({ changes: [] }), null);
   assert.equal(changeDetail({ changes: ["date", "time"] }), "cambiati data e ora");
+});
+
+test("fenice team id: null when team_cod names no team, and then the club has no games", () => {
+  const unknown = { ...sample, team_cod: "000000000" };
+  assert.equal(feniceTeamId(unknown), null);
+  assert.deepEqual(feniceGames(unknown), []);
+  assert.equal(feniceGames(sample).length, 5);
+});
+
+test("set scores: set by set from the team's side, empty for a game not played", () => {
+  assert.deepEqual(setScores(feniceGames(sample)[0], "232642"), ["25-12", "25-19", "25-18"]);
+  assert.deepEqual(setScores(feniceGames(girone)[0], "232645"), ["12-25", "19-25", "18-25"]);
+  assert.deepEqual(setScores(feniceGames(sample)[2], "232642"), []);
+});
+
+test("changeDetail: none without the changes key, one known field, an unknown key as it is, three fields", () => {
+  assert.equal(changeDetail({}), null);
+  assert.equal(changeDetail({ changes: ["venue"] }), "cambiata la palestra");
+  assert.equal(changeDetail({ changes: ["x"] }), "cambiata la x");
+  assert.equal(changeDetail({ changes: ["date", "time", "venue"] }), "cambiati data, ora e palestra");
 });

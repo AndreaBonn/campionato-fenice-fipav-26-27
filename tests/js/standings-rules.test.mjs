@@ -44,7 +44,7 @@ test("point ratio breaks a tie on wins and set ratio; a zero denominator is Infi
     g("A", "X", [[25, 10], [25, 10], [25, 10]]),
     g("B", "X", [[25, 20], [25, 20], [25, 20]]),
   ];
-  const table = tableFromGames(games, [t("A"), t("B"), t("X")]);
+  const table = tableFromGames(games, [t("B"), t("A"), t("X")]);
   assert.deepEqual(table.map((r) => r.team_id), ["A", "B", "X"]);
   assert.equal(table[0].set_ratio, Infinity);
   assert.equal(table[0].point_ratio, 75 / 30);
@@ -74,4 +74,22 @@ test("a ratio keeps Infinity when sets were won and none lost", () => {
 test("a game with a team missing from the teams list is skipped, not a crash", () => {
   const table = tableFromGames([game("a", "ghost", [3, 0], [[25, 10], [25, 10], [25, 10]])], [team("a"), team("b")]);
   assert.equal(table.find((r) => r.team_id === "a").played, 0);
+});
+
+
+test("more wins break a points tie before set ratio", () => {
+  // a: 1 win, sets 3-5 (0.6); b: 0 wins, sets 4-6 (0.67). Wins must win over the better set ratio
+  const games = [
+    game("a", "x", [3, 2], []),
+    game("a", "x", [0, 3], []),
+    game("b", "x", [2, 3], []),
+    game("b", "x", [2, 3], []),
+  ];
+  const table = tableFromGames(games, [team("b"), team("a"), team("x")]);
+  assert.deepEqual(table.filter((r) => ["a", "b"].includes(r.team_id)).map((r) => [r.team_id, r.points, r.won]), [["a", 2, 1], ["b", 2, 0]]);
+});
+
+test("played games without set scores are skipped while valid games count", () => {
+  const games = [game("a", "b", null, []), game("a", "b", [3, 0], [[25, 10], [25, 10], [25, 10]])];
+  assert.deepEqual(tableFromGames(games, [team("a"), team("b")]).map((r) => [r.team_id, r.played, r.points]), [["a", 1, 3], ["b", 1, 0]]);
 });

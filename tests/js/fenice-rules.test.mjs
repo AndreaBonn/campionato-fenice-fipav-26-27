@@ -81,3 +81,16 @@ test("a game awarded at the table adds no sets to setStats and is counted apart"
 test("a game awarded at the table still counts in the streak", () => {
   assert.deepEqual(streak(FENICE, [lateLoss, forfeit]), { outcome: "won", length: 1 });
 });
+
+
+test("setStats rounds five wins out of seventeen down to 29 percent", () => {
+  const games = [game([[25, 20], [25, 20], [20, 25], [20, 25], [10, 15]]),
+    game([[25, 20], [20, 25], [20, 25], [20, 25]]),
+    game([[25, 20], [20, 25], [20, 25], [20, 25]]),
+    game([[25, 20], [20, 25], [20, 25], [20, 25]])];
+  assert.deepEqual(setStats(FENICE, games), { won: 5, lost: 12, total: 17, wonPct: 29 });
+});
+
+test("setStats rounds eleven wins out of seventeen up to 65 percent", () => {
+  assert.equal(setStats(FENICE, synthetic).wonPct, 65);
+});

@@ -35,3 +35,33 @@ test("opponentSchedule splits played and remaining games of a team, from its sid
   assert.equal(s.remaining.length, 7);
   assert.deepEqual(s.remaining[0], { game: girone.games[8], opponentId: "229802", home: true });
 });
+
+const SELARGIUS = "232550";
+const SU_PLANU = "232396";
+
+test("headToHead: a game played by the Fenice away is seen from the Fenice side", () => {
+  const h2h = headToHead(FENICE, SELARGIUS, girone.games); // Selargius at home won 3-0 in round 1
+  assert.equal(h2h.played.length, 1);
+  assert.equal(h2h.played[0].score, "0-3");
+  assert.deepEqual(h2h.played[0].sets, ["12-25", "19-25", "18-25"]);
+  assert.equal(h2h.played[0].outcome, "lost");
+  assert.deepEqual({ won: h2h.won, lost: h2h.lost, setsWon: h2h.setsWon, setsLost: h2h.setsLost }, { won: 0, lost: 1, setsWon: 0, setsLost: 3 });
+});
+
+test("headToHead: two played games, one at home and one away, add up wins, losses and sets", () => {
+  const game = (id, home, away, sets_won) => ({ id, home_id: home, away_id: away, played: true, sets_won, sets: [] });
+  const games = [game("a", FENICE, "x", [3, 1]), game("b", "x", FENICE, [3, 2])];
+  const h2h = headToHead(FENICE, "x", games);
+  assert.deepEqual(h2h.played.map((p) => [p.score, p.outcome]), [["3-1", "won"], ["2-3", "lost"]]);
+  assert.deepEqual({ won: h2h.won, lost: h2h.lost, setsWon: h2h.setsWon, setsLost: h2h.setsLost }, { won: 1, lost: 1, setsWon: 5, setsLost: 4 });
+});
+
+test("opponentSchedule: a remaining game away has home false, one at home has home true", () => {
+  const { remaining } = opponentSchedule(FENICE, girone.games);
+  assert.equal(remaining[0].game.id, "12995184"); // round 4 at Su Planu
+  assert.equal(remaining[0].opponentId, SU_PLANU);
+  assert.equal(remaining[0].home, false);
+  assert.equal(remaining[1].game.id, "12995188"); // round 5 at home against CUS
+  assert.equal(remaining[1].opponentId, "229802");
+  assert.equal(remaining[1].home, true);
+});

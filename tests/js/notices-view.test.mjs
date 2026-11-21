@@ -33,3 +33,16 @@ test("notices: empty list gives an explicit state with a link to the committee s
     assert.equal(html.includes("<li"), false);
   }
 });
+
+test("notices: an unknown or missing kind shows no tag, a known kind shows one", () => {
+  const html = renderNotices({ notices: [
+    { id: "1", title: "Una", url: "https://fipavcagliari.it/a/", date: "2026-09-05", kind: "altro" },
+    { id: "2", title: "Due", url: "https://fipavcagliari.it/b/", date: "2026-09-06" },
+    { id: "3", title: "Tre", url: "https://fipavcagliari.it/c/", date: "2026-09-07", kind: "indizione" },
+  ] });
+  assert.equal(html.split("<li").length - 1, 3);
+  assert.equal(html.split('<span class="tag">').length - 1, 1);
+  assert.match(html, /<time datetime="2026-09-07">7 settembre 2026<\/time> <span class="tag">Indizione<\/span>/);
+  assert.match(html, /<time datetime="2026-09-05">5 settembre 2026<\/time><\/p>/);
+  assert.match(html, /<time datetime="2026-09-06">6 settembre 2026<\/time><\/p>/);
+});

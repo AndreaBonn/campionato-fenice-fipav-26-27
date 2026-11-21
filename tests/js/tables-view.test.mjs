@@ -50,9 +50,11 @@ test("escapes team names and shows an empty ratio as a dash", () => {
   const data = structuredClone(girone);
   data.teams[1].name = "<b>X</b>";
   data.standings[0].set_ratio = null;
+  data.standings[0].point_ratio = Infinity;
   const html = renderStandings(data);
   assert.equal(count(html, "<b>X"), 0);
   assert.match(html, /&lt;b&gt;/);
+  assert.match(rows(html)[0], /<td>-<\/td><td>-<\/td>/);
 });
 
 test("falls back to the table computed from the games when the file has no standings", () => {
@@ -123,4 +125,56 @@ test("decided block lists zones only when the formula is published", () => {
   const html = renderStandings(data);
   assert.match(html, /promozione/);
   assert.match(html, /retrocessione/);
+});
+
+
+test("published zones mark all six positions including the relegation boundary", () => {
+  const data = { ...girone, formula: { published: true, promotion: 1, playoff: 2, relegation: 1 } };
+  const classes = rows(renderStandings(data)).map((row) => row.match(/zone-(?:promotion|playoff|relegation)/)?.[0] ?? "none");
+  assert.deepEqual(classes, ["zone-promotion", "zone-playoff", "zone-playoff", "none", "none", "zone-relegation"]);
+});
+
+test("crest errors ignore images without names and named non-images", () => {
+  let listener;
+  installCrestFallback({ addEventListener: (_, fn) => { listener = fn; } });
+  const calls = [];
+  const target = (tagName, dataset) => ({ tagName, dataset, insertAdjacentHTML: () => calls.push("insert"), remove: () => calls.push("remove") });
+  listener({ target: target("IMG", {}) });
+  listener({ target: target("DIV", { crestName: "Fenice" }) });
+  assert.deepEqual(calls, []);
+  listener({ target: target("IMG", { crestName: "Fenice" }) });
+  assert.deepEqual(calls, ["insert", "remove"]);
+});
+
+test("a team without a logo still has a row without an image", () => {
+  const data = structuredClone(girone);
+  const id = data.standings[0].team_id;
+  data.teams.find((team) => team.id === id).logo_url = null;
+  const row = rows(renderStandings(data))[0];
+  assert.match(row, new RegExp(`data-opponent="${id}"|la tua squadra`));
+  assert.doesNotMatch(row, /<img/);
+  assert.match(rows(renderStandings(girone))[0], /<img/);
+});
+
+test("a narrow open range shows the column without a decided block", () => {
+  const data = structuredClone(girone);
+  data.standings = data.standings.slice(0, 3).map((row, i) => ({ ...row, pos: i + 1, points: i ? 0 : 3, won: 0 }));
+  const [a, b, c] = data.standings.map((row) => row.team_id);
+  data.games = [{ home_id: b, away_id: c, played: false }];
+  const html = renderStandings(data);
+  assert.match(html, /<th scope="col">Poss\.<\/th>/);
+  assert.match(rows(html)[0], /<td>1°-2°<\/td>/);
+  assert.doesNotMatch(html, /Già deciso/);
+  assert.match(renderStandings(decidedSeason()), /Già deciso/);
+});
+
+test("a non-provisional tie break hides the note", () => {
+  const data = { ...girone, tie_break: { ...girone.tie_break, provisional: false } };
+  assert.doesNotMatch(renderStandings(data), /Criterio di parità provvisorio/);
+  assert.match(renderStandings(girone), /Criterio di parità provvisorio/);
+});
+
+test("an unknown tie-break criterion is displayed verbatim", () => {
+  const data = { ...girone, tie_break: { provisional: true, criteria: ["wins", "custom_criterion"] } };
+  assert.match(renderStandings(data), /Criterio di parità provvisorio: vittorie, custom_criterion/);
 });

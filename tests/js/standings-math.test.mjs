@@ -113,15 +113,20 @@ test("ties remain open with pending games and close on current ratios when finis
 test("decided facts use exact positions and published zones", () => {
   const ranges = new Map([["B", { best: 2, worst: 3 }], ["A", { best: 1, worst: 1 }], ["C", { best: 4, worst: 4 }], ["D", { best: 2, worst: 3 }]]);
   assert.deepEqual(decidedFacts(ranges, { published: false }), [{ team_id: "A", position: 1 }, { team_id: "C", position: 4 }]);
-  assert.deepEqual(decidedFacts(ranges, { published: true, promotion: 1, playoff: 1, relegation: 1 }).find((f) => f.team_id === "A"),
-    { team_id: "A", position: 1, promotion: true, playoff: false, relegation: false });
+  assert.deepEqual(decidedFacts(ranges, { published: true, promotion: 1, playoff: 1, relegation: 1 }), [
+    { team_id: "A", position: 1, promotion: true, playoff: false, relegation: false },
+    { team_id: "B", position: null, promotion: false, playoff: null, relegation: false },
+    { team_id: "D", position: null, promotion: false, playoff: null, relegation: false },
+    { team_id: "C", position: 4, promotion: false, playoff: false, relegation: true },
+  ]);
 });
 
-test("large fixture returns valid ranges promptly", () => {
+test("large fixture ranges agree with independent brute force", () => {
   const data = JSON.parse(readFileSync(new URL("../fixtures/data-64353.json", import.meta.url), "utf8"));
-  const ranges = positionRanges(data);
-  assert.equal(ranges.size, 6);
-  for (const { best, worst } of ranges.values()) assert.ok(1 <= best && best <= worst && worst <= 6);
+  let remaining = 0;
+  data.games = data.games.filter((game) => game.played || remaining++ < 4);
+  data.standings = [];
+  assert.deepEqual(positionRanges(data), brute(data));
 });
 
 test("ranges start from the official standings, which can carry a penalty the games do not show", () => {
@@ -154,7 +159,7 @@ test("six teams with two out of contention match brute force, fixed games includ
 
 test("possible positions at MAX_ENUMERATED_GAMES stay under the 0.3 s limit (R16)", () => {
   const LIMIT_MS = 300;
-  const TEAM_COUNT = 6;
+  const TEAM_COUNT = 10;
   const PLAYING_TEAMS = TEAM_COUNT - 1;
   const worst = {
     teams: Array.from({ length: TEAM_COUNT }, (_, id) => ({ id })),
@@ -169,4 +174,18 @@ test("possible positions at MAX_ENUMERATED_GAMES stay under the 0.3 s limit (R16
   const elapsed = performance.now() - start;
   assert.equal(ranges.size, TEAM_COUNT);
   assert.ok(elapsed < LIMIT_MS, `took ${elapsed.toFixed(1)} ms, limit ${LIMIT_MS} ms`);
+});
+
+
+test("identical finished teams can occupy either tied position", () => {
+  const data = { teams: teams.slice(0, 2), games: [] };
+  assert.deepEqual([...positionRanges(data).values()], [{ best: 1, worst: 2 }, { best: 1, worst: 2 }]);
+});
+
+test("nine relevant games use exact enumeration when the bound is wider", () => {
+  const row = (team_id, points) => ({ team_id, points, won: 0, set_ratio: 0, point_ratio: 0 });
+  const data = { teams: teams.slice(0, 3), standings: [row("A", 20), row("B", 0), row("C", 0)],
+    games: Array.from({ length: 9 }, () => ({ home_id: "B", away_id: "C", played: false })) };
+  assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 2 });
+  assert.deepEqual(positionRanges(data, { maxEnumerated: 8 }).get("A"), { best: 1, worst: 3 });
 });

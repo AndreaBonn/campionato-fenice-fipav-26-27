@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { mock, test } from "node:test";
 
-import { SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, startApp } from "../../docs/app.js";
+import { CLOCK_TICK_MS, SLOW_LOAD_MS, applyViews, buildViews, load, loadStatus, startApp } from "../../docs/app.js";
 
 const SAMPLE = JSON.parse(readFileSync(new URL("./../fixtures/data-sample.json", import.meta.url), "utf8"));
+const GIRONE = JSON.parse(readFileSync(new URL("./../fixtures/data-64353.json", import.meta.url), "utf8"));
 const NOW = new Date("2026-11-21T12:00:00+01:00");
+const CHECKED_AT = "2026-11-21T10:00:00+00:00";
 const IDS = ["next", "next-body", "last", "last-body", "standings", "standings-body", "analysis", "analysis-body", "list", "feed", "notices-body", "checked", "opponent", "opp-body"];
 
 // The page's elements, as plain objects keyed by id.
@@ -214,6 +216,173 @@ test("startApp: a click on the retry button reloads, a click elsewhere does not"
     await new Promise((resolve) => setImmediate(resolve));
     assert.equal(calls, 2);
     assert.match(page.els.list.innerHTML, /Giornata/);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+const statusOk = () => respond({ checked_at: CHECKED_AT });
+// load() does not await loadStatus(): let the pending status.json chain finish before asserting
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+
+test("load with a valid status.json: the last check line becomes visible", async () => {
+  const page = fakePage();
+  page.els.checked.hidden = true;
+  const app = makeApp(page, router({ "data.json": () => respond(SAMPLE), "status.json": statusOk }));
+
+  await load(app);
+  await settle();
+
+  assert.equal(page.els.checked.hidden, false);
+  assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 1 ora fa");
+});
+
+test("load requests data.json and status.json revalidated, never from the HTTP cache", async () => {
+  const page = fakePage();
+  const seen = [];
+  const fetch = (url, init) => {
+    seen.push([url, init]);
+    return router({ "data.json": () => respond(SAMPLE), "status.json": statusOk })(url);
+  };
+
+  await load(makeApp(page, fetch));
+
+  assert.deepEqual(seen.map(([url]) => url).sort(), ["data.json", "status.json"]);
+  assert.deepEqual(seen.map(([, init]) => init), [{ cache: "no-cache" }, { cache: "no-cache" }]);
+});
+
+test("applyViews writes each markup into its own element", () => {
+  const page = fakePage();
+
+  applyViews(page.$, { hero: "H", list: "LIST", standings: "STAND", last: "LAST", feed: "FEED", analysis: "AN", notices: "N" });
+
+  assert.equal(page.els["next-body"].innerHTML, "H");
+  assert.equal(page.els.list.innerHTML, "LIST");
+  assert.equal(page.els["standings-body"].innerHTML, "STAND");
+  assert.equal(page.els["last-body"].innerHTML, "LAST");
+  assert.equal(page.els.feed.innerHTML, "FEED");
+  assert.equal(page.els["analysis-body"].innerHTML, "AN");
+  assert.equal(page.els["notices-body"].innerHTML, "N");
+});
+
+test("while loading, next, standings, last and analysis are hidden", () => {
+  const page = fakePage();
+  const pending = new Promise(() => {});
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    load(makeApp(page, router({ "data.json": () => pending })));
+  } finally {
+    mock.timers.reset();
+  }
+
+  for (const id of ["next", "standings", "last", "analysis"]) assert.equal(page.els[id].hidden, true, id);
+});
+
+test("after a failed load, next, standings, last and analysis stay hidden", async () => {
+  const page = fakePage();
+  const app = makeApp(page, router({ "data.json": () => Promise.reject(new TypeError("Failed to fetch")) }));
+  const log = mock.method(console, "error", () => {});
+
+  await load(app);
+  log.mock.restore();
+
+  for (const id of ["next", "standings", "last", "analysis"]) assert.equal(page.els[id].hidden, true, id);
+});
+
+test("status.json answering 404 with a valid-looking body leaves the line hidden", async () => {
+  const page = fakePage();
+  page.els.checked.hidden = true;
+  const app = makeApp(page, router({ "status.json": () => respond({ checked_at: CHECKED_AT }, { ok: false, status: 404 }) }));
+
+  await loadStatus(app);
+
+  assert.equal(page.els.checked.hidden, true);
+  assert.equal(page.els.checked.textContent, undefined);
+});
+
+test("status.json without checked_at leaves the line hidden", async () => {
+  const page = fakePage();
+  page.els.checked.hidden = true;
+
+  await loadStatus(makeApp(page, router({ "status.json": () => respond({}) })));
+
+  assert.equal(page.els.checked.hidden, true);
+  assert.equal(page.els.checked.textContent, undefined);
+});
+
+test("startApp: every clock tick refreshes the age shown in the last check line", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const clock = { now: NOW };
+    const fetch = router({ "data.json": () => respond(SAMPLE), "status.json": statusOk });
+    await startApp({ doc: page.doc, fetch, now: () => clock.now, protocol: "https:" });
+    await settle();
+    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 1 ora fa");
+
+    clock.now = new Date(NOW.getTime() + 3 * 3600e3);
+    mock.timers.tick(CLOCK_TICK_MS);
+
+    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 4 ore fa");
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("startApp: a clock tick without a known last check does not touch the line", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    page.els.checked.hidden = true;
+    await startApp({ doc: page.doc, fetch: router({ "data.json": () => respond(SAMPLE) }), now: () => NOW, protocol: "https:" });
+
+    mock.timers.tick(CLOCK_TICK_MS);
+
+    assert.equal(page.els.checked.hidden, true);
+    assert.equal(page.els.checked.textContent, undefined);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("startApp without a now function reads the system clock", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval", "Date"], now: new Date("2026-11-21T10:30:00+00:00") });
+  try {
+    const page = fakePage();
+    const fetch = router({ "data.json": () => respond(SAMPLE), "status.json": statusOk });
+
+    await startApp({ doc: page.doc, fetch, protocol: "https:" });
+    await settle();
+
+    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 30 minuti fa");
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("startApp: a click on a [data-opponent] element opens the team card with the loaded data", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const clicks = [];
+    page.doc.addEventListener = (type, fn) => type === "click" && clicks.push(fn);
+    const shown = [];
+    page.els.opponent.showModal = () => shown.push(true);
+    page.els.opponent.close = () => {};
+    const fetch = router({ "data.json": () => respond(GIRONE) });
+    await startApp({ doc: page.doc, fetch, now: () => NOW, protocol: "https:" });
+    const click = (opponentId) => {
+      const opener = { dataset: { opponent: opponentId } };
+      const target = { closest: (sel) => (sel === "[data-opponent]" ? opener : null) };
+      clicks.forEach((fn) => fn({ target }));
+    };
+
+    click("no-such-team");
+    assert.equal(shown.length, 0);
+
+    click("232396");
+    assert.equal(shown.length, 1);
+    assert.match(page.els["opp-body"].innerHTML, /Sporting Club Su Planu/);
   } finally {
     mock.timers.reset();
   }

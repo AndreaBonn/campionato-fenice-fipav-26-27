@@ -25,12 +25,15 @@ def post(number: int, title: str, date: str = "2026-08-01") -> dict[str, Any]:
 
 
 def test_real_fixtures_are_old() -> None:
-    assert (
-        select_notices(
-            search_posts=fixture("wp-search.json"), indizione_posts=fixture("wp-indizioni.json")
-        )
-        == []
+    old_search = fixture("wp-search.json")
+    old_indizioni = fixture("wp-indizioni.json")
+
+    assert select_notices(search_posts=old_search, indizione_posts=old_indizioni) == []
+    # the same payloads do yield a notice as soon as a recent post sits next to the old ones
+    recent = select_notices(
+        search_posts=old_search + [post(900, "Recent notice")], indizione_posts=old_indizioni
     )
+    assert [(n["id"], n["title"]) for n in recent] == [(900, "Recent notice")]
 
 
 def test_selection_cleans_filters_deduplicates_and_sorts() -> None:
@@ -84,3 +87,76 @@ def test_fetch_requests_both_sources_and_fails_as_a_unit() -> None:
 
     with pytest.raises(FetchError):
         fetch_notices(broken)
+
+
+def with_link(number: int, link: str) -> dict[str, Any]:
+    return {**post(number, "Notizia"), "link": link}
+
+
+def test_selection_keeps_only_https_links_on_the_committee_site() -> None:
+    posts = [
+        with_link(1, "https://www.fipavcagliari.it/news/uno/"),
+        with_link(2, "http://fipavcagliari.it/news/due/"),
+        with_link(3, "https://fipavcagliari.it"),
+        with_link(4, "fipavcagliari.it/news/quattro/"),
+    ]
+
+    result = select_notices(search_posts=posts, indizione_posts=[])
+
+    assert [(n["id"], n["url"]) for n in result] == [(1, "https://www.fipavcagliari.it/news/uno/")]
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Indizione Campionati Under 14",
+        "Indizione Campionati di Serie D",
+        "Indizione Coppa Italia",
+        "Indizione Beach Volley",
+        "Indizione Kit abbigliamento",
+        "Indizione Volley S3",
+        "Indizione Prima Divisione",
+        "Indizione Terza Divisione",
+    ],
+)
+def test_selection_drops_indizioni_naming_another_competition(title: str) -> None:
+    result = select_notices(
+        search_posts=[],
+        indizione_posts=[post(1, title), post(2, "Indizione Seconda Divisione 2026/27")],
+    )
+
+    assert [(n["id"], n["kind"]) for n in result] == [(2, "indizione")]
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Coppa Seconda Divisione",
+        "Indizione Under 16 e Seconda Divisione",
+        "Indizione 2ª Divisione e Serie D",
+    ],
+)
+def test_selection_keeps_indizioni_that_also_name_the_second_division(title: str) -> None:
+    unrelated = post(2, "Indizione Serie D")
+
+    result = select_notices(search_posts=[], indizione_posts=[post(1, title), unrelated])
+
+    assert [n["id"] for n in result] == [1]
+
+
+def test_fetch_notices_non_integer_post_id_fails() -> None:
+    bad = {**post(1, "Notizia"), "id": "7"}
+
+    with pytest.raises(FetchError):
+        fetch_notices(lambda url: [bad])
+
+
+@pytest.mark.parametrize("failing", ["search", "categories"])
+def test_fetch_notices_non_list_payload_fails(failing: str) -> None:
+    error_payload = {"code": "rest_no_route", "message": "No route", "data": {"status": 404}}
+
+    def fetch(url: str) -> Any:
+        return error_payload if failing + "=" in url else [post(1, "Notizia")]
+
+    with pytest.raises(FetchError):
+        fetch_notices(fetch)
