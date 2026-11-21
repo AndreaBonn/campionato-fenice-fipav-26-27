@@ -96,6 +96,31 @@ def test_workflow_permissions_grant_contents_read() -> None:
     assert re.search(r"(?m)^permissions:\s*\n  contents:\s*read\s*$", content)
 
 
+def test_workflow_job_permissions_match_expected_access() -> None:
+    content = WORKFLOW.read_text()
+    jobs = re.split(r"(?m)^  ([\w-]+):\s*$", content.split("\njobs:\n", 1)[1])
+    permissions = {}
+    for name, body in zip(jobs[1::2], jobs[2::2], strict=True):
+        match = re.search(
+            r"(?m)^    permissions:\s*\n((?:      [\w-]+: [\w-]+\s*(?:#.*)?\n)+)", body
+        )
+        assert match, f"Missing permissions for {name}"
+        permissions[name] = dict(re.findall(r"(?m)^      ([\w-]+): ([\w-]+)\s*(?:#.*)?$", match[1]))
+
+    assert permissions == {
+        "sync": {"contents": "write"},
+        "deploy": {"pages": "write", "id-token": "write"},
+    }
+
+
+def test_failed_sync_upload_artifact_has_expected_name_and_retention() -> None:
+    steps = parse_steps(WORKFLOW.read_text())[0]
+    upload = steps[step_index(steps, "actions/upload-artifact@")]
+
+    assert re.search(r"(?m)^          name: fipav-responses\s*$", upload)
+    assert re.search(r"(?m)^          retention-days: 30\s*$", upload)
+
+
 def test_deploy_depends_on_sync() -> None:
     content = WORKFLOW.read_text()
     assert re.search(r"(?m)^  deploy:\s*\n    needs:\s*sync\s*$", content)

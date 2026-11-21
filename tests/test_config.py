@@ -4,6 +4,10 @@ from pathlib import Path
 from fenice_calendar import config
 
 
+def test_user_agent_identifies_the_project() -> None:
+    assert "campionato-fenice-fipav-26-27" in config.USER_AGENT
+
+
 def test_fenice_code_identifies_eighteen_games() -> None:
     fixture = Path(__file__).parent / "fixtures" / "calendar-64444.json"
     matches = json.loads(fixture.read_text())["data"]["matches"]

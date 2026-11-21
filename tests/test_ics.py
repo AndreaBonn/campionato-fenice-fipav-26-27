@@ -150,6 +150,16 @@ def _fixture_ics() -> str:
     return build_ics(document, datetime(2026, 11, 21, tzinfo=UTC))
 
 
+def test_build_ics_venue_with_comma_escapes_location() -> None:
+    content = _fixture_ics().replace("\r\n ", "")
+    events = content.split("BEGIN:VEVENT\r\n")
+    event = next(e for e in events if "UID:13002323@campionato-fenice-fipav-26-27" in e)
+
+    assert (
+        "LOCATION:scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART\\, 25 - QUARTU SANT'ELENA"
+    ) in event.splitlines()
+
+
 def test_build_ics_calendar_header_is_icalendar_2_0_and_ends_the_calendar() -> None:
     lines = _fixture_ics().split("\r\n")
 

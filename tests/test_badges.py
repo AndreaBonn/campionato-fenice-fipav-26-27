@@ -157,6 +157,23 @@ def test_main_writes_both_badge_files(tmp_path: Path) -> None:
     assert coverage["message"] == "90%"
 
 
+def test_main_written_badges_end_with_newline(tmp_path: Path) -> None:
+    out = tmp_path / "badges"
+    badges.main(
+        [
+            "--junit",
+            str(tmp_path / "absent.xml"),
+            "--coverage",
+            str(tmp_path / "absent.json"),
+            "--out",
+            str(out),
+        ]
+    )
+
+    assert (out / "tests.json").read_bytes().endswith(b"\n")
+    assert (out / "coverage.json").read_bytes().endswith(b"\n")
+
+
 def test_main_with_one_report_missing_says_error(tmp_path: Path) -> None:
     py = write(tmp_path / "pytest.xml", PYTEST_XML)
     out = tmp_path / "badges"

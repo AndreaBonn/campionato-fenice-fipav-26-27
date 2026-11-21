@@ -18,6 +18,7 @@ def test_posters_accept_real_fixture_and_reject_invalid_keys() -> None:
             "other/x.jpg",
             entry["key"][:-3] + "png",
             "public/locandine/images/19092/1/abc.jpg",
+            "public/locandine/images/../../1/" + "a" * 64 + ".jpg",
         ]
     ):
         payload["data"][str(index)] = {**entry, "key": key}
@@ -48,11 +49,12 @@ def valid_entry() -> dict[str, Any]:
     [
         {"height": 0},
         {"width": True},
+        {"height": True},
         {"key": None},
         {"key": 5},
         None,
     ],
-    ids=["height-zero", "width-bool", "key-none", "key-int", "entry-null"],
+    ids=["height-zero", "width-bool", "height-bool", "key-none", "key-int", "entry-null"],
 )
 def test_posters_malformed_entry_is_dropped_and_valid_neighbours_stay(bad: Any) -> None:
     good = valid_entry()
