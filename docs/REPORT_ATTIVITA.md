@@ -143,3 +143,23 @@ Il funzionamento della pagina non cambia. Abbiamo reso i controlli automatici mo
 ### Riepilogo
 
 Complessità: media. Stato: completato, nessun commit di questa entry; le divergenze aperte attendono una decisione.
+
+## 2026-11-21 - Analisi di prodotto, risposte FIPAV salvate e notizie nascoste quando mancano
+
+### Cosa è stato fatto
+
+- Analisi di prodotto in `docs/ANALISI_PRODOTTO.md` (escluso da git con `.gitignore`, quindi mai pubblicato). Fatto misurato oggi: il sito del Comitato non pubblica nulla sulla Seconda Divisione dal 2017 e la categoria Indizioni è ferma al 2023, quindi la sezione Notizie restava sempre vuota.
+- P2: una sync fallita salva le risposte già ricevute (FIPAV e sito del Comitato), nell'ordine delle richieste, in `reports/sync-failure/<data UTC>/`; il workflow le carica come artefatto `fipav-responses` (30 giorni) solo quando qualcosa è fallito. `data.json`, `calendario.ics` e `status.json` restano intatti come prima.
+- P3: senza notizie la sezione e la sua voce nel menu sono nascoste fin dal primo disegno; il sito del Comitato è collegato nel piè di pagina.
+- Corretto un difetto preesistente: con una notizia nuova, a 280 e 320 px la pagina scorreva di lato di 71 e 31 px, perché il testo per i lettori di schermo del contatore nel menu usciva dalla barra scorrevole.
+
+### Verifica
+
+- 299 test Python (copertura 100%) e 488 test JS verdi, ruff e mypy puliti. Tre mutazioni sul salvataggio delle risposte: tutte fanno fallire almeno un test.
+- Browser (Chromium headless) a 375 e 1280 px, con e senza notizie: sezione e voce di menu nascoste o mostrate come atteso, nessun errore in console. a11y-gate 5/5 su entrambe le varianti del DOM renderizzato.
+- code-reviewer sul diff: nessun rilievo bloccante.
+- Non verificati: il caricamento dell'artefatto su GitHub (il repository non è ancora online).
+
+### Note per il Cliente
+
+Quando il Comitato non ha notizie sulla Seconda Divisione la pagina non mostra più una sezione vuota: il collegamento al sito del Comitato resta in fondo alla pagina. Se un giorno FIPAV cambia il formato dei dati e l'aggiornamento si ferma, ora resta una copia di ciò che FIPAV ha risposto, così la correzione si prepara in fretta.
