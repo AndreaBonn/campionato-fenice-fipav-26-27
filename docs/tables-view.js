@@ -36,7 +36,7 @@ export function installCrestFallback(root) {
 function teamCell(team, isMe) {
   const crest = team.logo_url ? `<img src="${esc(team.logo_url)}" alt="" data-crest-name="${esc(team.name)}" loading="lazy" width="${CREST_SIZE}" height="${CREST_SIZE}">` : "";
   const name = esc(displayTeamName(team.name));
-  const label = isMe ? `${name}<span class="sr-only"> (la tua squadra)</span>` : `<span class="team" data-opponent="${esc(team.id)}">${name}</span>`;
+  const label = isMe ? `${name}<span class="sr-only"> (la tua squadra)</span>` : `<button type="button" class="team" data-opponent="${esc(team.id)}">${name}</button>`;
   return `<td class="name">${crest}${label}</td>`;
 }
 

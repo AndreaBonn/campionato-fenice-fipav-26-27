@@ -50,6 +50,7 @@ export function renderHero(data, now) {
 <p class="opp">${esc(teamName(data, opponentId(g, teamId)))}</p>
 <p class="when">${esc(longWhen(g))}</p>
 ${venueHtml(g)}${live}
+<p class="card"><button type="button" class="btn" data-opponent="${esc(opponentId(g, teamId))}">Scheda avversaria<span class="sr-only"> di ${esc(teamName(data, opponentId(g, teamId)))}</span></button></p>
 <p class="countdown">${c.lead ? `<span class="lead">${c.lead}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
 }
 

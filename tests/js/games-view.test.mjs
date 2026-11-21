@@ -248,3 +248,9 @@ test("schedule: moved game shows the «Spostata» badge with what changed, other
 test("schedule: no badge when no game moved", () => {
   assert.equal(count(renderSchedule(girone, new Date("2026-11-20T10:00:00Z")), "Spostata"), 0);
 });
+
+test("the next game box has a button that opens the opponent card", () => {
+  const html = renderHero(girone, new Date("2026-11-21T12:00:00+01:00"));
+  assert.match(html, /<button type="button" class="btn" data-opponent="\d+">Scheda avversaria<span class="sr-only"> di [^<]+<\/span><\/button>/);
+  assert.equal(html.split("data-opponent=").length - 1, 1);
+});

@@ -23,11 +23,13 @@ test("highlights the Fenice row only, with a text marker besides the colour", ()
   assert.match(fenice[0], /la tua squadra/);
 });
 
-test("opponent names carry data-opponent with the team id and are not links or buttons", () => {
+test("opponent names are buttons carrying data-opponent with the team id, never the Fenice", () => {
   const html = renderStandings(girone);
   assert.equal(count(html, 'data-opponent="232396"'), 1);
   assert.equal(count(html, "data-opponent="), 5);
-  assert.equal(count(html, "<button"), 0);
+  assert.equal(count(html, '<button type="button" class="team" data-opponent='), 5);
+  assert.equal(count(html, "<a "), 0);
+  assert.doesNotMatch(html, /data-opponent="232645"/);
   assert.equal(count(html, "<a "), 0);
 });
 
