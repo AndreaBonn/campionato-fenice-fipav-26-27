@@ -110,3 +110,46 @@ test("andataGame: the played andata against the same opponent, only for a ritorn
   assert.equal(andataGame(list[0], list, 9, "F"), null); // an andata game has no andata
   assert.equal(andataGame(list[2], list, null, "F"), null);
 });
+
+const played = (id, round, home_id, away_id, isPlayed) => ({ id, round, home_id, away_id, played: isPlayed, sets_won: isPlayed ? [3, 1] : null });
+
+test("andataGame: the last round of the ritorno (round 18 of 18) still finds its andata at round 9", () => {
+  const list = [played("a9", 9, "F", "X", true), played("r18", 18, "X", "F", false)];
+  assert.equal(andataGame(list[1], list, 9, "F")?.id, "a9");
+});
+
+test("andataGame: an andata game of the team against another opponent is not the one asked for", () => {
+  const list = [played("a1", 1, "F", "Y", true), played("r10", 10, "X", "F", false)];
+  assert.equal(andataGame(list[1], list, 9, "F"), null);
+  const same = [played("a1x", 1, "F", "X", true), list[1]];
+  assert.equal(andataGame(same[1], same, 9, "F")?.id, "a1x");
+});
+
+test("groupByMonth: does not reorder the array it is given", () => {
+  const input = [{ id: "dec", starts_at: "2026-12-05T16:30:00+01:00" }, { id: "nov", starts_at: "2026-11-21T17:00:00+01:00" }];
+  const groups = groupByMonth(input);
+  assert.deepEqual(ids(input), ["dec", "nov"]);
+  assert.deepEqual(groups.map((x) => x.label), ["Novembre 2026", "Dicembre 2026"]);
+});
+
+test("groupByMonth: the month is the Rome one even when the server clock is in UTC", () => {
+  // 23:30 UTC on 30 November is 00:30 on 1 December in Rome; read in UTC it would be November
+  const previous = process.env.TZ;
+  process.env.TZ = "UTC";
+  try {
+    assert.equal(groupByMonth([{ id: "x", starts_at: "2026-11-30T23:30:00Z" }])[0].label, "Dicembre 2026");
+    assert.equal(groupByMonth([{ id: "y", starts_at: "2026-11-30T22:30:00Z" }])[0].label, "Novembre 2026");
+  } finally {
+    if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous;
+  }
+});
+
+test("roundsPerHalf: a single team has no halves, two teams have one round each", () => {
+  assert.equal(roundsPerHalf({ teams: teamsOf(1), games: roundsOf(1) }), null);
+  assert.equal(roundsPerHalf({ teams: teamsOf(2), games: roundsOf(1, 2) }), 1);
+});
+
+test("roundLabel: round 0 is not a round of the andata", () => {
+  assert.equal(roundLabel(0, 9), "Giornata 0");
+  assert.equal(roundLabel(1, 9), "1ª giornata di andata");
+});

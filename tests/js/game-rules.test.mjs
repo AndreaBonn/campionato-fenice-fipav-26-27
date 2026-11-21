@@ -185,3 +185,8 @@ test("a played game without a date goes before the dated ones, so it is never th
   assert.equal(lastPlayed([dated, undated]).id, "d");
   assert.equal(lastPlayed([undated, dated]).id, "d");
 });
+
+test("map url: a coordinate of exactly 0 is a coordinate, not a missing one", () => {
+  assert.equal(mapUrl({ lat: 39.2, lng: 0 }), "https://www.google.com/maps/search/?api=1&query=39.2,0");
+  assert.equal(mapUrl({ lat: 39.2, lng: undefined }), null);
+});

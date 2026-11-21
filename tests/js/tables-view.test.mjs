@@ -256,3 +256,43 @@ test("the crest url and the team name cannot leave their attributes", () => {
   assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
   assert.doesNotMatch(html, /onerror="alert/);
 });
+
+test("the scrollable table region is reachable from the keyboard", () => {
+  assert.ok(renderStandings(girone).includes('<div class="table-wrap" role="region" aria-label="Classifica del girone" tabindex="0">'));
+});
+
+test("a standings row of a team missing from the teams is left out, the others still show", () => {
+  const data = structuredClone(girone);
+  data.standings.push({ ...data.standings[0], pos: 7, team_id: "ghost" });
+  const html = renderStandings(data);
+  assert.equal(rows(html).length, 6);
+  assert.equal(count(html, "ghost"), 0);
+});
+
+test("the decided block names the playoff place of a team that is settled in it", () => {
+  const data = decidedSeason();
+  data.formula = { published: true, promotion: 1, playoff: 1, relegation: 0 };
+  const html = renderStandings(data);
+  assert.ok(html.includes("<li><b>Asd Fenice</b>: 1° posto, promozione</li>"));
+  assert.match(html, /<li><b>[^<]+<\/b>: 2° posto, playoff<\/li>/);
+});
+
+test("the decided block puts promotion on the first team and relegation on the last", () => {
+  const data = decidedSeason();
+  data.formula = { published: true, promotion: 1, playoff: 0, relegation: 1 };
+  const html = renderStandings(data);
+  assert.ok(html.includes("<li><b>Asd Fenice</b>: 1° posto, promozione</li>"));
+  assert.ok(html.includes("<li><b>Sarlux Volley Sarroch</b>: 6° posto, retrocessione</li>"));
+  assert.ok(html.includes("<li><b>Asd Sporting Club Su Planu</b>: 2° posto</li>")); // a middle team carries no zone
+});
+
+test("C6: Ultime 5 of a team lists its played games oldest first by date", () => {
+  const lettersOf = (id) => {
+    const row = rows(renderStandings(girone)).find((r) => r.includes(`data-opponent="${id}"`));
+    return [...row.matchAll(/<span class="l5 (?:won|lost)">([VP])<\/span>/g)].map((m) => m[1]);
+  };
+  // Sarroch: lost 2-3 at home (2 Nov), won 3-0 at home (9 Nov), won 3-0 away at the Fenice (19 Nov)
+  assert.deepEqual(lettersOf("232139"), ["P", "V", "V"]);
+  // Selargius: won 3-0 at home (30 Oct), lost 0-3 away (5 Nov), lost 0-3 at home (20 Nov)
+  assert.deepEqual(lettersOf("232550"), ["V", "P", "P"]);
+});

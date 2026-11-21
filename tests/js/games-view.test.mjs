@@ -163,7 +163,7 @@ test("schedule: no games for the club renders the empty state", () => {
 
 test("last result: score, sets and verdict from the club side", () => {
   const html = renderLastResult(girone);
-  assert.match(html, /Ultimo risultato · \d+ª giornata, [a-z]{3} \d+ \w+ · in (casa|trasferta)/);
+  assert.match(html, /Ultimo risultato · 3ª giornata, gio 19 nov · in casa/);
   assert.match(html, /Sarlux Volley Sarroch/);
   assert.match(html, /<p class="big">0-3<\/p>/);
   assert.match(html, /10-25, 18-25, 19-25/);
@@ -455,7 +455,7 @@ test("hero: no directions without coordinates, no calendar once the game is live
 test("hero: the Avversaria line has position, record and the opponent's last outcomes as letters", () => {
   const data = structuredClone(girone);
   const html = renderHero(data, new Date("2026-11-20T10:00:00Z"));
-  assert.match(html, /<div class="opprow"><b>Avversaria<\/b> <span class="chipx">\d+ª in classifica<\/span> <span class="chipx">[^<]+<\/span>/);
+  assert.match(html, /<div class="opprow"><b>Avversaria<\/b> <span class="chipx">5ª in classifica<\/span> <span class="chipx">[^<]+<\/span>/);
   const none = renderHero(sample, new Date("2026-11-20T10:00:00Z"));
   assert.match(none, /<span class="chipx">nessuna partita giocata<\/span>/);
   assert.equal(count(none, "<ol"), 0);
@@ -660,4 +660,10 @@ test("hero: the crest url and the team name of the opponent cannot leave their a
   const html = renderHero(data, new Date("2026-11-20T10:00:00Z"));
   assert.match(html, /src="https:\/\/x\.test\/a\.png&quot; onerror=&quot;alert\(1\)" alt="" data-crest-name="A&quot;&lt;b&gt;"/);
   assert.doesNotMatch(html, /onerror="alert/);
+});
+
+test("schedule: a live game with a live_url keeps a space between the «In corso» label and the Diretta link", () => {
+  const game = { ...sample.games[2], live_url: "https://example.com/live" };
+  const row = rowOf(renderSchedule({ ...sample, games: [game] }, new Date("2026-11-21T17:30:00+01:00")), "VSA");
+  assert.ok(row.includes('In corso</span> <a href="https://example.com/live"'));
 });

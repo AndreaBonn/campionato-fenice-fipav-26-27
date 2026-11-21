@@ -244,3 +244,32 @@ test("one tie-break order: on equal points and wins the set ratio comes before t
   assert.equal(settledAt(data).B, 2);
   assert.deepEqual(rangesAt(data), settledAt(data));
 });
+
+// pinned bound: update it if MAX_ENUMERATED_GAMES (9, CLAUDE.md) or the bound itself changes
+test("ten relevant games exceed the exact enumeration: the range is the wider bound on points", () => {
+  // A has 20 points and no game left; B and C have 30 points each at most, so by points alone A could end 1st to 3rd.
+  // Exact play would give 1st-2nd (B and C share 30 points over ten games: they cannot both pass A), so the 3rd is the bound speaking
+  const row = (team_id, points) => ({ team_id, points, won: 0, set_ratio: 0, point_ratio: 0 });
+  const data = { teams: teams.slice(0, 3), standings: [row("A", 20), row("B", 0), row("C", 0)],
+    games: Array.from({ length: 10 }, () => ({ home_id: "B", away_id: "C", played: false })) };
+  assert.deepEqual(positionRanges(data).get("A"), { best: 1, worst: 3 });
+});
+
+test("a zone with no places (playoff 0, relegation 0) is null in the facts, not false", () => {
+  const ranges = new Map([["A", { best: 1, worst: 1 }], ["B", { best: 2, worst: 2 }]]);
+  assert.deepEqual(decidedFacts(ranges, { published: true, promotion: 1, playoff: 0, relegation: 0 }), [
+    { team_id: "A", position: 1, promotion: true, playoff: null, relegation: null },
+    { team_id: "B", position: 2, promotion: false, playoff: null, relegation: null },
+  ]);
+});
+
+test("a range that only touches a zone boundary stays open for that zone", () => {
+  // A and B can end 1st or 2nd: the playoff place is 2nd, so reaching it is possible but not certain (null, not false)
+  const ranges = new Map([["A", { best: 1, worst: 2 }], ["B", { best: 1, worst: 2 }], ["C", { best: 3, worst: 3 }]]);
+  const facts = decidedFacts(ranges, { published: true, promotion: 1, playoff: 1, relegation: 1 });
+  assert.deepEqual(facts, [
+    { team_id: "A", position: null, promotion: null, playoff: null, relegation: false },
+    { team_id: "B", position: null, promotion: null, playoff: null, relegation: false },
+    { team_id: "C", position: 3, promotion: false, playoff: false, relegation: true },
+  ]);
+});
