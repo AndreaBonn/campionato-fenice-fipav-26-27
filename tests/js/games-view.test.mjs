@@ -235,3 +235,16 @@ test("calendar feed block: webcal subscribe link and https download link", () =>
   assert.match(html, /href="https:\/\/andreabonn\.github\.io\/campionato-fenice-fipav-26-27\/calendario\.ics" download/);
   assert.equal(renderCalendarFeed({ ...sample, games: [] }), "");
 });
+
+test("schedule: moved game shows the «Spostata» badge with what changed, others show none", () => {
+  const data = structuredClone(sample);
+  data.games[1].changes = ["time", "venue"];
+  const html = renderSchedule(data, new Date("2026-11-20T10:00:00Z"));
+  assert.equal(count(html, 'class="tag moved-tag">Spostata<'), 2);
+  assert.match(html, /cambiata la data/);
+  assert.match(html, /cambiati ora e palestra/);
+});
+
+test("schedule: no badge when no game moved", () => {
+  assert.equal(count(renderSchedule(girone, new Date("2026-11-20T10:00:00Z")), "Spostata"), 0);
+});
