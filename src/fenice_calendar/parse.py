@@ -200,9 +200,10 @@ def parse_document(
     )
 
 
-def _ratio(value: object) -> float | None:
+def _ratio(value: object, played: int) -> float | None:
+    """FIPAV publishes 100 and 1000 before any set is played: no sets, no ratio."""
     number = float(str(value))
-    return number if math.isfinite(number) else None
+    return number if played and math.isfinite(number) else None
 
 
 def parse_standings(raw: list[dict[str, Any]]) -> list[Row]:
@@ -219,8 +220,8 @@ def parse_standings(raw: list[dict[str, Any]]) -> list[Row]:
             sets_lost=int(team["sp"]),
             points_for=int(team["pf"]),
             points_against=int(team["ps"]),
-            set_ratio=_ratio(team["qs"]),
-            point_ratio=_ratio(team["qp"]),
+            set_ratio=_ratio(team["qs"], played=int(team["sv"]) + int(team["sp"])),
+            point_ratio=_ratio(team["qp"], played=int(team["pf"]) + int(team["ps"])),
         )
         for team in raw[0]["data"]["teams"]
     ]

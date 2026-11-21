@@ -230,6 +230,16 @@ def _game_consistency_errors(game: dict[str, Any], path: str) -> list[str]:
     return errors
 
 
+def _ratio_errors(row: Row, path: str) -> list[str]:
+    """A ratio needs something to divide: none before the first set or point."""
+    errors = []
+    if row["set_ratio"] is not None and row["sets_won"] + row["sets_lost"] == 0:
+        errors.append(f"{path}.set_ratio: no sets played")
+    if row["point_ratio"] is not None and row["points_for"] + row["points_against"] == 0:
+        errors.append(f"{path}.point_ratio: no points played")
+    return errors
+
+
 def _standings_errors(rows: list[Row], team_ids: set[str]) -> list[str]:
     errors = []
     if sorted(row["pos"] for row in rows) != list(range(1, len(rows) + 1)):
@@ -239,6 +249,7 @@ def _standings_errors(rows: list[Row], team_ids: set[str]) -> list[str]:
             errors.append(f"standings[{index}].team_id: unknown team")
         if row["played"] != row["won"] + row["lost"]:
             errors.append(f"standings[{index}].played: inconsistent results")
+        errors.extend(_ratio_errors(row, f"standings[{index}]"))
     return errors
 
 
