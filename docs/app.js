@@ -70,12 +70,15 @@ export function showChecked(app) {
   el.hidden = false;
 }
 
+// a checked_at that is not a readable date counts as missing, so the line never reads "NaN giorni fa"
+const readableTimestamp = (value) => (typeof value === "string" && !Number.isNaN(Date.parse(value)) ? value : null);
+
 // status.json is optional: without it (local run, first deploy) the line stays hidden
 export async function loadStatus(app) {
   try {
     const r = await app.fetch("status.json", { cache: "no-cache" });
     if (!r.ok) return;
-    app.checkedAt = (await r.json()).checked_at ?? null;
+    app.checkedAt = readableTimestamp((await r.json()).checked_at);
     showChecked(app);
   } catch (err) {
     console.warn("status.json not available", err);

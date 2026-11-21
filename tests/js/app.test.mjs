@@ -255,6 +255,20 @@ test("status.json: the last check line is shown when the file exists", async () 
   assert.match(page.els.checked.textContent, /Dati FIPAV controllati/);
 });
 
+test("status.json with an unreadable checked_at: the line stays hidden instead of reading «NaN giorni fa»", async () => {
+  for (const checked_at of ["garbage", 42, ""]) {
+    const page = fakePage();
+    page.els.checked.hidden = true; // as in index.html
+    await loadStatus(makeApp(page, router({ "status.json": () => respond({ checked_at }) })));
+    assert.equal(page.els.checked.hidden, true, String(checked_at));
+    assert.doesNotMatch(page.els.checked.textContent ?? "", /NaN/);
+  }
+  const valid = fakePage();
+  valid.els.checked.hidden = true;
+  await loadStatus(makeApp(valid, router({ "status.json": () => respond({ checked_at: "2026-11-21T10:00:00+00:00" }) })));
+  assert.equal(valid.els.checked.hidden, false);
+});
+
 test("status.json missing or unreachable: the line stays hidden and the load goes on", async () => {
   const missing = fakePage();
   await loadStatus(makeApp(missing, router({})));
