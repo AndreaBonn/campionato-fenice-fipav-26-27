@@ -46,7 +46,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T031 | opponent-rules.js: scontri diretti, calendario avversaria | dip: T030 | R18 | seq | revert
 - [x] T032 | opponent-view.js con dialog nativo e click-through | dip: T031,T021 | R18, R26 | seq | revert
 - [x] T033 | fenice-rules.js: set, punti medi, tie-break, rimonte | dip: T026 | R19 | ok | revert
-- [ ] T034 | analysis-view.js, stato empty, a11y-gate, commit di fase 4 | dip: T032,T033 | R19, R26 | seq | revert
+- [x] T034 | analysis-view.js, stato empty, a11y-gate, commit di fase 4 | dip: T032,T033 | R19, R26 | seq | revert
 
 ## Fase 5 - Notizie e locandine
 
