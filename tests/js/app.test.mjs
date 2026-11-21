@@ -797,3 +797,22 @@ test("a re-render that fails keeps what the page shows and logs why", async () =
   assert.equal(page.els.list.innerHTML, shown);
   assert.equal(app.views, views);
 });
+
+test("an older load that ends while a newer one is pending leaves the page busy for the newer one", async () => {
+  const page = fakePage();
+  let releaseNew;
+  const newAnswer = new Promise((resolve) => (releaseNew = resolve));
+  const answers = [() => respond(SAMPLE), () => newAnswer];
+  const app = makeApp(page, (url) => (url === "data.json" ? answers.shift()() : respond({}, { ok: false, status: 404 })));
+
+  const first = load(app);
+  const second = load(app);
+  await first;
+
+  assert.equal(app.loading, true);
+  assert.equal(page.els.list.attrs["aria-busy"], "true");
+  releaseNew(await respond(GIRONE));
+  await second;
+  assert.equal(app.loading, false);
+  assert.equal(page.els.list.attrs["aria-busy"], "false");
+});
