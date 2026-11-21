@@ -30,6 +30,14 @@ test("the remaining games show the opponent position and put the tail in a detai
   assert.equal(html.split("<li>").length - 1 >= 6, true);
 });
 
+test("the positions of the remaining games match the standings shown in the header", () => {
+  const data = structuredClone(girone);
+  data.standings = data.standings.map((r) => r.team_id === AQUILA ? { ...r, pos: 2 } : r.team_id === SARROCH ? { ...r, pos: 1 } : r);
+  const html = renderOpponent(data, "229802");
+  assert.match(html, /Aquila Oro[^<]*<small>\(2°\)<\/small>/);
+  assert.doesNotMatch(html, /Aquila Oro[^<]*<small>\(1°\)<\/small>/);
+});
+
 test("the crest falls back to initials without a logo, and names are escaped", () => {
   const data = structuredClone(girone);
   const team = data.teams.find((t) => t.id === AQUILA);

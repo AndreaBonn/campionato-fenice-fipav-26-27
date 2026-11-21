@@ -1,8 +1,5 @@
 // Pure analysis rules over the games of one team: no DOM, tested with node --test.
-import { isHome, outcome } from "./game-rules.js";
-import { tableFromGames } from "./standings-rules.js";
-
-const DEFAULT_FORM_LENGTH = 5;
+import { isHome } from "./game-rules.js";
 
 const emptyRecord = () => ({ played: 0, won: 0, lost: 0, setsWon: 0, setsLost: 0, pointsFor: 0, pointsAgainst: 0 });
 
@@ -33,9 +30,10 @@ export function homeAwayRecord(teamId, games) {
 }
 
 // Unplayed games of a team with the opponent's current position and the average of those positions
-// (a lower average means a harder run-in); averagePosition is null when nothing is left
-export function remainingGames(teamId, games, teams) {
-  const position = new Map(tableFromGames(games, teams).map((r) => [r.team_id, r.pos]));
+// (a lower average means a harder run-in); averagePosition is null when nothing is left.
+// Positions come from the FIPAV standings as published (penalties included), never rebuilt from results
+export function remainingGames(teamId, games, standings) {
+  const position = new Map(standings.map((r) => [r.team_id, r.pos]));
   const left = games.filter((g) => involves(g, teamId) && !g.played).map((game) => {
     const home = isHome(game, teamId);
     const opponentId = home ? game.away_id : game.home_id;
@@ -45,7 +43,3 @@ export function remainingGames(teamId, games, teams) {
   const averagePosition = known.length ? known.reduce((sum, r) => sum + r.opponentPos, 0) / known.length : null;
   return { games: left, averagePosition };
 }
-
-// Outcomes ("won" | "lost") of the last n played games of the team, oldest first
-export const form = (teamId, games, n = DEFAULT_FORM_LENGTH) =>
-  games.filter((g) => involves(g, teamId) && isResult(g)).slice(-n).map((g) => outcome(g, teamId));

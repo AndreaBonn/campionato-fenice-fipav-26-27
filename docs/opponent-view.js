@@ -63,7 +63,7 @@ function remainingRow(data, r) {
 }
 
 function remainingHtml(data, team) {
-  const { games, averagePosition } = remainingGames(team.id, data.games, data.teams);
+  const { games, averagePosition } = remainingGames(team.id, data.games, data.standings);
   if (!games.length) return section("Prossime gare", "<p>Nessuna gara da giocare.</p>");
   const rows = games.map((r) => remainingRow(data, r));
   const later = rows.length > NEXT_SHOWN
