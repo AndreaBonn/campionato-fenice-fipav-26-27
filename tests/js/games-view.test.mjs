@@ -254,3 +254,15 @@ test("the next game box has a button that opens the opponent card", () => {
   assert.match(html, /<button type="button" class="btn" data-opponent="\d+">Scheda avversaria<span class="sr-only"> di [^<]+<\/span><\/button>/);
   assert.equal(html.split("data-opponent=").length - 1, 1);
 });
+
+test("the next game box has no opponent button when the opponent is not among the teams", () => {
+  const data = structuredClone(girone);
+  const now = new Date("2026-11-21T12:00:00+01:00");
+  const next = feniceGames(data).find((g) => !g.played && g.starts_at);
+  const opponent = next.home_id === "232645" ? next.away_id : next.home_id;
+  data.teams = data.teams.filter((t) => t.id !== opponent);
+  const html = renderHero(data, now);
+  assert.match(html, /Squadra Sconosciuta/);
+  assert.equal(count(html, "data-opponent="), 0);
+  assert.equal(count(renderHero(girone, now), "data-opponent="), 1);
+});

@@ -91,3 +91,13 @@ test("clicks elsewhere and a missing data do nothing", () => {
   none.click(none.control("[data-opponent]", AQUILA));
   assert.equal(none.dialog.open, false);
 });
+
+test("a game awarded at the table shows its score without empty parentheses", () => {
+  const data = structuredClone(girone);
+  const g = data.games.find((x) => x.played && [x.home_id, x.away_id].includes(AQUILA) && [x.home_id, x.away_id].includes(FENICE));
+  g.sets = [];
+  const html = renderOpponent(data, AQUILA);
+  assert.match(html, /<b>0-3<\/b> persa dalla Fenice/);
+  assert.doesNotMatch(html, /\(\)/);
+  assert.match(renderOpponent(girone, AQUILA), /\(8-25, 17-25, 16-25\)/);
+});

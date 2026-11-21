@@ -44,14 +44,15 @@ export function renderHero(data, now) {
       ? stateHtml("Prossima partita da definire", "La FIPAV non ha ancora fissato data e ora delle gare che restano.")
       : stateHtml("Stagione regolare conclusa", "Non ci sono altre partite in calendario.");
   }
-  const c = countdownText(g.starts_at, now);
+  const c = countdownText(g.starts_at, now), oppId = opponentId(g, teamId);
+  const opponentButton = data.teams.some((t) => t.id === oppId)
+    ? `<p class="card"><button type="button" class="btn" data-opponent="${esc(oppId)}">Scheda avversaria<span class="sr-only"> di ${esc(teamName(data, oppId))}</span></button></p>\n` : "";
   const live = g.live_url ? `<p class="live"><a href="${esc(g.live_url)}" target="_blank" rel="noopener">Segui la diretta</a></p>` : "";
   return `<p class="eyebrow">Prossima partita ${sideTag(g, teamId)}</p>
 <p class="opp">${esc(teamName(data, opponentId(g, teamId)))}</p>
 <p class="when">${esc(longWhen(g))}</p>
 ${venueHtml(g)}${live}
-<p class="card"><button type="button" class="btn" data-opponent="${esc(opponentId(g, teamId))}">Scheda avversaria<span class="sr-only"> di ${esc(teamName(data, opponentId(g, teamId)))}</span></button></p>
-<p class="countdown">${c.lead ? `<span class="lead">${c.lead}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
+${opponentButton}<p class="countdown">${c.lead ? `<span class="lead">${c.lead}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
 }
 
 function resultHtml(g, teamId) {

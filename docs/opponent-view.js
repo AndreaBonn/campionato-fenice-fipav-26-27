@@ -41,7 +41,7 @@ function headerHtml(data, team) {
 function headToHeadHtml(data, team) {
   const h = headToHead(feniceTeamId(data), team.id, data.games);
   if (!h.played.length && !h.upcoming.length) return section("Scontri diretti con la Fenice", "<p>Nessuno scontro in calendario.</p>");
-  const played = h.played.map((p) => `<li>Giornata ${esc(p.game.round)}: <b>${esc(p.score)}</b> ${p.outcome === "won" ? "vinta" : "persa"} dalla Fenice<small> (${esc(p.sets.join(", "))})</small></li>`);
+  const played = h.played.map((p) => `<li>Giornata ${esc(p.game.round)}: <b>${esc(p.score)}</b> ${p.outcome === "won" ? "vinta" : "persa"} dalla Fenice${p.sets.length ? `<small> (${esc(p.sets.join(", "))})</small>` : ""}</li>`);
   const upcoming = h.upcoming.map((g) => `<li>Giornata ${esc(g.round)}: da giocare, ${esc(dayText(g))}</li>`);
   return section("Scontri diretti con la Fenice", `<ul>${[...played, ...upcoming].join("")}</ul>`);
 }
