@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
+import { feniceGames } from "../../docs/game-rules.js";
 import { errorCause, renderChecked, renderEmpty, renderError, renderHero, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
@@ -106,6 +107,23 @@ test("schedule: a played game shows the result and the sets from the Fenice side
 test("schedule: a game without a date says so", () => {
   const html = renderSchedule(sample, new Date("2026-11-20T10:00:00Z"));
   assert.match(html, /Data da definire/);
+});
+
+test("schedule: a played game without sets (forfeit) shows the score and no empty «Set:» line", () => {
+  const forfeit = structuredClone(girone);
+  for (const g of forfeit.games.filter((x) => x.played)) g.sets = [];
+  const html = renderSchedule(forfeit, new Date("2026-11-20T10:00:00Z"));
+  assert.match(html, /<b>0-3<\/b>/);
+  assert.equal(count(html, "Set:"), 0);
+});
+
+test("schedule: a game with a date but no time says the time is to be defined", () => {
+  const notime = structuredClone(girone);
+  const next = feniceGames(notime).find((x) => !x.played && x.starts_at);
+  notime.games.find((x) => x.id === next.id).time = null;
+  const html = renderSchedule(notime, new Date("2026-11-20T10:00:00Z"));
+  assert.match(html, /orario da definire/);
+  assert.equal(count(html, "ore null"), 0);
 });
 
 test("schedule: every string from the data is escaped", () => {

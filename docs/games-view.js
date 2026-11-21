@@ -1,6 +1,6 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
-import { feniceGames, feniceTeamId, isHome, mapUrl, nextGame, outcome, setsLabel } from "./game-rules.js";
+import { feniceGames, feniceTeamId, isHome, mapUrl, nextGame, outcome, scoreLabel, setScores } from "./game-rules.js";
 import { countdownText, displayTeamName, relativeAge } from "./view-rules.js";
 
 const TIME_ZONE = "Europe/Rome";
@@ -11,8 +11,9 @@ const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&
 export const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
-const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ore ${g.time}`;
-const shortWhen = (g) => (g.starts_at ? `${fmt(g.starts_at, { weekday: "short", day: "numeric", month: "short" })}, ore ${g.time}` : "Data da definire");
+const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ${g.time ? `ore ${g.time}` : "orario da definire"}`;
+const shortDay = (g) => fmt(g.starts_at, { weekday: "short", day: "numeric", month: "short" });
+const shortWhen = (g) => (g.starts_at ? `${shortDay(g)}, ${g.time ? `ore ${g.time}` : "orario da definire"}` : "Data da definire");
 
 const teamName = (data, id) => displayTeamName(data.teams.find((t) => t.id === id)?.name ?? "Squadra sconosciuta");
 const side = (g, teamId) => (isHome(g, teamId) ? "In casa" : "In trasferta");
@@ -52,17 +53,16 @@ ${venueHtml(g)}${live}
 }
 
 function resultHtml(g, teamId) {
-  const sets = setsLabel(g, teamId), won = outcome(g, teamId) === "won";
-  const [score] = sets.split(" ");
-  return `<div class="res"><b>${esc(score)}</b><span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></div>`;
+  const won = outcome(g, teamId) === "won";
+  return `<div class="res"><b>${esc(scoreLabel(g, teamId))}</b><span class="verdict ${won ? "won" : "lost"}">${won ? "Vinta" : "Persa"}</span></div>`;
 }
 
 function rowHtml(data, g, teamId, isNext) {
-  const sets = setsLabel(g, teamId);
+  const score = scoreLabel(g, teamId), parts = setScores(g, teamId);
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
-  const right = sets ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
+  const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${right}${sets ? `<p class="sets">Set: ${esc(sets.slice(sets.indexOf("(") + 1, -1))}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
