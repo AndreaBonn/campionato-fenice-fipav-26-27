@@ -2,7 +2,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fenice_calendar.config import ICS_UID_DOMAIN, PAGE_URL, TEAM_DISPLAY_NAME, TIMEZONE_NAME
-from fenice_calendar.output import _write_atomic
 from fenice_calendar.schema import Data, Game
 
 CRLF = "\r\n"
@@ -101,11 +100,3 @@ def ics_changed(path: Path, content: str) -> bool:
     except FileNotFoundError:
         previous = ""
     return stable(previous) != stable(content)
-
-
-def write_ics_if_changed(path: Path, content: str) -> bool:
-    """Write the calendar only when content other than DTSTAMP changes."""
-    if not ics_changed(path, content):
-        return False
-    _write_atomic(path, content)
-    return True

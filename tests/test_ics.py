@@ -5,10 +5,19 @@ from pathlib import Path
 
 import pytest
 
-from fenice_calendar.ics import build_ics, escape_text, fold_line, write_ics_if_changed
+from fenice_calendar.ics import build_ics, escape_text, fold_line, ics_changed
+from fenice_calendar.output import write_all_atomic
 from fenice_calendar.parse import parse_document
 
 FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def write_ics_if_changed(path: Path, content: str) -> bool:
+    """What the cli does for calendario.ics: write it only when more than DTSTAMP changed."""
+    if not ics_changed(path, content):
+        return False
+    write_all_atomic([(path, content)])
+    return True
 
 
 def test_calendar_contains_fenice_games_and_folded_utf8_lines(tmp_path: Path) -> None:

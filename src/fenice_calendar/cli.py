@@ -57,6 +57,7 @@ def _write_outputs(document: Data, calendar_ics: str, data_path: Path, status_pa
     ics_path = data_path.with_name("calendario.ics")
     if ics_changed(ics_path, calendar_ics):
         files.append((ics_path, calendar_ics))
+    # last, so a run that stops between two renames does not look successful
     files.append((status_path, status_json(checked_at=document["updated_at"])))
     write_all_atomic(files)
     logger.info("data.json %s", "unchanged" if data_json is None else "updated")
