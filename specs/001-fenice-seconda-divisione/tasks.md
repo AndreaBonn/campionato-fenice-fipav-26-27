@@ -20,7 +20,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T014 | games-view.js e wiring con i quattro stati | dip: T012,T013 | R6, R7, R8 | seq | revert
 - [x] T015 | Render 375/1280, click-through, a11y-gate di fase 1 | dip: T011,T014 | R26 | seq | revert correzioni
 - [x] T016 | sync.yml (cron, deploy Pages, SHA pinnati) e test_workflows | dip: T010 | R9 | ok | revert / disabilitare workflow
-- [ ] T017 | CLAUDE.md, README.md, docs/REPORT_ATTIVITA.md | dip: T016 | R10 | ok | revert
+- [x] T017 | CLAUDE.md, README.md, docs/REPORT_ATTIVITA.md | dip: T016 | R10 | ok | revert
 - [ ] T018 | Commit di fase 1 con CHECKS | dip: T015,T017 | R25 | seq | reset --soft locale
 
 ## Fase 2 - Risultati, classifica, calendario esterno
