@@ -163,3 +163,33 @@ Complessità: media. Stato: completato, nessun commit di questa entry; le diverg
 ### Note per il Cliente
 
 Quando il Comitato non ha notizie sulla Seconda Divisione la pagina non mostra più una sezione vuota: il collegamento al sito del Comitato resta in fondo alla pagina. Se un giorno FIPAV cambia il formato dei dati e l'aggiornamento si ferma, ora resta una copia di ciò che FIPAV ha risposto, così la correzione si prepara in fretta.
+
+## 2026-11-21 - Audit della qualità dei test con la skill test-audit (sera)
+
+### Cosa è stato fatto
+
+- Audit della qualità dei test con la skill `test-audit`. Punto di partenza: copertura già al 100% di righe e rami in Python e 98,49% di rami in JS, ma dei mutanti provati ne venivano uccisi solo 11 su 29 in Python e 9 su 58 in JS. La copertura misurava le righe eseguite, non i comportamenti verificati.
+- Sei worker in sola lettura, uno per area. I finding sono stati verificati con mutation testing in copie temporanee. Alcuni sono stati smentiti dalla verifica: `ts_gara`, le costanti di `config.py` e l'offset del fuso nell'ICS.
+- Rimedio: 50 finding (F1-F50) chiusi con test nuovi o irrigiditi, in sei commit per area: 52fd1dd, 5b628cb, 55e7e22, 72ab97e, 388dadc, b501f9b. Nessun file di produzione toccato.
+- Risultato: test Python da 299 a 318, test JS da 488 a 533, copertura dei rami JS al 99,09%. Mutanti uccisi: Python 27 su 29, JS 57 su 58. I 4 mutanti di controllo nuovi sono stati tutti uccisi.
+- Report completo dell'audit in `.pilota/audit-test.md` (fuori da git).
+
+### Sopravvissuti di proposito e domande aperte per l'utente
+
+- A1: le gare a tavolino nei box casa/trasferta divergono da CLAUDE.md.
+- A2: il casing di "Squadra sconosciuta".
+- A3: il service worker offline con query string.
+- A4: la riga vuota in "Già deciso" a formula pubblicata.
+- A5: `starts_at` con offset UTC è accettato.
+- A6: il filtro degli avvisi lavora sul titolo.
+- A7: `DESIGNATO` è confrontato in modo case-sensitive.
+- A8: le tarature (timeout 30 s, tick 60 s, conferma 2,5 s) sono fissate nei test come requisiti.
+- A9: due casi limite, uno nell'hero e uno in `relativeAge`.
+
+### Note per il Cliente
+
+Il funzionamento della pagina non cambia: non è stato modificato nessun file del sito. Abbiamo rafforzato i controlli automatici, che ora si accorgono di molti più errori piccoli di prima. Restano nove punti da decidere insieme, elencati sopra.
+
+### Riepilogo
+
+Complessità: media. Stato: completato, nessun commit di questa entry; le domande A1-A9 attendono una decisione.
