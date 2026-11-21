@@ -37,3 +37,21 @@ test("the tie-break is reported apart from the mean when a game went to five set
 test("labels from the data are not injected as markup", () => {
   assert.doesNotMatch(renderAnalysis(girone), /<script/);
 });
+
+test("a lone game awarded at the table is not empty and says so", () => {
+  const data = structuredClone(girone);
+  data.games = [{ ...data.games[0], home_id: "232645", played: true, sets: [], sets_won: [3, 0] }];
+  const html = renderAnalysis(data);
+  assert.doesNotMatch(html, /L'analisi comparirà/);
+  assert.match(html, /Gare a tavolino<\/dt><dd>1 gara decisa a tavolino/);
+  assert.match(html, /Set vinti e persi<\/dt><dd>nessun set giocato/);
+  assert.match(html, /Punti medi per set<\/dt><dd>nessun parziale/);
+});
+
+test("games awarded at the table are listed beside played ones without skewing sets", () => {
+  const data = structuredClone(girone);
+  data.games.push({ ...data.games[0], home_id: "232645", played: true, sets: [], sets_won: [3, 0] });
+  const html = renderAnalysis(data);
+  assert.match(html, /Set vinti e persi<\/dt><dd>0 vinti, 9 persi \(0%\)/);
+  assert.match(html, /1 gara decisa a tavolino/);
+});

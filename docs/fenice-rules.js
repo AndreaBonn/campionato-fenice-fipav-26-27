@@ -10,10 +10,16 @@ const results = (teamId, games) => games.filter((g) => involves(g, teamId) && g.
 const setPairs = (game, teamId) => game.sets.map(([h, a]) => (isHome(game, teamId) ? [h, a] : [a, h]));
 const sum = (pairs, index) => pairs.reduce((total, pair) => total + pair[index], 0);
 
+// Games with set scores: a game awarded at the table has a result but no sets, so it must not feed set statistics
+const withSets = (teamId, games) => results(teamId, games).filter((g) => g.sets.length);
+
+// Games decided at the table (result without set scores)
+export const forfeitCount = (teamId, games) => results(teamId, games).length - withSets(teamId, games).length;
+
 // Sets won and lost over the played games, and the share of sets won (rounded; null before any set)
 export function setStats(teamId, games) {
   let won = 0, lost = 0;
-  for (const g of results(teamId, games)) {
+  for (const g of withSets(teamId, games)) {
     const [mine, theirs] = isHome(g, teamId) ? g.sets_won : [g.sets_won[1], g.sets_won[0]];
     won += mine;
     lost += theirs;
@@ -26,7 +32,7 @@ export function setStats(teamId, games) {
 // reported apart as tieBreak; null when no set has been played
 export function averagePointsPerSet(teamId, games) {
   const regular = [], decider = [];
-  for (const g of results(teamId, games)) {
+  for (const g of withSets(teamId, games)) {
     setPairs(g, teamId).forEach((pair, i) => (i + 1 === TIE_BREAK_SET ? decider : regular).push(pair));
   }
   if (!regular.length && !decider.length) return null;

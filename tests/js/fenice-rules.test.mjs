@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { averagePointsPerSet, comebacks, setStats, streak, tieBreakRecord } from "../../docs/fenice-rules.js";
+import { averagePointsPerSet, comebacks, forfeitCount, setStats, streak, tieBreakRecord } from "../../docs/fenice-rules.js";
 
 const girone = JSON.parse(readFileSync(new URL("../fixtures/data-64353.json", import.meta.url), "utf8"));
 const FENICE = "232645";
@@ -67,4 +67,17 @@ test("streak is the current run of equal outcomes, null with no result", () => {
   assert.deepEqual(streak(FENICE, [sweep, lateLoss, comeback, sweep]), { outcome: "won", length: 2 });
   assert.deepEqual(streak(FENICE, girone.games), { outcome: "lost", length: 3 });
   assert.equal(streak(FENICE, []), null);
+});
+
+const forfeit = { home_id: FENICE, away_id: OTHER, played: true, sets: [], sets_won: [3, 0] };
+
+test("a game awarded at the table adds no sets to setStats and is counted apart", () => {
+  assert.deepEqual(setStats(FENICE, [forfeit]), { won: 0, lost: 0, total: 0, wonPct: null });
+  assert.deepEqual(setStats(FENICE, [sweep, forfeit]), { won: 3, lost: 0, total: 3, wonPct: 100 });
+  assert.equal(forfeitCount(FENICE, [sweep, forfeit, forfeit]), 2);
+  assert.equal(forfeitCount(FENICE, [sweep]), 0);
+});
+
+test("a game awarded at the table still counts in the streak", () => {
+  assert.deepEqual(streak(FENICE, [lateLoss, forfeit]), { outcome: "won", length: 1 });
 });
