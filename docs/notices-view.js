@@ -1,5 +1,5 @@
 // HTML of the committee notices section. No DOM access, everything comes in as arguments.
-import { esc } from "./games-view.js";
+import { esc } from "./html.js";
 import { TIME_ZONE } from "./view-rules.js";
 
 const COMMITTEE_URL = "https://fipavcagliari.it";

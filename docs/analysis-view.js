@@ -1,7 +1,8 @@
 // HTML of the "Andamento" section as a string: a strip with the record, the sets and the form, and the full analysis folded in. No DOM access: everything comes in as arguments.
 import { feniceGames, feniceTeamId, form, outcome, playedInOrder } from "./game-rules.js";
 import { averagePointsPerSet, comebacks, forfeitCount, setStats, streak, tieBreakRecord } from "./fenice-rules.js";
-import { esc, formListHtml } from "./games-view.js";
+import { formListHtml } from "./games-view.js";
+import { esc } from "./html.js";
 
 const dec = (n) => n.toLocaleString("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;

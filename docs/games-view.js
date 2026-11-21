@@ -1,6 +1,7 @@
 // HTML of the page sections as strings: hero, schedule and the load states. No DOM access here,
 // everything comes in as arguments, so the output is tested with node --test.
 import { feedUrls, googleCalendarUrl, teamsById } from "./calendar-rules.js";
+import { esc } from "./html.js";
 import { changeDetail, feniceGames, feniceTeamId, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, scoreLabel, setScores } from "./game-rules.js";
 import { lastResultMeta, matchSides, matchTitle, opponentChipTexts, teamSummary } from "./hero-rules.js";
 import { DEFAULT_FILTER, SIDE_OPTIONS, WHEN_OPTIONS, andataGame, effectiveFilter, emptyMessage, filterGames, groupByMonth, roundLabel, roundsPerHalf } from "./schedule-rules.js";
@@ -8,10 +9,6 @@ import { ICON_CALENDAR, ICON_MAP_PIN, ICON_SHARE } from "./icons.js";
 import { TIME_ZONE, countdownText, displayTeamName, relativeAge, teamInitials } from "./view-rules.js";
 
 const HTTP_STATUS = /^HTTP (\d+)$/;
-
-const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-// Every string that comes from the data goes through here before it is put in markup
-export const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
 const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ${g.time ? `ore ${g.time}` : "orario da definire"}`;

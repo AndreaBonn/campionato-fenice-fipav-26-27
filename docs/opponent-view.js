@@ -5,7 +5,7 @@ import { headToHead } from "./opponent-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
 import { TIME_ZONE, displayTeamName } from "./view-rules.js";
-import { esc } from "./games-view.js";
+import { esc } from "./html.js";
 import { crestFallbackHtml, installCrestFallback } from "./tables-view.js";
 
 const NEXT_SHOWN = 5;

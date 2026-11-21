@@ -2,7 +2,7 @@
 import { feniceTeamId } from "./game-rules.js";
 import { tableFromGames } from "./standings-rules.js";
 import { displayTeamName, teamInitials } from "./view-rules.js";
-import { esc } from "./games-view.js";
+import { esc } from "./html.js";
 import { decidedFacts, positionRanges } from "./standings-math.js";
 import { howToRead, lastFive, preseasonNote } from "./standings-notes.js";
 

@@ -4,7 +4,8 @@ import { test } from "node:test";
 
 import { feniceGames, mapUrl } from "../../docs/game-rules.js";
 import { groupByMonth } from "../../docs/schedule-rules.js";
-import { errorCause, esc, formListHtml, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { errorCause, formListHtml, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
+import { esc } from "../../docs/html.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -377,13 +378,6 @@ test("error cause: a failure that is not a network error says the data is not re
   assert.equal(errorCause(new Error("boom"), "https:"), unreadable);
   assert.equal(errorCause(undefined, "https:"), unreadable);
   assert.equal(errorCause(new TypeError("x"), "https:"), "Connessione non riuscita: controlla la rete e riprova.");
-});
-
-test("escape: null and undefined become an empty string, other values their text", () => {
-  assert.equal(esc(null), "");
-  assert.equal(esc(undefined), "");
-  assert.equal(esc(0), "0");
-  assert.equal(esc(`a&b<c>"d'e`), "a&amp;b&lt;c&gt;&quot;d&#39;e");
 });
 
 test("escape: quotes and ampersands in live_url and poster url cannot leave the attribute", () => {
