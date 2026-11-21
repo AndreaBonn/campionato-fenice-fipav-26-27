@@ -4,7 +4,7 @@ import { feniceTeamId, gameStatus } from "./game-rules.js";
 import { headToHead } from "./opponent-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
-import { TIME_ZONE, displayTeamName } from "./view-rules.js";
+import { TIME_ZONE, displayTeamName, plural } from "./view-rules.js";
 import { esc } from "./html.js";
 import { crestHtml, installCrestFallback } from "./crest-view.js";
 
@@ -18,7 +18,6 @@ const section = (title, body) => `<section class="opp-section"><h3>${title}</h3>
 const dayText = (g) => (g.starts_at
   ? new Date(g.starts_at).toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short", timeZone: TIME_ZONE })
   : "Data da definire");
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 // "Posizione finale possibile" line, only when the range is narrower than first-to-last
 function rangeLine(data, teamId) {

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { TIME_ZONE, countdownText, displayTeamName, relativeAge, teamInitials } from "../../docs/view-rules.js";
+import { TIME_ZONE, countdownText, displayTeamName, plural, relativeAge, teamInitials } from "../../docs/view-rules.js";
 
 const NOW = new Date("2026-11-20T12:00:00Z");
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -108,4 +108,10 @@ test("relative age: days are rounded down, so 47 hours is still «ieri» and 48 
 test("team name: a number inside the name stays as it is and no empty word is added", () => {
   assert.equal(displayTeamName("ASD 85 FENICE"), "Asd 85 Fenice");
   assert.equal(displayTeamName("ASD 85 FENICE").split(" ").length, 3);
+});
+
+test("plural: the noun agrees with the number, zero takes the plural", () => {
+  assert.equal(plural(1, "gara", "gare"), "1 gara");
+  assert.equal(plural(0, "gara", "gare"), "0 gare");
+  assert.equal(plural(2, "gara", "gare"), "2 gare");
 });

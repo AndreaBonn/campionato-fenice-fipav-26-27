@@ -1,7 +1,7 @@
 // HTML of the standings section as a string. No DOM access: everything comes in as arguments.
 import { feniceTeamId } from "./game-rules.js";
 import { tableFromGames } from "./standings-rules.js";
-import { displayTeamName } from "./view-rules.js";
+import { OUTCOME_LETTERS, displayTeamName } from "./view-rules.js";
 import { crestHtml } from "./crest-view.js";
 import { esc } from "./html.js";
 import { decidedFacts, positionRanges } from "./standings-math.js";
@@ -49,11 +49,9 @@ function decidedBlock(ranges, formula, byId) {
   return items.length ? `<div class="decided"><h3>Già deciso</h3><ul>${items.join("")}</ul></div>` : "";
 }
 
-const FORM_LETTERS = { won: "V", lost: "P" };
-
 // Last five games of the row's team as coloured V/P letters, oldest first; a dash when it has not played
 function formCell(teamId, games) {
-  const letters = lastFive(games, teamId).map((o) => `<span class="l5 ${o}">${FORM_LETTERS[o]}</span>`);
+  const letters = lastFive(games, teamId).map((o) => `<span class="l5 ${o}">${OUTCOME_LETTERS[o]}</span>`);
   return `<td class="c-x">${letters.length ? letters.join("") : NO_VALUE}</td>`;
 }
 

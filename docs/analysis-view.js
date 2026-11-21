@@ -3,9 +3,9 @@ import { feniceGames, feniceTeamId, form, outcome, playedInOrder } from "./game-
 import { averagePointsPerSet, comebacks, forfeitCount, setStats, streak, tieBreakRecord } from "./fenice-rules.js";
 import { formListHtml } from "./games-view.js";
 import { esc } from "./html.js";
+import { plural } from "./view-rules.js";
 
 const dec = (n) => n.toLocaleString("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const row = (label, value) => `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
 
 const EMPTY = '<p class="state">L\'analisi comparirà dopo la prima partita.</p>';

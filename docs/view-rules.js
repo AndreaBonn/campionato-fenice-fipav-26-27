@@ -11,7 +11,11 @@ const DAY_MS = 24 * HOUR_MS;
 // FIPAV spells some club acronyms without dots: they stay upper case
 const ACRONYMS = new Set(["CUS", "GS", "VSA"]);
 
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+// "1 gara", "2 gare": the number and the noun that agrees with it
+export const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+// Letters of a game outcome, so the form is readable without its colours
+export const OUTCOME_LETTERS = { won: "V", lost: "P" };
 
 // Calendar day in Rome as a UTC midnight, so two days compare without DST drift
 const romeDay = (date) => Date.parse(date.toLocaleDateString("sv-SE", { timeZone: TIME_ZONE }));

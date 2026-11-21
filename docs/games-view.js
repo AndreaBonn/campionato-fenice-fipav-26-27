@@ -8,7 +8,7 @@ import { changeDetail, feniceGames, feniceTeamId, gameStatus, isHome, lastPlayed
 import { lastResultMeta, matchSides, matchTitle, opponentChipTexts, teamSummary } from "./hero-rules.js";
 import { DEFAULT_FILTER, SIDE_OPTIONS, WHEN_OPTIONS, andataGame, effectiveFilter, emptyMessage, filterGames, groupByMonth, roundLabel, roundsPerHalf } from "./schedule-rules.js";
 import { ICON_CALENDAR, ICON_MAP_PIN, ICON_SHARE } from "./icons.js";
-import { TIME_ZONE, countdownText, displayTeamName } from "./view-rules.js";
+import { OUTCOME_LETTERS, TIME_ZONE, countdownText, displayTeamName } from "./view-rules.js";
 
 const fmt = (iso, options) => new Date(iso).toLocaleDateString("it-IT", { ...options, timeZone: TIME_ZONE });
 const longWhen = (g) => `${fmt(g.starts_at, { weekday: "long", day: "numeric", month: "long" })}, ${g.time ? `ore ${g.time}` : "orario da definire"}`;
@@ -62,11 +62,9 @@ function countdownHtml(c) {
   return `<p class="cd-top">${c.lead ? `<span class="lead">${esc(c.lead)}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
 }
 
-const LETTER = { won: "V", lost: "P" };
-
 // Letters, not only colours: the outcomes of a team's last games, oldest first
 export const formListHtml = (outcomes, label) =>
-  `<ol class="form" aria-label="${esc(label)}">${outcomes.map((o) => `<li class="f ${o}">${LETTER[o]}</li>`).join("")}</ol>`;
+  `<ol class="form" aria-label="${esc(label)}">${outcomes.map((o) => `<li class="f ${o}">${OUTCOME_LETTERS[o]}</li>`).join("")}</ol>`;
 
 // "Avversaria": standing, record and last outcomes of the team the Fenice plays next
 function opponentLineHtml(data, oppId) {
