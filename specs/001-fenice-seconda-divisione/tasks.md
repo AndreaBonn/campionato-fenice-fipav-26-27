@@ -10,7 +10,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 - [x] T004 | config.py (URL, codice Fenice, UA, formula vuota, tie-break) | dip: T003 | R1, R2, R11 | ok | revert
 - [x] T005 | Contratto data.json: schema.py, validate_data, data-sample.json | dip: T004 | R1 | contratto | revert
 - [x] T006 | fetch.py con fallback data./app. e rifiuto HTML | dip: T004 | R2 | ok | revert
-- [ ] T007 | parse_game: normalizzazione data/ora/parziali/arbitri | dip: T005 | R4, R5 | seq | revert
+- [x] T007 | parse_game: normalizzazione data/ora/parziali/arbitri | dip: T005 | R4, R5 | seq | revert
 - [ ] T008 | parse documento, Fenice per cod, fixture data-64353.json | dip: T007 | R1 | seq | revert
 - [ ] T009 | output.py: write_if_changed, write_status | dip: T005 | R3 | ok | revert
 - [ ] T010 | cli.py main con exit 1 senza scritture su errore | dip: T006,T008,T009 | R2, R3 | seq | revert
