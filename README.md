@@ -8,14 +8,20 @@ Indirizzo del sito: https://andreabonn.github.io/campionato-fenice-fipav-26-27/
 
 ## Cosa mostra
 
-- La prossima partita della Fenice, con avversaria, data, ora, palestra e un conto alla rovescia.
-- L'elenco di tutte le partite, giornata per giornata, con il risultato in set e i punteggi di ogni set.
-- Il collegamento alla mappa della palestra.
+- La prossima partita della Fenice, con avversaria, data, ora, palestra, conto alla rovescia, collegamento alla mappa e, quando ci sono, la locandina e il collegamento alla diretta.
+- Il risultato dell'ultima partita giocata e l'andamento delle ultime cinque, in una riga facile da leggere.
+- Il calendario completo, giornata per giornata, con il risultato in set e i punteggi di ogni set, l'arbitro quando è stato designato e un'etichetta sulle partite spostate rispetto al calendario iniziale (data, ora o palestra).
+- La classifica ufficiale FIPAV con la Fenice in evidenza, penalità comprese. Quando la classifica si restringe, indica per ogni squadra le posizioni finali ancora possibili e che cosa è già deciso. Il campionato non ha ancora una formula pubblicata, quindi non ci sono zone di promozione o retrocessione, e a parità di punti l'ordine segue un criterio provvisorio: vittorie, poi quoziente set, poi quoziente punti.
+- Una scheda per ogni avversaria, che si apre dal nome nella classifica o dalla prossima partita: sfida diretta con la Fenice, partite ancora da giocare, rendimento in casa e in trasferta, andamento recente.
+- L'analisi della Fenice: set vinti e persi, punti medi per set, tie-break, rimonte e serie in corso.
+- Le notizie del Comitato di Cagliari sulla Seconda Divisione, con il collegamento alla pagina originale.
+- Il calendario delle partite da aggiungere al telefono: ci si iscrive una volta e si aggiorna da solo, oppure si aggiunge una singola partita a Google Calendar.
+- Un'app installabile: dal browser del telefono si può aggiungere la pagina alla schermata iniziale. Quando esce una versione nuova compare un avviso con il pulsante per aggiornare.
 - La data e l'ora dell'ultimo controllo dei dati.
 
 ## Da dove arrivano i dati
 
-Fonte: FIPAV Online (https://www.fipavonline.it). I dati di gara appartengono alla FIPAV: questa pagina li riporta così come li pubblica FIPAV Online e non è un sito ufficiale della Federazione né della società.
+Fonte: FIPAV Online (https://www.fipavonline.it); le notizie arrivano dal sito del Comitato di Cagliari (https://fipavcagliari.it). Gli stemmi delle avversarie sono quelli pubblicati da FIPAV Online: se non si caricano, la pagina mostra le iniziali della squadra. I dati di gara appartengono alla FIPAV: questa pagina li riporta così come li pubblica FIPAV Online e non è un sito ufficiale della Federazione né della società.
 
 ## Ogni quanto si aggiorna
 
