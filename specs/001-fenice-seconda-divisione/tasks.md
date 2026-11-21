@@ -26,7 +26,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 ## Fase 2 - Risultati, classifica, calendario esterno
 
 - [x] T019 | parse_standings numerico, cli scarica la classifica | dip: T018 | R11 | seq | revert
-- [ ] T020 | standings-rules.js e test oracolo contro l'API (64353) | dip: T019 | R12 | ok | revert
+- [x] T020 | standings-rules.js e test oracolo contro l'API (64353) | dip: T019 | R12 | ok | revert
 - [ ] T021 | tables-view.js: classifica, Fenice evidenziata, criterio provvisorio | dip: T019 | R11 | ok | revert
 - [ ] T022 | Ultimo risultato, forma, link diretta, arbitri | dip: T018 | R5, R14 | seq | revert
 - [x] T023 | ics.py adattato, docs/calendario.ics | dip: T019 | R13 | seq | revert
