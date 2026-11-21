@@ -36,7 +36,7 @@ Mie, rivedibili:
 - A1. `date` + `time` sono autorevoli; `ts_gara` non si usa (non so quale dei due FIPAV aggiorna per primo su un rinvio). Data o ora vuota → `null` e gara "da programmare".
 - A2. L'impianto si divide su `" - "` in nome / indirizzo / città best effort; la stringa originale resta in `venue.raw`.
 - A3. Loghi delle squadre e locandine in hotlink dagli URL FIPAV (lazy, dimensioni esplicite); solo il logo ufficiale della Fenice, fornito dall'utente, è copiato in `docs/logo-fenice.png` (sorgente `assets/logo-fenice.png`, base delle icone, offline).
-- A4. Notizie: ricerca WordPress `search=seconda divisione` più i post di categoria "Indizioni Campionati" che nominano la Seconda Divisione; max 10. Le categorie id 1-3 vengono riverificate in T035 prima di scrivere il filtro.
+- A4. Notizie: ricerca WordPress `search=seconda divisione` più i post di categoria "Indizioni Campionati" che nominano la Seconda Divisione o nessuna competizione (bandi generici di Divisione, che valgono anche per la Seconda: decisione dell'utente del 2026-11-21), esclusi quelli che nominano solo altre competizioni; max 10. Le categorie id 1-3 vengono riverificate in T035 prima di scrivere il filtro.
 - A5. Rimonta = vittoria in una gara in cui la Fenice ha perso il primo set; "da 0-2" ne è il sottoinsieme.
 - A6. Evento Google Calendar e VEVENT di durata 2 ore.
 - A7. Baseline di `changes` = il calendario del 2026-11-21 (fixture `calendar-64444.json`), congelato in `data/calendario-iniziale.json`.
