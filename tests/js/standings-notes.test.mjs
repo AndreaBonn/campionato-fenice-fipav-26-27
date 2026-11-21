@@ -78,6 +78,14 @@ test("how-to explains Poss. only when that column is shown", () => {
   assert.ok(withPoss.includes("Pt"));
 });
 
+test("how-to places the explanation of Poss. immediately before Fenice", () => {
+  const items = howToRead({ tieBreak: girone.tie_break, showPossible: true }).items;
+  assert.deepEqual(items.slice(-2), [
+    { term: "Poss.", text: "posizioni finali ancora possibili, in base alle partite che restano da giocare." },
+    { term: "Fenice", text: "la riga della Fenice è evidenziata." },
+  ]);
+});
+
 test("tie-break sentence lists the criteria in order with their labels; provisional adds the Comitato line", () => {
   const provisional = howToRead({ tieBreak: { provisional: true, criteria: ["wins", "set_ratio", "point_ratio"] }, showPossible: false }).tieBreak;
   assert.equal(

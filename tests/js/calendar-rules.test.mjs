@@ -96,3 +96,14 @@ test("feed links: without an argument they come from the address of the page in 
     if (had) globalThis.location = previous; else delete globalThis.location;
   }
 });
+
+test("google calendar details use the current page address by default", () => {
+  const had = Object.hasOwn(globalThis, "location"), previous = globalThis.location;
+  globalThis.location = { href: "https://example.org/campionato/" };
+  try {
+    assert.match(params(googleCalendarUrl(sample.games[3], teams)).get("details"),
+      /Calendario completo: https:\/\/example\.org\/campionato\/$/);
+  } finally {
+    if (had) globalThis.location = previous; else delete globalThis.location;
+  }
+});

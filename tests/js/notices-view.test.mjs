@@ -99,3 +99,15 @@ test("the age of a notice is counted in Rome days: after midnight in Rome the ei
   assert.equal(isNewNotice(notice, new Date("2026-11-28T23:30:00Z")), false);
   assert.equal(isNewNotice(notice, new Date("2026-11-28T22:30:00Z")), true);
 });
+
+test("notice age follows midnight in Rome when the host uses UTC", () => {
+  const previous = process.env.TZ;
+  process.env.TZ = "UTC";
+  try {
+    const notice = { date: "2026-11-21" };
+    assert.equal(isNewNotice(notice, new Date("2026-11-28T22:30:00Z")), true);
+    assert.equal(isNewNotice(notice, new Date("2026-11-28T23:30:00Z")), false);
+  } finally {
+    if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous;
+  }
+});

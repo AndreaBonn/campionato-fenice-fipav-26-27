@@ -129,3 +129,46 @@ test("without an offset the bar height of 80 px is used", () => {
   t.scrollTo(1550);
   assert.deepEqual(current(t), ["calendar"]);
 });
+
+test("without an injected raf scroll updates through requestAnimationFrame", () => {
+  const t = setup();
+  const frames = [];
+  delete t.env.raf;
+  t.env.win.requestAnimationFrame = (fn) => frames.push(fn);
+  setupSectionNav(t.env);
+  frames.shift()();
+  t.env.win.scrollY = 1000;
+  t.listeners.scroll.forEach((fn) => fn());
+  assert.equal(frames.length, 1);
+  frames.shift()();
+  assert.deepEqual(current(t), ["standings"]);
+});
+
+test("a link to a missing section is hidden while existing links remain visible", () => {
+  const t = setup();
+  delete t.sections.standings;
+  setupSectionNav(t.env);
+  t.flush();
+  assert.equal(t.items.standings.hidden, true);
+  assert.equal(t.items.next.hidden, false);
+  assert.deepEqual(current(t), ["next"]);
+});
+
+test("the short last section becomes current two pixels before the bottom", () => {
+  const t = setup({ starts: { next: 200, standings: 900, calendar: 1600, notices: 3500 } });
+  setupSectionNav(t.env);
+  t.scrollTo(3197);
+  assert.deepEqual(current(t), ["calendar"]);
+  t.scrollTo(3198);
+  assert.deepEqual(current(t), ["notices"]);
+});
+
+test("the default bar offset includes 80 pixels but not 81", () => {
+  const t = setup();
+  delete t.env.offset;
+  setupSectionNav(t.env);
+  t.scrollTo(1519);
+  assert.deepEqual(current(t), ["standings"]);
+  t.scrollTo(1520);
+  assert.deepEqual(current(t), ["calendar"]);
+});

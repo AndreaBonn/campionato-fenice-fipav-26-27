@@ -24,6 +24,11 @@ test("standalone: the display-mode media query or the iOS navigator.standalone f
   assert.equal(isStandalone(null, undefined), false);
 });
 
+test("iOS Safari: navigator.standalone false (a normal tab) is not standalone, true is", () => {
+  assert.equal(isStandalone({ matches: false }, false), false);
+  assert.equal(isStandalone({ matches: false }, true), true);
+});
+
 const base = { standalone: false, dismissed: false, installed: false, iosSafari: false, canPrompt: false };
 
 test("hint mode: nothing by default, the prompt once the browser offers the install", () => {

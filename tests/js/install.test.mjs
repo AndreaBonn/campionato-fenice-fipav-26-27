@@ -144,3 +144,42 @@ test("iOS Safari already running as the installed app (navigator.standalone) sho
   setupInstallHint(t.env);
   assert.equal(t.els["install-hint"].hidden, true);
 });
+
+test("iOS Safari with navigator.standalone false shows the hint", () => {
+  const t = setup({ ios: true });
+  t.env.nav.standalone = false;
+  setupInstallHint(t.env);
+  assert.equal(t.els["install-hint"].hidden, false);
+});
+
+test("without matchMedia the iOS install hint still appears", () => {
+  const t = setup({ ios: true });
+  delete t.win.matchMedia;
+  setupInstallHint(t.env);
+  assert.equal(t.els["install-hint"].hidden, false);
+});
+
+test("a stored zero does not dismiss the install hint", () => {
+  const t = setup({ ios: true, stored: "0" });
+  setupInstallHint(t.env);
+  assert.equal(t.els["install-hint"].hidden, false);
+});
+
+test("a rejected install prompt logs one warning", async () => {
+  const t = setup();
+  const error = new Error("prompt rejected");
+  const warnings = [];
+  const previous = console.warn;
+  console.warn = (...args) => warnings.push(args);
+  try {
+    setupInstallHint(t.env);
+    const event = promptEvent();
+    event.prompt = () => Promise.reject(error);
+    t.win.fire("beforeinstallprompt", event);
+    t.els["install-go"].fire("click");
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(warnings, [["install prompt failed", error]]);
+  } finally {
+    console.warn = previous;
+  }
+});
