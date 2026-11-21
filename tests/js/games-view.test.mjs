@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { feniceGames } from "../../docs/game-rules.js";
+import { feniceGames, mapUrl } from "../../docs/game-rules.js";
 import { errorCause, esc, renderCalendarFeed, renderChecked, renderEmpty, renderError, renderHero, renderLastResult, renderSchedule } from "../../docs/games-view.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
@@ -391,4 +391,16 @@ test("escape: quotes and ampersands in live_url and poster url cannot leave the 
     assert.equal(count(html, 'b="'), 0);
   }
   assert.match(renderHero(evil, NOW_BEFORE), /href="https:\/\/example\.com\/live\?a=1&amp;b=&quot;x"/);
+});
+
+test("schedule: rows of games to play link the venue map, played games do not (R7)", () => {
+  const items = renderSchedule(girone, new Date("2026-11-20T10:00:00Z")).split('<li class="game').slice(1);
+  const ours = feniceGames(girone);
+  assert.equal(items.length, ours.length);
+  const linked = ours.map((g, i) => [g.id, items[i].includes("Apri la mappa")]);
+  const expected = ours.map((g) => [g.id, !g.played && mapUrl(g.venue) !== null]);
+  assert.deepEqual(linked, expected);
+  assert.ok(expected.some(([, has]) => has) && expected.some(([, has]) => !has));
+  const first = ours.findIndex((g) => !g.played && mapUrl(g.venue));
+  assert.ok(items[first].includes(`href="${esc(mapUrl(ours[first].venue))}"`));
 });

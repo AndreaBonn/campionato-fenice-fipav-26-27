@@ -23,11 +23,12 @@ const opponentId = (g, teamId) => (isHome(g, teamId) ? g.away_id : g.home_id);
 // "Pal. Ist. Euclide, Via Araolla, Selargius": the parts the venue has, in capitals only where due
 const venueLine = (v) => [v.name, v.address, v.city].filter(Boolean).map(displayTeamName).map(esc).join(", ");
 
-function venueHtml(g) {
+function mapLinkHtml(g) {
   const url = mapUrl(g.venue);
-  const link = url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">Apri la mappa<span class="sr-only"> (si apre in una nuova scheda)</span></a>` : "";
-  return `<p class="venue">${venueLine(g.venue)}${link}</p>`;
+  return url ? ` <a href="${esc(url)}" target="_blank" rel="noopener">Apri la mappa<span class="sr-only"> (si apre in una nuova scheda)</span></a>` : "";
 }
+
+const venueHtml = (g) => `<p class="venue">${venueLine(g.venue)}${mapLinkHtml(g)}</p>`;
 
 // The poster image, linked to the full size; width and height are the real ones so the page does not jump on load
 function posterHtml(data, g) {
@@ -84,7 +85,7 @@ function rowHtml(data, g, teamId, isNext, now, pageUrl) {
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now, pageUrl)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}${g.played ? "" : mapLinkHtml(g)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(data, g)}${addToCalendarHtml(data, g, teamId, now, pageUrl)}${right}${score ? `<p class="sets">${esc(score)}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out
