@@ -59,6 +59,6 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 
 - [x] T039 | make_icons.py monogramma F, manifest | dip: T038 | R22 | ok | revert
 - [x] T040 | sw.js network-first, appversion e stamp nel workflow | dip: T039 | R23 | seq | revert
-- [ ] T041 | update.js e update-rules.js, avviso aggiornamento | dip: T040 | R23 | seq | revert
+- [x] T041 | update.js e update-rules.js, avviso aggiornamento | dip: T040 | R23 | seq | revert
 - [x] T042 | tests.yml, badges.py, badge nel README | dip: T040 | R24 | ok | revert
 - [ ] T043 | CLAUDE.md finale, report, verifica completa, commit | dip: T041,T042 | R10, R25 | seq | revert
