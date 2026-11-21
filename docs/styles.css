@@ -105,3 +105,15 @@ footer.site p { margin: 0.15rem 0; }
   .hero { padding: 1.25rem; }
   .hero .opp { font-size: 2rem; }
 }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.standings { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.standings th, .standings td { padding: 0.5rem 0.5rem; text-align: right; white-space: nowrap; }
+.standings th:nth-child(2), .standings td.name { text-align: left; }
+.standings thead th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); }
+.standings tbody tr + tr { border-top: 1px solid var(--line); }
+.standings td.name img { width: 24px; height: 24px; margin-right: 0.5rem; vertical-align: middle; object-fit: contain; }
+.standings tr.me { background: var(--tint); font-weight: 700; box-shadow: inset 4px 0 0 var(--plum); }
+.standings tr.zone-promotion { box-shadow: inset 4px 0 0 var(--win); }
+.standings tr.zone-relegation { box-shadow: inset 4px 0 0 var(--loss); }
+.note { margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--muted); }
