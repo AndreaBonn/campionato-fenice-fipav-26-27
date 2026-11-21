@@ -41,13 +41,14 @@ jobs:
           --test-reporter=spec --test-reporter-destination=stdout
           --test-reporter=junit --test-reporter-destination="$REPORTS/node.xml"
       # a red run still publishes: the badge must show the failure, not the last green;
-      # missing reports (a setup that failed early) become the error and unknown badges
+      # missing reports (a setup that failed early) become the error and unknown badges;
+      # badges.py is stdlib only, so the runner's python builds them when uv itself failed
       - name: Build badge files
         if: ${{ !cancelled() }}
-        run: >
-          uv run fenice-badges
-          --junit "$REPORTS/pytest.xml" --junit "$REPORTS/node.xml"
-          --coverage "$REPORTS/coverage.json" --out "$REPORTS/badges"
+        run: |
+          ARGS=(--junit "$REPORTS/pytest.xml" --junit "$REPORTS/node.xml"
+                --coverage "$REPORTS/coverage.json" --out "$REPORTS/badges")
+          uv run fenice-badges "${ARGS[@]}" || python3 src/fenice_calendar/badges.py "${ARGS[@]}"
       - name: Publish badge files to the badges branch
         if: ${{ !cancelled() }}
         env:

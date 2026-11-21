@@ -69,6 +69,13 @@ def test_badge_json_is_produced_only_by_fenice_badges() -> None:
     assert "schemaVersion" not in content
 
 
+def test_badges_are_built_even_when_uv_cannot_start() -> None:
+    # badges.py is stdlib only: the runner's python can build the error badge when uv sync failed
+    content = WORKFLOW.with_name("tests.yml").read_text()
+    build = content[content.find("uv run fenice-badges") : content.find("- name: Publish badge files")]
+    assert "|| python3 src/fenice_calendar/badges.py" in build
+
+
 def test_python_and_js_tests_run_before_the_sync() -> None:
     content = WORKFLOW.read_text()
     pytest_run = content.find("run: uv run pytest")
