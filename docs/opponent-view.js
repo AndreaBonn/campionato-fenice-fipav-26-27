@@ -4,13 +4,12 @@ import { feniceTeamId } from "./game-rules.js";
 import { headToHead } from "./opponent-rules.js";
 import { homeAwayRecord, remainingGames } from "./team-rules.js";
 import { positionRanges } from "./standings-math.js";
-import { displayTeamName } from "./view-rules.js";
+import { TIME_ZONE, displayTeamName } from "./view-rules.js";
 import { esc } from "./games-view.js";
 import { crestFallbackHtml, installCrestFallback } from "./tables-view.js";
 
 const NEXT_SHOWN = 5;
 const CREST_SIZE = 40;
-const TIME_ZONE = "Europe/Rome";
 
 const nameOf = (team) => esc(displayTeamName(team.name));
 const section = (title, body) => `<section class="opp-section"><h3>${title}</h3>${body}</section>`;

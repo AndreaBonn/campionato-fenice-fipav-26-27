@@ -1,8 +1,8 @@
 // HTML of the committee notices section. No DOM access, everything comes in as arguments.
 import { esc } from "./games-view.js";
+import { TIME_ZONE } from "./view-rules.js";
 
 const COMMITTEE_URL = "https://fipavcagliari.it";
-const TIME_ZONE = "Europe/Rome";
 const KIND_LABELS = { indizione: "Indizione", "seconda-divisione": "Seconda Divisione" };
 const EMPTY_TEXT = "Nessuna notizia del Comitato FIPAV Cagliari sulla Seconda Divisione per ora.";
 
