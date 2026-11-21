@@ -32,6 +32,7 @@ ROME_TIMEZONE = [
 
 def escape_text(value: str) -> str:
     """Escape an iCalendar text value."""
+    value = value.replace("\r\n", "\n").replace("\r", "")
     return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
@@ -56,6 +57,7 @@ def _event(game: Game, names: dict[str, str], stamp: str) -> list[str]:
         "BEGIN:VEVENT",
         f"UID:{game['id']}@campionato-fenice-fipav-26-27",
         f"DTSTAMP:{stamp}",
+        "SEQUENCE:0",
         f"DTSTART;TZID=Europe/Rome:{start.strftime(LOCAL_FORMAT)}",
         f"DTEND;TZID=Europe/Rome:{(start + GAME_DURATION).strftime(LOCAL_FORMAT)}",
         f"SUMMARY:{escape_text(summary)}",
