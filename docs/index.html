@@ -42,6 +42,10 @@
     <div id="feed"></div>
     <div id="list" aria-live="polite"></div>
   </section>
+  <section id="notices" aria-labelledby="notices-title">
+    <h2 id="notices-title">Notizie dal Comitato</h2>
+    <div id="notices-body"></div>
+  </section>
   <noscript><p class="state">Per vedere il calendario serve JavaScript attivo nel browser.</p></noscript>
 </main>
 <footer class="site">
@@ -54,6 +58,7 @@
 <script type="module">
 import { renderCalendarFeed, renderChecked, renderError, renderHero, renderLastResult, renderLoading, renderSchedule } from "./games-view.js";
 import { installCrestFallback, renderStandings } from "./tables-view.js";
+import { renderNotices } from "./notices-view.js";
 import { renderAnalysis } from "./analysis-view.js";
 import { installOpponentDialog } from "./opponent-view.js";
 
@@ -95,7 +100,7 @@ async function fetchData() {
 // A TypeError while building the markup is bad data, not a dead network: the cause text must not say so
 function build(data, now) {
   try {
-    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data), last: renderLastResult(data), feed: renderCalendarFeed(data), analysis: renderAnalysis(data) };
+    return { hero: renderHero(data, now), list: renderSchedule(data, now), standings: renderStandings(data), last: renderLastResult(data), feed: renderCalendarFeed(data), analysis: renderAnalysis(data), notices: renderNotices(data) };
   } catch (err) {
     throw new Error("invalid data", { cause: err });
   }
@@ -118,7 +123,7 @@ async function load() {
   loadStatus();
   try {
     const data = await fetchData();
-    const { hero, list, standings, last, feed, analysis } = build(data, new Date());
+    const { hero, list, standings, last, feed, analysis, notices } = build(data, new Date());
     currentData = data;
     $("next-body").innerHTML = hero;
     $("next").hidden = !hero;
@@ -130,6 +135,7 @@ async function load() {
     $("standings").hidden = !standings;
     $("analysis-body").innerHTML = analysis;
     $("analysis").hidden = !analysis;
+    $("notices-body").innerHTML = notices;
   } catch (err) {
     console.error("load failed", err);
     $("list").innerHTML = renderError(err, location.protocol);

@@ -30,6 +30,13 @@ function venueHtml(g) {
   return `<p class="venue">${venueLine(g.venue)}${link}</p>`;
 }
 
+// Link to the poster image, with its size, only when the game has one
+function posterHtml(g) {
+  const p = g.poster;
+  if (!p) return "";
+  return `<p class="poster"><a href="${esc(p.url)}" target="_blank" rel="noopener">Locandina<span class="sr-only"> della partita, immagine ${esc(p.width)} x ${esc(p.height)} (si apre in una nuova scheda)</span></a> <small>${esc(p.width)} x ${esc(p.height)}</small></p>`;
+}
+
 function stateHtml(title, text) {
   return `<p class="state"><strong>${esc(title)}</strong>${esc(text)}</p>`;
 }
@@ -51,7 +58,7 @@ export function renderHero(data, now) {
   return `<p class="eyebrow">Prossima partita ${sideTag(g, teamId)}</p>
 <p class="opp">${esc(teamName(data, opponentId(g, teamId)))}</p>
 <p class="when">${esc(longWhen(g))}</p>
-${venueHtml(g)}${live}
+${venueHtml(g)}${live}${posterHtml(g)}
 ${opponentButton}<p class="countdown">${c.lead ? `<span class="lead">${c.lead}</span>` : ""}<b>${esc(c.main)}</b>${c.sub ? `<small>${esc(c.sub)}</small>` : ""}</p>`;
 }
 
@@ -75,7 +82,7 @@ function rowHtml(data, g, teamId, isNext) {
   const live = !g.played && g.live_url ? ` <a href="${esc(g.live_url)}" target="_blank" rel="noopener">Diretta</a>` : "";
   const right = score ? resultHtml(g, teamId) : `<div class="res"><span class="pending">Da giocare</span>${live}</div>`;
   return `<li class="game${isNext ? " next" : ""}"><p class="opp">${esc(teamName(data, opponentId(g, teamId)))} ${sideTag(g, teamId)}</p>
-<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${addToCalendarHtml(data, g, teamId)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
+<p class="meta">${esc(shortWhen(g))} · ${venueLine(g.venue)}</p>${movedHtml(g)}${refsHtml(g)}${posterHtml(g)}${addToCalendarHtml(data, g, teamId)}${right}${parts.length ? `<p class="sets">Set: ${esc(parts.join(", "))}</p>` : ""}</li>`;
 }
 
 // Games grouped by round, in the file order; the next game stands out

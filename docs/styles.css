@@ -171,3 +171,8 @@ dialog.opp::backdrop { background: oklch(0.2 0.02 283 / 0.6); }
 .opp-section ul { padding-left: 1.2em; }
 .opp-section summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .opp-close { margin: 1rem 0 0; text-align: right; }
+
+.notices { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+.notice .meta { margin: 0; }
+.poster { margin: 0.25rem 0 0; font-size: 0.875rem; }
+.poster a, #notices a { display: inline-block; min-height: 44px; padding-block: 0.6rem; }

@@ -266,3 +266,21 @@ test("the next game box has no opponent button when the opponent is not among th
   assert.equal(count(html, "data-opponent="), 0);
   assert.equal(count(renderHero(girone, now), "data-opponent="), 1);
 });
+
+const POSTER = { url: "https://fipavcagliari.it/wp-content/uploads/locandina.jpg", width: 800, height: 1131 };
+const withPoster = (data, poster) => ({ ...data, games: data.games.map((g, i) => (i === data.games.indexOf(feniceGames(data).find((x) => !x.played)) ? { ...g, poster } : g)) });
+
+test("poster: hero and schedule row link the image when the game has one", () => {
+  const data = withPoster(sample, POSTER), now = new Date("2026-11-20T10:00:00Z");
+  for (const html of [renderHero(data, now), renderSchedule(data, now)]) {
+    assert.match(html, /href="https:\/\/fipavcagliari\.it\/wp-content\/uploads\/locandina\.jpg" target="_blank" rel="noopener"/);
+    assert.match(html, /Locandina/);
+    assert.match(html, /800 x 1131/);
+  }
+});
+
+test("poster: no element when poster is null", () => {
+  const now = new Date("2026-11-20T10:00:00Z"), bare = { ...sample, games: sample.games.map((g) => ({ ...g, poster: null })) };
+  assert.equal(count(renderHero(bare, now), "Locandina"), 0);
+  assert.equal(count(renderSchedule(bare, now), "Locandina"), 0);
+});
