@@ -88,7 +88,11 @@ export function setupUpdates(env) {
     .catch((err) => console.warn("service worker non registrato", err));
 }
 
+export function supportsServiceWorker(nav) {
+  return Boolean(nav) && "serviceWorker" in nav;
+}
+
 // file:// pages and old browsers have no service worker: the page works without updates
-if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+if (supportsServiceWorker(typeof navigator === "undefined" ? undefined : navigator)) {
   setupUpdates({ sw: navigator.serviceWorker, doc: document, now: Date.now, reload: () => location.reload() });
 }
