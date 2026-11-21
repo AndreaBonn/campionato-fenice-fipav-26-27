@@ -253,3 +253,15 @@ def test_first_run_outage_and_recent_notices_and_poster(env: Env) -> None:
             {"url": "https://data.fipavonline.it/" + entry["key"], "width": 620, "height": 877},
         )
     ]
+
+
+def test_posters_outage_tolerates_previous_games_without_poster(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    data = json.loads(env.data.read_text())
+    for game in data["games"]:
+        del game["poster"]
+    env.data.write_text(json.dumps(data))
+    env.overrides[POSTERS_PATH.format(committee=COMMITTEE_CODE)] = FetchError("down")
+    assert env.run(calendar(), now=SECOND_RUN) == 0
+    result = json.loads(env.data.read_text())
+    assert all(game["poster"] is None for game in result["games"])

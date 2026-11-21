@@ -31,6 +31,10 @@ def enrich(document: Data, fetch: Callable[[str], Any], path: Path) -> None:
         posters = fetch_posters(fetch)
     except FetchError as err:
         logger.warning("Posters unavailable: %s", err)
-        posters = {game["id"]: game["poster"] for game in previous.get("games", [])}
+        posters = {
+            game["id"]: game["poster"]
+            for game in previous.get("games", [])
+            if isinstance(game, dict) and "id" in game and game.get("poster")
+        }
     for game in document["games"]:
         game["poster"] = posters.get(game["id"])
