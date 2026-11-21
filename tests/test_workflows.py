@@ -23,9 +23,7 @@ def test_each_checkout_disables_persisted_credentials() -> None:
 
 def test_schedule_has_exactly_one_four_hour_cron() -> None:
     content = WORKFLOW.read_text()
-    assert re.findall(r"(?m)^\s*-\s*cron:\s*['\"]([^'\"]+)['\"]", content) == [
-        "17 */4 * * *"
-    ]
+    assert re.findall(r"(?m)^\s*-\s*cron:\s*['\"]([^'\"]+)['\"]", content) == ["17 */4 * * *"]
     assert len(re.findall(r"(?m)^\s*-\s*cron:", content)) == 1
 
 
@@ -37,3 +35,8 @@ def test_workflow_permissions_grant_contents_read() -> None:
 def test_deploy_depends_on_sync() -> None:
     content = WORKFLOW.read_text()
     assert re.search(r"(?m)^  deploy:\s*\n    needs:\s*sync\s*$", content)
+
+
+def test_data_commit_rebases_before_push() -> None:
+    content = WORKFLOW.read_text()
+    assert re.search(r"git commit[^\n]*\n\s*git pull --rebase[^\n]*\n\s*git push", content)
