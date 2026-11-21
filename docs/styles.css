@@ -188,4 +188,4 @@ dialog.opp::backdrop { background: oklch(0.2 0.02 283 / 0.6); }
 .update-notice button:focus-visible { outline: 3px solid var(--on-brand); outline-offset: 2px; }
 .update-notice button:disabled { opacity: 0.75; cursor: progress; }
 /* keep the last content reachable above the fixed notice */
-body:has(.update-notice:not([hidden])) .wrap { padding-bottom: 11rem; }
+body:has(.update-notice:not([hidden])) main.wrap { padding-bottom: 11rem; }
