@@ -51,3 +51,25 @@ test("games awarded at the table are listed beside played ones without skewing s
   assert.match(html, /Set vinti e persi<\/dt><dd>0 vinti, 9 persi \(0%\)/);
   assert.match(html, /1 gara decisa a tavolino/);
 });
+
+test("strip: record, sets and the form letters (V or P as text, not only a colour) lead the section", () => {
+  const html = renderAnalysis(girone);
+  assert.match(html, /<div class="strip"><span><b class="n">0-3<\/b> vinte e perse<\/span><span><b class="n">0-9<\/b> set<\/span>/);
+  assert.equal(html.split('class="f lost">P<').length - 1, 3);
+  assert.equal(html.split('class="f won">V<').length - 1, 0);
+  assert.match(html, /aria-label="Forma delle ultime partite/);
+});
+
+test("strip: the full analysis sits in a details element titled «Analisi completa»", () => {
+  const html = renderAnalysis(girone);
+  assert.match(html, /<details><summary>Analisi completa \(punti per set, quinto set, rimonte\)<\/summary><dl class="analysis">/);
+  assert.equal(html.indexOf("<details"), html.lastIndexOf("<details"));
+});
+
+test("strip: a won game counts on the winning side and the sets span is left out when no set was played", () => {
+  const data = structuredClone(girone);
+  data.games = [{ ...data.games[0], home_id: "232645", played: true, sets: [], sets_won: [3, 0] }];
+  const html = renderAnalysis(data);
+  assert.match(html, /<b class="n">1-0<\/b> vinte e perse/);
+  assert.equal(html.includes("> set<"), false);
+});

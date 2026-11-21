@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { renderNotices } from "../../docs/notices-view.js";
+import { NEW_NOTICE_DAYS, isNewNotice, newNoticesCount, noticeBadgeHtml, renderNotices } from "../../docs/notices-view.js";
 
 const NOTICES = [
   { id: "1", title: "Indizione <b>Seconda</b> Divisione", url: "https://fipavcagliari.it/indizione-2027/", date: "2026-09-05", kind: "indizione" },
@@ -28,8 +28,8 @@ test("notices: titles are escaped", () => {
 test("notices: empty list gives an explicit state with a link to the committee site", () => {
   for (const data of [{ notices: [] }, {}]) {
     const html = renderNotices(data);
-    assert.match(html, /Nessuna notizia del Comitato FIPAV Cagliari sulla Seconda Divisione per ora\./);
-    assert.match(html, /href="https:\/\/fipavcagliari\.it"/);
+    assert.match(html, /<p class="note">Ancora nessuna notizia sulla Seconda Divisione\. <a href="https:\/\/fipavcagliari\.it" target="_blank" rel="noopener">Sito del Comitato FIPAV Cagliari<span class="sr-only"> \(si apre in una nuova scheda\)<\/span><\/a><\/p>/);
+    assert.equal(html.includes("<strong"), false);
     assert.equal(html.includes("<li"), false);
   }
 });
@@ -45,4 +45,36 @@ test("notices: an unknown or missing kind shows no tag, a known kind shows one",
   assert.match(html, /<time datetime="2026-09-07">7 settembre 2026<\/time> <span class="tag">Indizione<\/span>/);
   assert.match(html, /<time datetime="2026-09-05">5 settembre 2026<\/time><\/p>/);
   assert.match(html, /<time datetime="2026-09-06">6 settembre 2026<\/time><\/p>/);
+});
+
+const NOW = new Date("2026-11-21T10:00:00Z");
+
+test("isNewNotice: dated within the last 7 days of now, by calendar day, never in the future", () => {
+  assert.equal(NEW_NOTICE_DAYS, 7);
+  assert.equal(isNewNotice({ date: "2026-11-21" }, NOW), true);
+  assert.equal(isNewNotice({ date: "2026-11-14" }, NOW), true);
+  assert.equal(isNewNotice({ date: "2026-11-13" }, NOW), false);
+  assert.equal(isNewNotice({ date: "2026-11-22" }, NOW), false);
+  assert.equal(isNewNotice({ date: "2026-11-21" }, new Date("2026-11-28T10:00:00Z")), true);
+  assert.equal(isNewNotice({ date: "2026-11-21" }, new Date("2026-11-29T10:00:00Z")), false);
+});
+
+test("renderNotices: «Nuova» badge only on the recent notice", () => {
+  const html = renderNotices({ notices: [
+    { id: "1", title: "Vecchia", url: "https://fipavcagliari.it/a/", date: "2026-09-05", kind: "indizione" },
+    { id: "2", title: "Recente", url: "https://fipavcagliari.it/b/", date: "2026-11-19", kind: "seconda-divisione" },
+  ] }, NOW);
+  assert.equal(html.split('<span class="tag newb">Nuova</span>').length - 1, 1);
+  assert.match(html.split("<li")[2], /newb/);
+  assert.doesNotMatch(html.split("<li")[1], /newb/);
+  assert.equal(renderNotices({ notices: NOTICES }, NOW).includes("newb"), false);
+});
+
+test("newNoticesCount and noticeBadgeHtml: the count, and a badge a screen reader reads as «, 1 nuova»", () => {
+  const data = { notices: [{ date: "2026-11-20" }, { date: "2026-11-21" }, { date: "2026-01-01" }] };
+  assert.equal(newNoticesCount(data, NOW), 2);
+  assert.equal(newNoticesCount({}, NOW), 0);
+  assert.equal(noticeBadgeHtml(0), "");
+  assert.equal(noticeBadgeHtml(1), '<span class="sr-only">, </span><span aria-hidden="true">1</span><span class="sr-only">1 nuova</span>');
+  assert.match(noticeBadgeHtml(3), /3 nuove/);
 });

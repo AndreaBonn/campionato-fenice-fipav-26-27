@@ -4,10 +4,10 @@ import { tableFromGames } from "./standings-rules.js";
 import { displayTeamName, teamInitials } from "./view-rules.js";
 import { esc } from "./games-view.js";
 import { decidedFacts, positionRanges } from "./standings-math.js";
+import { howToRead, lastFive, preseasonNote } from "./standings-notes.js";
 
 const CREST_SIZE = 24;
 const NO_VALUE = "-";
-const TIE_BREAK_LABELS = { wins: "vittorie", set_ratio: "quoziente set", point_ratio: "quoziente punti" };
 
 const ratioText = (v) => (Number.isFinite(v) ? v.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : NO_VALUE);
 
@@ -36,8 +36,8 @@ export function installCrestFallback(root) {
 function teamCell(team, isMe) {
   const crest = team.logo_url ? `<img src="${esc(team.logo_url)}" alt="" data-crest-name="${esc(team.name)}" loading="lazy" width="${CREST_SIZE}" height="${CREST_SIZE}">` : crestFallbackHtml(team.name);
   const name = esc(displayTeamName(team.name));
-  const label = isMe ? `${name}<span class="sr-only"> (la tua squadra)</span>` : `<button type="button" class="team" data-opponent="${esc(team.id)}">${name}</button>`;
-  return `<td class="name">${crest}${label}</td>`;
+  const label = isMe ? `<span>${name}<span class="sr-only"> (la tua squadra)</span></span>` : `<button type="button" class="team" data-opponent="${esc(team.id)}">${name}</button>`;
+  return `<td class="name"><span class="nm">${crest}${label}</span></td>`;
 }
 
 // "1°-3°", or "2°" when the position is settled
@@ -61,21 +61,35 @@ function decidedBlock(ranges, formula, byId) {
   return items.length ? `<div class="decided"><h3>Già deciso</h3><ul>${items.join("")}</ul></div>` : "";
 }
 
+const FORM_LETTERS = { won: "V", lost: "P" };
+
+// Last five games of the row's team as coloured V/P letters, oldest first; a dash when it has not played
+function formCell(teamId, games) {
+  const letters = lastFive(games, teamId).map((o) => `<span class="l5 ${o}">${FORM_LETTERS[o]}</span>`);
+  return `<td class="c-x">${letters.length ? letters.join("") : NO_VALUE}</td>`;
+}
+
 function rowHtml(row, team, ctx) {
   const isMe = row.team_id === ctx.meId;
   const classes = [isMe ? "me" : "", zoneClass(ctx.formula, row.pos, ctx.total)].filter(Boolean);
   const cls = classes.length ? ` class="${classes.join(" ")}"` : "";
+  const possible = ctx.ranges ? `<td class="c-x">${rangeText(ctx.ranges.get(row.team_id))}</td>` : "";
   return `<tr${cls}>` +
-    `<td>${esc(row.pos)}</td>${teamCell(team, isMe)}<td>${esc(row.played)}</td><td><b>${esc(row.points)}</b></td>` +
-    `<td>${esc(row.won)}</td><td>${esc(row.lost)}</td><td>${esc(row.sets_won)}-${esc(row.sets_lost)}</td>` +
-    `<td>${ratioText(row.set_ratio)}</td><td>${ratioText(row.point_ratio)}</td>${ctx.ranges ? `<td>${rangeText(ctx.ranges.get(row.team_id))}</td>` : ""}</tr>`;
+    `<td>${esc(row.pos)}</td>${teamCell(team, isMe)}<td><b>${esc(row.points)}</b></td><td>${esc(row.played)}</td>` +
+    `<td>${esc(row.won)}</td><td>${esc(row.lost)}</td><td class="c-x">${esc(row.sets_won)}-${esc(row.sets_lost)}</td>` +
+    `<td class="c-x">${ratioText(row.set_ratio)}</td><td class="c-x">${ratioText(row.point_ratio)}</td>${possible}${formCell(row.team_id, ctx.games)}</tr>`;
 }
 
-const POSSIBLE_HEAD = '<th scope="col">Poss.</th>';
-const HEAD = '<th scope="col">Pos</th><th scope="col">Squadra</th><th scope="col">G</th><th scope="col">Pt</th><th scope="col">V</th><th scope="col">P</th>' +
-  '<th scope="col">Set</th><th scope="col">Q. set</th><th scope="col">Q. punti</th>';
+const EXTRA_HEAD = (label) => `<th scope="col" class="c-x">${label}</th>`;
+const HEAD = ["Pos", "Squadra", "Pt", "G", "V", "P"].map((l) => `<th scope="col">${l}</th>`).join("") +
+  ["Set", "Q. set", "Q. punti"].map(EXTRA_HEAD).join("");
 
-const tieBreakNote = (tb) => (tb.provisional ? `<p class="note">Criterio di parità provvisorio: ${tb.criteria.map((c) => TIE_BREAK_LABELS[c] ?? c).join(", ")}</p>` : "");
+// "Come leggere la classifica", closed by default; the tie-break sentence closes it
+function howToHtml(data, showPossible) {
+  const { items, tieBreak } = howToRead({ tieBreak: data.tie_break, showPossible });
+  const terms = items.map((i) => `<dt>${esc(i.term)}</dt><dd>${esc(i.text)}</dd>`).join("");
+  return `<details class="howto"><summary>Come leggere la classifica</summary><dl>${terms}</dl><p class="note">${esc(tieBreak)}</p></details>`;
+}
 
 export function renderStandings(data) {
   const table = data.standings.length ? data.standings : tableFromGames(data.games, data.teams);
@@ -83,8 +97,12 @@ export function renderStandings(data) {
   const byId = new Map(data.teams.map((t) => [t.id, t]));
   const allRanges = positionRanges(data);
   const ranges = hasNarrowRange(allRanges) ? allRanges : null;
-  const ctx = { meId: feniceTeamId(data), formula: data.formula, total: table.length, ranges };
+  const ctx = { meId: feniceTeamId(data), formula: data.formula, total: table.length, ranges, games: data.games };
   const body = table.filter((r) => byId.has(r.team_id)).map((r) => rowHtml(r, byId.get(r.team_id), ctx)).join("");
-  return `<div class="table-wrap" role="region" aria-label="Classifica, scorri in orizzontale per vedere tutte le colonne" tabindex="0">` +
-    `<table class="standings"><caption class="sr-only">Classifica del girone</caption><thead><tr>${HEAD}${ranges ? POSSIBLE_HEAD : ""}</tr></thead><tbody>${body}</tbody></table></div>${ranges ? decidedBlock(ranges, data.formula, byId) : ""}${tieBreakNote(data.tie_break)}`;
+  const pre = preseasonNote(table, data.games);
+  const intro = `${pre ? `<p class="preseason">${esc(pre)}</p>` : ""}<p class="note tap-hint">Tocca una squadra per vedere la sua scheda.</p>`;
+  const head = `${HEAD}${ranges ? EXTRA_HEAD("Poss.") : ""}${EXTRA_HEAD("Ultime 5")}`;
+  return `${intro}<div class="table-wrap" role="region" aria-label="Classifica del girone" tabindex="0">` +
+    `<table class="standings"><caption class="sr-only">Classifica del girone</caption><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>` +
+    `${ranges ? decidedBlock(ranges, data.formula, byId) : ""}${howToHtml(data, ranges !== null)}`;
 }

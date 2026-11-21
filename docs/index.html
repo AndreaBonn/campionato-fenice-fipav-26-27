@@ -26,17 +26,29 @@
   <div class="wrap brand">
     <img src="logo-fenice.png" width="48" height="48" alt="Stemma dell'ASD Fenice">
     <div>
-      <h1>Asd Fenice</h1>
-      <p>Seconda Divisione Femminile 2026/27, Girone A</p>
+      <h1>ASD Fenice</h1>
+      <p>Pallavolo · Seconda Divisione Femminile 2026/27 · FIPAV Cagliari, Girone A</p>
+      <p class="fresh" id="checked" hidden></p>
     </div>
   </div>
 </header>
+<nav class="secnav" data-section-nav aria-label="Sezioni della pagina"><ul>
+  <li><a href="#next">Partita</a></li>
+  <li><a href="#standings">Classifica</a></li>
+  <li><a href="#calendar">Calendario</a></li>
+  <li><a href="#notices">Notizie<span class="cnt" id="nav-notices-count" hidden></span></a></li>
+</ul></nav>
 <main class="wrap">
-  <section id="next" class="hero" aria-labelledby="next-title" hidden>
+  <section id="next" class="hero nextg" aria-labelledby="next-title" hidden>
     <h2 id="next-title" class="sr-only">Prossima partita</h2>
     <div id="next-body"></div>
+    <p class="share-status" id="share-status" role="status"></p>
   </section>
-  <section id="last" class="hero last" aria-labelledby="last-title" hidden>
+  <div class="install" id="install-hint" hidden>
+    <p><b>Tienila sul telefono.</b> <span id="install-how">Aggiungi la pagina alla schermata Home: si apre come un'app, anche senza rete.</span></p>
+    <div class="install-acts"><button type="button" class="ab" id="install-go">Installa</button><button type="button" class="ab link" id="install-no">No, grazie</button></div>
+  </div>
+  <section id="last" aria-labelledby="last-title" hidden>
     <h2 id="last-title" class="sr-only">Ultimo risultato</h2>
     <div id="last-body"></div>
   </section>
@@ -45,7 +57,7 @@
     <div id="standings-body"></div>
   </section>
   <section id="analysis" aria-labelledby="analysis-title" hidden>
-    <h2 id="analysis-title">Analisi della Fenice</h2>
+    <h2 id="analysis-title">Andamento</h2>
     <div id="analysis-body"></div>
   </section>
   <section id="calendar" aria-labelledby="calendar-title">
@@ -62,7 +74,6 @@
 <footer class="site">
   <div class="wrap">
     <p>Fonte: <a href="https://www.fipavonline.it" target="_blank" rel="noopener">FIPAV Online</a>. Sito non ufficiale.</p>
-    <p id="checked" hidden></p>
   </div>
 </footer>
 <dialog id="opponent" class="opp" aria-labelledby="opp-title"><div id="opp-body"></div></dialog>
@@ -71,5 +82,7 @@ import { startApp } from "./app.js";
 startApp({ doc: document, fetch: (url, init) => fetch(url, init), protocol: location.protocol });
 </script>
 <script type="module" src="update.js"></script>
+<script type="module" src="install.js"></script>
+<script type="module" src="nav.js"></script>
 </body>
 </html>

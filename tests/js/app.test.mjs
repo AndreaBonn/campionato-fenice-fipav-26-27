@@ -8,7 +8,7 @@ const SAMPLE = JSON.parse(readFileSync(new URL("./../fixtures/data-sample.json",
 const GIRONE = JSON.parse(readFileSync(new URL("./../fixtures/data-64353.json", import.meta.url), "utf8"));
 const NOW = new Date("2026-11-21T12:00:00+01:00");
 const CHECKED_AT = "2026-11-21T10:00:00+00:00";
-const IDS = ["next", "next-body", "last", "last-body", "standings", "standings-body", "analysis", "analysis-body", "list", "feed", "notices-body", "checked", "opponent", "opp-body"];
+const IDS = ["next", "next-body", "last", "last-body", "standings", "standings-body", "analysis", "analysis-body", "list", "feed", "notices-body", "checked", "opponent", "opp-body", "nav-notices-count"];
 
 // The page's elements, as plain objects keyed by id.
 function fakePage() {
@@ -67,7 +67,7 @@ test("populated: sections are filled and shown, busy flag cleared", async () => 
   assert.match(page.els["next-body"].innerHTML, /\S/);
   assert.equal(page.els.standings.hidden, false);
   assert.match(page.els["standings-body"].innerHTML, /<table/);
-  assert.match(page.els.list.innerHTML, /Giornata/);
+  assert.match(page.els.list.innerHTML, /giornata di andata/);
   assert.equal(page.els.list.attrs["aria-busy"], "false");
   assert.equal(app.data, SAMPLE);
 });
@@ -183,7 +183,7 @@ test("status.json: the last check line is shown when the file exists", async () 
   await loadStatus(app);
 
   assert.equal(page.els.checked.hidden, false);
-  assert.match(page.els.checked.textContent, /Ultimo controllo su FIPAV Online/);
+  assert.match(page.els.checked.textContent, /Dati FIPAV controllati/);
 });
 
 test("status.json missing or unreachable: the line stays hidden and the load goes on", async () => {
@@ -215,7 +215,7 @@ test("startApp: a click on the retry button reloads, a click elsewhere does not"
     page.doc.listeners.click({ target: { closest: (sel) => (sel === "#retry" ? {} : null) } });
     await new Promise((resolve) => setImmediate(resolve));
     assert.equal(calls, 2);
-    assert.match(page.els.list.innerHTML, /Giornata/);
+    assert.match(page.els.list.innerHTML, /giornata di andata/);
   } finally {
     mock.timers.reset();
   }
@@ -234,7 +234,7 @@ test("load with a valid status.json: the last check line becomes visible", async
   await settle();
 
   assert.equal(page.els.checked.hidden, false);
-  assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 1 ora fa");
+  assert.equal(page.els.checked.textContent, "Dati FIPAV controllati 1 ora fa");
 });
 
 test("load requests data.json and status.json revalidated, never from the HTTP cache", async () => {
@@ -318,12 +318,12 @@ test("startApp: every clock tick refreshes the age shown in the last check line"
     const fetch = router({ "data.json": () => respond(SAMPLE), "status.json": statusOk });
     await startApp({ doc: page.doc, fetch, now: () => clock.now, protocol: "https:" });
     await settle();
-    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 1 ora fa");
+    assert.equal(page.els.checked.textContent, "Dati FIPAV controllati 1 ora fa");
 
     clock.now = new Date(NOW.getTime() + 3 * 3600e3);
     mock.timers.tick(CLOCK_TICK_MS);
 
-    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 4 ore fa");
+    assert.equal(page.els.checked.textContent, "Dati FIPAV controllati 4 ore fa");
   } finally {
     mock.timers.reset();
   }
@@ -354,7 +354,7 @@ test("startApp without a now function reads the system clock", async () => {
     await startApp({ doc: page.doc, fetch, protocol: "https:" });
     await settle();
 
-    assert.equal(page.els.checked.textContent, "Ultimo controllo su FIPAV Online: 30 minuti fa");
+    assert.equal(page.els.checked.textContent, "Dati FIPAV controllati 30 minuti fa");
   } finally {
     mock.timers.reset();
   }
@@ -526,7 +526,7 @@ test("a background refresh after a failed load replaces the error with the data"
   app.fetch = router({ "data.json": () => respond(SAMPLE) });
   await refresh(app);
 
-  assert.match(page.els.list.innerHTML, /Giornata/);
+  assert.match(page.els.list.innerHTML, /giornata di andata/);
   assert.equal(page.els.next.hidden, false);
 });
 
@@ -563,6 +563,175 @@ test("a clock tick during a slow first load does not start a refresh that would 
     await started;
     assert.match(page.els.list.innerHTML, /Riprova/);
     assert.equal(page.els.list.attrs["aria-busy"], "false");
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("startApp: a click on [data-share] in the next game box shares the loaded next game, a click elsewhere does not", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    page.els["share-status"] = { textContent: "" };
+    const clicks = [];
+    page.els["next-body"].addEventListener = (type, fn) => type === "click" && clicks.push(fn);
+    const shared = [];
+    const nav = { share: async (p) => shared.push(p) };
+    await startApp({ doc: page.doc, fetch: router({ "data.json": () => respond(SAMPLE) }), now: () => NOW, protocol: "https:", nav, pageUrl: () => "https://example.org/f/" });
+    clicks.forEach((fn) => fn({ target: { closest: () => null } }));
+    assert.equal(shared.length, 0);
+    clicks.forEach((fn) => fn({ target: { closest: (sel) => (sel === "[data-share]" ? {} : null) } }));
+    await Promise.resolve();
+    assert.equal(shared.length, 1);
+    assert.equal(shared[0].url, "https://example.org/f/");
+    assert.match(shared[0].title, /^ASD Fenice - /);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+// UX K-a: the schedule filters live in app.filter, a click redraws the list and keeps the focus on the choice
+// closest() answers like the DOM: the delegated listener asks for either kind, chooseFilter asks if it is the reset one
+const FILTER_OR_RESET = "[data-filter], [data-filter-reset]";
+const button = (filter, value) => {
+  const el = { dataset: { filter, value }, closest: (sel) => (sel === FILTER_OR_RESET ? el : null) };
+  return el;
+};
+const resetButton = { dataset: {}, closest: () => resetButton };
+const rows = (html) => html.split('<li class="game').length - 1;
+
+async function startFiltered(data = GIRONE) {
+  const page = fakePage();
+  const focused = [];
+  page.els.list.querySelector = (selector) => ({ focus: () => focused.push(selector) });
+  await startApp({ doc: page.doc, fetch: router({ "data.json": () => respond(data) }), now: () => NOW, protocol: "https:" });
+  return { page, focused };
+}
+
+test("filters: the list starts on Prossime and Casa e trasferta, nothing persisted", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const { page } = await startFiltered();
+    assert.match(page.els.list.innerHTML, /data-value="next" aria-pressed="true"/);
+    assert.match(page.els.list.innerHTML, /data-value="all" aria-pressed="true">Casa e trasferta/);
+    assert.equal(page.els.list.innerHTML.includes('class="verdict'), false);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("filters: a click on Giocate shows the played games and puts the focus on that button; Trasferta narrows it", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const { page, focused } = await startFiltered();
+    const click = page.els.list.listeners.click;
+    click({ target: button("when", "played") });
+    const played = rows(page.els.list.innerHTML);
+    assert.equal(played, GIRONE.games.filter((g) => g.played && [g.home_id, g.away_id].includes("232645")).length);
+    assert.match(page.els.list.innerHTML, /data-value="played" aria-pressed="true"/);
+    assert.deepEqual(focused, ['[data-filter="when"][data-value="played"]']);
+    click({ target: button("side", "away") });
+    assert.ok(rows(page.els.list.innerHTML) < played);
+    assert.match(page.els.list.innerHTML, /data-filter="when" data-value="played" aria-pressed="true"/); // the other group is kept
+    assert.equal(focused.at(-1), '[data-filter="side"][data-value="away"]');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("filters: «Mostra tutte» resets both groups to Tutte and Casa e trasferta and focuses «Tutte»", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const noneYet = { ...GIRONE, games: GIRONE.games.map((g) => ({ ...g, played: false, sets_won: null, sets: [] })) };
+    const { page, focused } = await startFiltered(noneYet);
+    const click = page.els.list.listeners.click;
+    click({ target: button("when", "played") });
+    assert.match(page.els.list.innerHTML, /Nessuna partita giocata finora\./);
+    click({ target: resetButton });
+    assert.match(page.els.list.innerHTML, /data-value="all" aria-pressed="true">Tutte/);
+    assert.match(page.els.list.innerHTML, /data-value="all" aria-pressed="true">Casa e trasferta/);
+    assert.equal(rows(page.els.list.innerHTML), noneYet.games.filter((g) => [g.home_id, g.away_id].includes("232645")).length);
+    assert.equal(focused.at(-1), '[data-filter="when"][data-value="all"]');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("filters: a click that is not on a filter button, or a value outside the options, changes nothing", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const { page, focused } = await startFiltered();
+    const before = page.els.list.innerHTML;
+    page.els.list.listeners.click({ target: { closest: () => null } });
+    page.els.list.listeners.click({ target: button("when", "nope") });
+    assert.equal(page.els.list.innerHTML, before);
+    assert.equal(focused.length, 1); // the bad value still redraws and refocuses, but with the filter unchanged
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("filters: a clock tick keeps the chosen filter", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const { page } = await startFiltered();
+    page.els.list.listeners.click({ target: button("when", "played") });
+    const chosen = page.els.list.innerHTML;
+    mock.timers.tick(CLOCK_TICK_MS);
+    assert.equal(page.els.list.innerHTML, chosen);
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test("buildViews: the filter given reaches the schedule view", () => {
+  assert.match(buildViews(GIRONE, NOW, { when: "played", side: "home" }).list, /data-value="played" aria-pressed="true"/);
+});
+
+test("applyViews: the nav badge shows the number of new notices, hidden at 0", () => {
+  const page = fakePage();
+  const views = { hero: "", list: "", standings: "", last: "", feed: "", analysis: "", notices: "", navBadge: "" };
+
+  applyViews(page.$, views);
+  assert.equal(page.els["nav-notices-count"].hidden, true);
+
+  const withNew = { ...views, navBadge: '<span aria-hidden="true">2</span>' };
+  applyViews(page.$, withNew, views);
+  assert.equal(page.els["nav-notices-count"].hidden, false);
+  assert.equal(page.els["nav-notices-count"].innerHTML, withNew.navBadge);
+
+  applyViews(page.$, views, withNew);
+  assert.equal(page.els["nav-notices-count"].hidden, true);
+});
+
+test("buildViews: a notice dated today gives the nav badge and the Nuova tag; none gives neither", () => {
+  const today = { ...GIRONE, notices: [{ id: "n", title: "Oggi", url: "https://fipavcagliari.it/x/", date: "2026-11-21", kind: "indizione" }] };
+  const v = buildViews(today, NOW);
+  assert.match(v.navBadge, /1 nuova/);
+  assert.match(v.notices, /Nuova/);
+  const none = buildViews({ ...GIRONE, notices: [] }, NOW);
+  assert.equal(none.navBadge, "");
+});
+
+test("clock tick: a focused filter button is focused again after the list is rewritten", async () => {
+  mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  try {
+    const page = fakePage();
+    const focused = [];
+    page.els.list.querySelector = (selector) => ({ focus: () => focused.push(selector) });
+    const clock = { now: new Date("2026-11-21T16:58:00+01:00") };
+    await startApp({ doc: page.doc, fetch: router({ "data.json": () => respond(SAMPLE) }), now: () => clock.now, protocol: "https:" });
+    const active = { dataset: { filter: "side", value: "home" }, closest: (sel) => (sel === "#list" ? page.els.list : null) };
+    page.doc.activeElement = active;
+    clock.now = new Date("2026-11-21T17:05:00+01:00");
+    mock.timers.tick(CLOCK_TICK_MS);
+    assert.match(page.els.list.innerHTML, /<span class="pending">In corso<\/span>/);
+    assert.deepEqual(focused, ['[data-filter="side"][data-value="home"]']);
+    // focus elsewhere (a link, the body): nothing is moved
+    page.doc.activeElement = { dataset: {}, closest: () => null };
+    clock.now = new Date("2026-11-21T20:30:00+01:00");
+    mock.timers.tick(CLOCK_TICK_MS);
+    assert.equal(focused.length, 1);
   } finally {
     mock.timers.reset();
   }

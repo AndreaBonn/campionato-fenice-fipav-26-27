@@ -4,20 +4,39 @@ import { TIME_ZONE } from "./view-rules.js";
 
 const COMMITTEE_URL = "https://fipavcagliari.it";
 const KIND_LABELS = { indizione: "Indizione", "seconda-divisione": "Seconda Divisione" };
-const EMPTY_TEXT = "Nessuna notizia del Comitato FIPAV Cagliari sulla Seconda Divisione per ora.";
+export const NEW_NOTICE_DAYS = 7;
+const DAY_MS = 24 * 60 * 60e3;
 
 const dateText = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric", timeZone: TIME_ZONE });
 
-function noticeHtml(n) {
+// Calendar day of an instant in the club's time zone, "2026-11-21"
+const dayOf = (date) => date.toLocaleDateString("en-CA", { timeZone: TIME_ZONE });
+
+// A notice dated within the last NEW_NOTICE_DAYS days of now, by calendar day; a future date is not new
+export function isNewNotice(notice, now) {
+  const age = (Date.parse(dayOf(now)) - Date.parse(notice.date)) / DAY_MS;
+  return age >= 0 && age <= NEW_NOTICE_DAYS;
+}
+
+export const newNoticesCount = (data, now) => (data.notices ?? []).filter((n) => isNewNotice(n, now)).length;
+
+// Content of the nav badge: the number for the eye, "1 nuova" for a screen reader after the link text "Notizie"
+export function noticeBadgeHtml(count) {
+  if (!count) return "";
+  return `<span class="sr-only">, </span><span aria-hidden="true">${count}</span><span class="sr-only">${count} ${count === 1 ? "nuova" : "nuove"}</span>`;
+}
+
+function noticeHtml(n, now) {
   const kind = KIND_LABELS[n.kind] ?? "";
-  return `<li class="notice"><p class="meta"><time datetime="${esc(n.date)}">${esc(dateText(n.date))}</time>${kind ? ` <span class="tag">${esc(kind)}</span>` : ""}</p>
+  const fresh = isNewNotice(n, now) ? ' <span class="tag newb">Nuova</span>' : "";
+  return `<li class="notice"><p class="meta"><time datetime="${esc(n.date)}">${esc(dateText(n.date))}</time>${kind ? ` <span class="tag">${esc(kind)}</span>` : ""}${fresh}</p>
 <p class="opp"><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}<span class="sr-only"> (si apre in una nuova scheda)</span></a></p></li>`;
 }
 
-export function renderNotices(data) {
+export function renderNotices(data, now = new Date()) {
   const notices = data.notices ?? [];
   if (!notices.length) {
-    return `<p class="state"><strong>${esc(EMPTY_TEXT)}</strong><a href="${COMMITTEE_URL}" target="_blank" rel="noopener">Vai al sito del Comitato<span class="sr-only"> (si apre in una nuova scheda)</span></a></p>`;
+    return `<p class="note">Ancora nessuna notizia sulla Seconda Divisione. <a href="${COMMITTEE_URL}" target="_blank" rel="noopener">Sito del Comitato FIPAV Cagliari<span class="sr-only"> (si apre in una nuova scheda)</span></a></p>`;
   }
-  return `<ul class="notices">${notices.map(noticeHtml).join("")}</ul>`;
+  return `<ul class="notices">${notices.map((n) => noticeHtml(n, now)).join("")}</ul>`;
 }

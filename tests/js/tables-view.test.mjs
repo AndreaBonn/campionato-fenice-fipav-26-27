@@ -33,9 +33,10 @@ test("opponent names are buttons carrying data-opponent with the team id, never 
   assert.equal(count(html, "<a "), 0);
 });
 
-test("shows the provisional tie-break note and no zone class while the formula is unpublished", () => {
+test("shows the provisional tie-break inside the how-to, and no zone class while the formula is unpublished", () => {
   const html = renderStandings(girone);
-  assert.match(html, /Criterio di parità provvisorio: vittorie, quoziente set, quoziente punti/);
+  assert.match(html, /A parità di punti si guarda, nell(?:'|&#39;)ordine: vittorie, quoziente set, quoziente punti\. Criterio provvisorio finché il Comitato non pubblica l(?:'|&#39;)indizione\./);
+  assert.equal(count(html, "Criterio di parità provvisorio"), 0);
   assert.equal(count(html, "zone-"), 0);
 });
 
@@ -54,7 +55,7 @@ test("escapes team names and shows an empty ratio as a dash", () => {
   const html = renderStandings(data);
   assert.equal(count(html, "<b>X"), 0);
   assert.match(html, /&lt;b&gt;/);
-  assert.match(rows(html)[0], /<td>-<\/td><td>-<\/td>/);
+  assert.match(rows(html)[0], /<td class="c-x">-<\/td><td class="c-x">-<\/td>/);
 });
 
 test("falls back to the table computed from the games when the file has no standings", () => {
@@ -112,8 +113,8 @@ test("shows no possible-position column nor decided block at the start of the se
 
 test("shows the possible-position column and the decided block once positions are settled", () => {
   const html = renderStandings(decidedSeason());
-  assert.match(html, /<th scope="col">Poss\.<\/th>/);
-  assert.match(html, /<td>1°<\/td>/);
+  assert.match(html, /<th scope="col" class="c-x">Poss\.<\/th>/);
+  assert.match(html, /<td class="c-x">1°<\/td>/);
   assert.match(html, /Già deciso/);
   assert.match(html, /1° posto/);
 });
@@ -166,19 +167,106 @@ test("a narrow open range shows the column without a decided block", () => {
   const [a, b, c] = data.standings.map((row) => row.team_id);
   data.games = [{ home_id: b, away_id: c, played: false }];
   const html = renderStandings(data);
-  assert.match(html, /<th scope="col">Poss\.<\/th>/);
-  assert.match(rows(html)[0], /<td>1°-2°<\/td>/);
+  assert.match(html, /<th scope="col" class="c-x">Poss\.<\/th>/);
+  assert.match(rows(html)[0], /<td class="c-x">1°-2°<\/td>/);
   assert.doesNotMatch(html, /Già deciso/);
   assert.match(renderStandings(decidedSeason()), /Già deciso/);
 });
 
-test("a non-provisional tie break hides the note", () => {
+test("a non-provisional tie break drops the provisional sentence from the how-to", () => {
   const data = { ...girone, tie_break: { ...girone.tie_break, provisional: false } };
-  assert.doesNotMatch(renderStandings(data), /Criterio di parità provvisorio/);
-  assert.match(renderStandings(girone), /Criterio di parità provvisorio/);
+  assert.doesNotMatch(renderStandings(data), /Criterio provvisorio/);
+  assert.match(renderStandings(data), /A parità di punti si guarda, nell(?:'|&#39;)ordine: vittorie, quoziente set, quoziente punti\./);
+  assert.match(renderStandings(girone), /Criterio provvisorio/);
 });
 
 test("an unknown tie-break criterion is displayed verbatim", () => {
   const data = { ...girone, tie_break: { provisional: true, criteria: ["wins", "custom_criterion"] } };
-  assert.match(renderStandings(data), /Criterio di parità provvisorio: vittorie, custom_criterion/);
+  assert.match(renderStandings(data), /nell(?:'|&#39;)ordine: vittorie, custom_criterion\./);
+});
+
+const heads = (html) => [...html.matchAll(/<th scope="col"[^>]*>([^<]+)<\/th>/g)].map((m) => m[1]);
+const cellsOf = (row) => [...row.matchAll(/<td[^>]*>/g)].length;
+
+test("C2: columns run Pos, Squadra, Pt, G, V, P, Set, Q. set, Q. punti, Ultime 5", () => {
+  assert.deepEqual(heads(renderStandings(girone)), ["Pos", "Squadra", "Pt", "G", "V", "P", "Set", "Q. set", "Q. punti", "Ultime 5"]);
+  assert.deepEqual(heads(renderStandings(decidedSeason())), ["Pos", "Squadra", "Pt", "G", "V", "P", "Set", "Q. set", "Q. punti", "Poss.", "Ultime 5"]);
+  const first = rows(renderStandings(girone))[0];
+  assert.match(first, /<td>1<\/td><td class="name">.*<\/td><td><b>8<\/b><\/td><td>3<\/td><td>3<\/td><td>0<\/td><td class="c-x">9-2<\/td>/);
+  for (const r of rows(renderStandings(girone))) assert.equal(cellsOf(r), 10);
+});
+
+test("C1: Set, quotients, Poss. and Ultime 5 carry c-x in head and cells; Pos, Squadra, Pt, G, V, P never do", () => {
+  for (const html of [renderStandings(girone), renderStandings(decidedSeason())]) {
+    const cx = [...html.matchAll(/<th scope="col" class="c-x">([^<]+)<\/th>/g)].map((m) => m[1]);
+    assert.ok(cx.includes("Set") && cx.includes("Q. set") && cx.includes("Q. punti") && cx.includes("Ultime 5"));
+    for (const plain of ["Pos", "Squadra", "Pt", "G", "V", "P"]) assert.ok(html.includes(`<th scope="col">${plain}</th>`), plain);
+    for (const r of rows(html)) assert.equal(count(r, 'class="c-x"'), cx.length);
+  }
+  assert.ok(renderStandings(decidedSeason()).includes('<th scope="col" class="c-x">Poss.</th>'));
+});
+
+test("C1: the region label no longer promises a sideways scroll", () => {
+  const html = renderStandings(girone);
+  assert.doesNotMatch(html, /scorri/);
+  assert.match(html, /role="region" aria-label="Classifica del girone"/);
+});
+
+test("C1: the crest stays inline beside the name, in the Fenice row as in the others", () => {
+  for (const r of rows(renderStandings(girone))) assert.match(r, /<td class="name"><span class="nm"><img [^>]*><(?:button|span)[^]*<\/span><\/td>/);
+});
+
+test("C4: a note above the table says the team names open the card", () => {
+  const html = renderStandings(girone);
+  const note = '<p class="note tap-hint">Tocca una squadra per vedere la sua scheda.</p>';
+  assert.ok(html.indexOf(note) !== -1 && html.indexOf(note) < html.indexOf('<div class="table-wrap"'));
+});
+
+test("C3: a closed details «Come leggere la classifica» under the table explains the terms and the Fenice row", () => {
+  const html = renderStandings(girone);
+  assert.match(html, /<details class="howto"><summary>Come leggere la classifica<\/summary>/);
+  assert.ok(html.indexOf("</table>") < html.indexOf('class="howto"'));
+  for (const term of ["Pt", "G, V, P", "Set", "Q. set", "Q. punti"]) assert.ok(html.includes(`<dt>${term}</dt>`), term);
+  assert.match(html, /3 per una vittoria 3-0 o 3-1, 2 per un 3-2, 1 per una sconfitta 2-3/);
+  assert.match(html, /la riga della Fenice è evidenziata/);
+  assert.doesNotMatch(html, /<details class="howto" open/);
+});
+
+test("C3: Poss. is explained only when its column is shown", () => {
+  assert.doesNotMatch(renderStandings(girone), /<dt>Poss\.<\/dt>/);
+  assert.match(renderStandings(decidedSeason()), /<dt>Poss\.<\/dt>/);
+});
+
+function preseason() {
+  const data = structuredClone(girone);
+  data.standings = data.standings.map((r) => ({ ...r, played: 0, points: 0, won: 0, lost: 0, sets_won: 0, sets_lost: 0 }));
+  data.games = data.games.map((g) => ({ ...g, played: false, sets_won: null, sets: [] }));
+  return data;
+}
+
+test("C5: while no team has played a tinted note names the first game day above the table", () => {
+  const data = preseason();
+  const first = data.games.map((g) => g.starts_at).sort()[0];
+  const day = new Date(first).toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Rome" });
+  const html = renderStandings(data);
+  assert.ok(html.includes(`<p class="preseason">Il campionato parte ${day}: finché nessuno ha giocato tutte le squadre hanno 0 punti e l&#39;ordine non è ancora una graduatoria.</p>`));
+  assert.ok(html.indexOf("preseason") < html.indexOf('<div class="table-wrap"'));
+});
+
+test("C5: no pre-season note once a team has played, and it appears once", () => {
+  assert.equal(count(renderStandings(girone), "preseason"), 0);
+  assert.equal(count(renderStandings(preseason()), "preseason"), 1);
+});
+
+test("C6: Ultime 5 shows coloured V/P letters per team in play-date order, a dash when none", () => {
+  const data = structuredClone(girone);
+  const id = data.standings[0].team_id;
+  const html = renderStandings(data);
+  const row = rows(html).find((r) => r.includes(`data-opponent="${id}"`));
+  const letters = [...row.matchAll(/<span class="l5 (won|lost)">([VP])<\/span>/g)];
+  assert.ok(letters.length > 0 && letters.length <= 5);
+  for (const [, kind, letter] of letters) assert.equal(letter, kind === "won" ? "V" : "P");
+  const empty = rows(renderStandings(preseason()))[0];
+  assert.match(empty, /<td class="c-x">-<\/td><\/tr>/);
+  assert.equal(count(empty, "l5"), 0);
 });

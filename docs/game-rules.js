@@ -51,14 +51,6 @@ export function scoreLabel(game, teamId) {
 // ["25-12", "25-19"] set by set from the team's perspective; empty for a forfeit or a game not played
 export const setScores = (game, teamId) => (game.played ? game.sets.map((s) => seenFrom(s, game, teamId).join("-")) : []);
 
-// "3-0 (25-12, 25-19, 25-18)"; the part in brackets is left out when there are no sets
-export function setsLabel(game, teamId) {
-  const score = scoreLabel(game, teamId);
-  if (score === null) return null;
-  const parts = setScores(game, teamId);
-  return parts.length ? `${score} (${parts.join(", ")})` : score;
-}
-
 // "won" | "lost" for a played game, null otherwise
 export function outcome(game, teamId) {
   if (!game.played || !game.sets_won) return null;

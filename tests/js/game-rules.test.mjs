@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { MATCH_WINDOW_MS, changeDetail, feniceGames, feniceTeamId, form, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setScores, setsLabel } from "../../docs/game-rules.js";
+import { MATCH_WINDOW_MS, changeDetail, feniceGames, feniceTeamId, form, gameStatus, isHome, lastPlayed, mapUrl, nextGame, outcome, refereesLabel, setScores } from "../../docs/game-rules.js";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 const sample = load("data-sample.json");
@@ -64,21 +64,6 @@ test("next game: started 4 h ago and still not updated, moves on to the followin
 test("next game: picks the earliest start even if the list is not in order", () => {
   const games = feniceGames(girone).slice(3).reverse();
   assert.equal(nextGame(games, new Date("2026-11-20T10:00:00Z")).number, "949");
-});
-
-test("sets label: home win from the home side", () => {
-  assert.equal(setsLabel(feniceGames(sample)[0], "232642"), "3-0 (25-12, 25-19, 25-18)");
-  assert.equal(setsLabel(feniceGames(sample)[1], "232642"), "3-2 (25-20, 20-25, 25-19, 22-25, 15-13)");
-});
-
-test("sets label: away team sees the score and every set flipped", () => {
-  const game = feniceGames(girone)[0]; // Fenice away, home won 3-0
-  assert.equal(setsLabel(game, "232645"), "0-3 (12-25, 19-25, 18-25)");
-  assert.equal(setsLabel(game, "232550"), "3-0 (25-12, 25-19, 25-18)");
-});
-
-test("sets label: null for a game not played", () => {
-  assert.equal(setsLabel(feniceGames(sample)[2], "232642"), null);
 });
 
 test("outcome: won, lost or null from the team's perspective", () => {

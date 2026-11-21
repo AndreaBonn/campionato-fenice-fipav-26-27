@@ -1,7 +1,7 @@
-// HTML of the "Analisi della Fenice" section as a string. No DOM access: everything comes in as arguments.
-import { feniceTeamId } from "./game-rules.js";
+// HTML of the "Andamento" section as a string: a strip with the record, the sets and the form, and the full analysis folded in. No DOM access: everything comes in as arguments.
+import { feniceGames, feniceTeamId, form, outcome, playedInOrder } from "./game-rules.js";
 import { averagePointsPerSet, comebacks, forfeitCount, setStats, streak, tieBreakRecord } from "./fenice-rules.js";
-import { esc } from "./games-view.js";
+import { esc, formListHtml } from "./games-view.js";
 
 const dec = (n) => n.toLocaleString("it-IT", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -25,6 +25,17 @@ function streakText(s) {
   return s.length > 1 ? `${noun} di fila` : noun;
 }
 
+const FORM_LABEL = "Forma delle ultime partite, dalla più vecchia alla più recente. V vinta, P persa";
+
+// Wins and losses, sets won and lost, the last results, and the full analysis folded under them
+function stripHtml(id, data, sets, details) {
+  const games = feniceGames(data), results = playedInOrder(games).map((g) => outcome(g, id));
+  const won = results.filter((o) => o === "won").length;
+  const setsSpan = sets.total ? `<span><b class="n">${sets.won}-${sets.lost}</b> set</span>` : "";
+  return `<div class="strip"><span><b class="n">${won}-${results.length - won}</b> vinte e perse</span>${setsSpan}<span class="recent">Ultime ${formListHtml(form(games, id), FORM_LABEL)}</span>
+<details><summary>Analisi completa (punti per set, quinto set, rimonte)</summary>${details}</details></div>`;
+}
+
 export function renderAnalysis(data) {
   const id = feniceTeamId(data), games = data.games;
   const sets = setStats(id, games), avg = averagePointsPerSet(id, games), s = streak(id, games);
@@ -39,5 +50,5 @@ export function renderAnalysis(data) {
   ];
   const forfeits = forfeitCount(id, games);
   if (forfeits) rows.push(row("Gare a tavolino", `${plural(forfeits, "gara decisa", "gare decise")} a tavolino`));
-  return `<dl class="analysis">${rows.join("")}</dl>`;
+  return stripHtml(id, data, sets, `<dl class="analysis">${rows.join("")}</dl>`);
 }
