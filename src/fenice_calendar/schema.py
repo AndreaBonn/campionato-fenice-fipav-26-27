@@ -216,6 +216,18 @@ def _game_consistency_errors(game: dict[str, Any], path: str) -> list[str]:
     return errors
 
 
+def _standings_errors(rows: list[Row], team_ids: set[str]) -> list[str]:
+    errors = []
+    if sorted(row["pos"] for row in rows) != list(range(1, len(rows) + 1)):
+        errors.append("standings: invalid positions")
+    for index, row in enumerate(rows):
+        if row["team_id"] not in team_ids:
+            errors.append(f"standings[{index}].team_id: unknown team")
+        if row["played"] != row["won"] + row["lost"]:
+            errors.append(f"standings[{index}].played: inconsistent results")
+    return errors
+
+
 def validate_data(data: object) -> list[str]:
     errors = _validate_type(data, Data, "")
     if errors:
@@ -230,6 +242,7 @@ def validate_data(data: object) -> list[str]:
         errors.append("games: duplicate id")
     if data["team_cod"] not in {team["cod"] for team in data["teams"]}:
         errors.append("team_cod: unknown team")
+    errors.extend(_standings_errors(data["standings"], team_ids))
     for index, game in enumerate(data["games"]):
         errors.extend(_game_errors(game, team_ids, f"games[{index}]"))
     return errors

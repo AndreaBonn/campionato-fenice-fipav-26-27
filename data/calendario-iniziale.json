@@ -1,0 +1,452 @@
+{
+  "13002244": {
+    "date": "2026-11-21",
+    "time": "17:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002243": {
+    "date": "2026-11-21",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002242": {
+    "date": "2026-11-23",
+    "time": "19:45",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002245": {
+    "date": "2026-11-25",
+    "time": "19:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002241": {
+    "date": "2026-12-01",
+    "time": "21:00",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002248": {
+    "date": "2026-11-28",
+    "time": "18:30",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002246": {
+    "date": "2026-11-29",
+    "time": "11:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002250": {
+    "date": "2026-11-29",
+    "time": "15:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002249": {
+    "date": "2026-11-29",
+    "time": "18:30",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002247": {
+    "date": "2026-11-29",
+    "time": "19:00",
+    "venue_raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002252": {
+    "date": "2026-12-04",
+    "time": "20:30",
+    "venue_raw": "PAL. CUS C - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002251": {
+    "date": "2026-12-04",
+    "time": "21:00",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002255": {
+    "date": "2026-12-05",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002254": {
+    "date": "2026-12-05",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002253": {
+    "date": "2026-12-06",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002257": {
+    "date": "2026-12-12",
+    "time": "17:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002259": {
+    "date": "2026-12-12",
+    "time": "19:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002260": {
+    "date": "2026-12-12",
+    "time": "19:00",
+    "venue_raw": "PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI"
+  },
+  "13002256": {
+    "date": "2026-12-13",
+    "time": "16:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002258": {
+    "date": "2026-12-14",
+    "time": "18:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002265": {
+    "date": "2026-12-19",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002264": {
+    "date": "2026-12-20",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002262": {
+    "date": "2026-12-20",
+    "time": "17:00",
+    "venue_raw": "PAL. CUS C - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002261": {
+    "date": "2026-12-20",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002263": {
+    "date": "2026-12-21",
+    "time": "18:30",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002269": {
+    "date": "2027-01-09",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002267": {
+    "date": "2027-01-09",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002266": {
+    "date": "2027-01-09",
+    "time": "20:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002270": {
+    "date": "2027-01-09",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002268": {
+    "date": "2027-01-10",
+    "time": "11:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002274": {
+    "date": "2027-01-08",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002275": {
+    "date": "2027-01-17",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002271": {
+    "date": "2027-01-17",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002272": {
+    "date": "2027-01-17",
+    "time": "19:00",
+    "venue_raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002273": {
+    "date": "2027-01-18",
+    "time": "18:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002278": {
+    "date": "2027-01-23",
+    "time": "16:30",
+    "venue_raw": "PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI"
+  },
+  "13002279": {
+    "date": "2027-01-23",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002277": {
+    "date": "2027-01-23",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002276": {
+    "date": "2027-01-24",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002280": {
+    "date": "2027-01-24",
+    "time": "18:00",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002281": {
+    "date": "2027-01-29",
+    "time": "21:00",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002284": {
+    "date": "2027-01-30",
+    "time": "17:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002282": {
+    "date": "2027-01-31",
+    "time": "19:00",
+    "venue_raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002285": {
+    "date": "2027-01-31",
+    "time": "19:30",
+    "venue_raw": "PALESTRA COMUNALE  - VIA ASPRONI - GONNESA"
+  },
+  "13002283": {
+    "date": "2027-02-01",
+    "time": "20:30",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002288": {
+    "date": "2027-02-13",
+    "time": "16:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002289": {
+    "date": "2027-02-13",
+    "time": "17:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002290": {
+    "date": "2027-02-13",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002286": {
+    "date": "2027-02-14",
+    "time": "19:00",
+    "venue_raw": "PAL. CUS C - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002287": {
+    "date": "2027-02-15",
+    "time": "18:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002292": {
+    "date": "2027-02-20",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002295": {
+    "date": "2027-02-20",
+    "time": "17:00",
+    "venue_raw": "PAL. I.P.S.S. PERTINI - VIA ANDREA VESALIO - CAGLIARI"
+  },
+  "13002294": {
+    "date": "2027-02-20",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002293": {
+    "date": "2027-02-21",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002291": {
+    "date": "2027-02-21",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002296": {
+    "date": "2027-02-27",
+    "time": "16:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002299": {
+    "date": "2027-02-27",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002300": {
+    "date": "2027-02-27",
+    "time": "17:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002298": {
+    "date": "2027-02-27",
+    "time": "19:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002297": {
+    "date": "2027-02-28",
+    "time": "11:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002303": {
+    "date": "2027-03-06",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002305": {
+    "date": "2027-03-06",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002304": {
+    "date": "2027-03-07",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002301": {
+    "date": "2027-03-07",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002302": {
+    "date": "2027-03-07",
+    "time": "19:00",
+    "venue_raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002308": {
+    "date": "2027-03-12",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002306": {
+    "date": "2027-03-13",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002309": {
+    "date": "2027-03-13",
+    "time": "17:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002310": {
+    "date": "2027-03-13",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002307": {
+    "date": "2027-03-14",
+    "time": "17:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002314": {
+    "date": "2027-03-20",
+    "time": "17:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002313": {
+    "date": "2027-03-21",
+    "time": "11:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002315": {
+    "date": "2027-03-21",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  },
+  "13002312": {
+    "date": "2027-03-21",
+    "time": "17:00",
+    "venue_raw": "PAL. CUS C - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002311": {
+    "date": "2027-03-21",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002320": {
+    "date": "2027-04-03",
+    "time": "18:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002316": {
+    "date": "2027-04-03",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002317": {
+    "date": "2027-04-03",
+    "time": "20:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002319": {
+    "date": "2027-04-04",
+    "time": "17:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002318": {
+    "date": "2027-04-05",
+    "time": "19:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002324": {
+    "date": "2027-04-10",
+    "time": "17:00",
+    "venue_raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS"
+  },
+  "13002323": {
+    "date": "2027-04-11",
+    "time": "11:00",
+    "venue_raw": "scuola media lao silesu - VIA WOLFGANG AMADEUS MOZART, 25 - QUARTU SANT'ELENA"
+  },
+  "13002325": {
+    "date": "2027-04-11",
+    "time": "17:00",
+    "venue_raw": "palazzetto via bresciano - VIA CARLO BRESCIANO - CORTOGHIANA"
+  },
+  "13002321": {
+    "date": "2027-04-11",
+    "time": "18:30",
+    "venue_raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS"
+  },
+  "13002322": {
+    "date": "2027-04-11",
+    "time": "19:00",
+    "venue_raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI"
+  },
+  "13002326": {
+    "date": "2027-04-17",
+    "time": "16:30",
+    "venue_raw": "PAL. COMUNALE - VIA BERLINGUER - NARCAO"
+  },
+  "13002330": {
+    "date": "2027-04-17",
+    "time": "17:00",
+    "venue_raw": "PALASPORT LUNGOMARE - LUNGOMARE CRISTOFORO COLOMBO - SANT'ANTIOCO"
+  },
+  "13002328": {
+    "date": "2027-04-17",
+    "time": "20:00",
+    "venue_raw": "PALESTRA IIS  DE SANCTIS DELEDDA - VIA SULCIS - CAGLIARI"
+  },
+  "13002329": {
+    "date": "2027-04-17",
+    "time": "20:00",
+    "venue_raw": "PALASPORT BEATRICE LOPEZ - VIA MONTE SPADA - QUARTUCCIU"
+  },
+  "13002327": {
+    "date": "2027-04-18",
+    "time": "16:00",
+    "venue_raw": "PAL. COMUNALE  - VIA RINASCITA - MURAVERA"
+  }
+}

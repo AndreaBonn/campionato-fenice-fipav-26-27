@@ -1031,6 +1031,91 @@
       "changes": []
     }
   ],
-  "standings": [],
+  "standings": [
+    {
+      "team_id": "232223",
+      "pos": 1,
+      "played": 3,
+      "points": 8,
+      "won": 3,
+      "lost": 0,
+      "sets_won": 9,
+      "sets_lost": 2,
+      "points_for": 250,
+      "points_against": 157,
+      "set_ratio": 4.5,
+      "point_ratio": 1.5924
+    },
+    {
+      "team_id": "232139",
+      "pos": 2,
+      "played": 3,
+      "points": 7,
+      "won": 2,
+      "lost": 1,
+      "sets_won": 8,
+      "sets_lost": 3,
+      "points_for": 233,
+      "points_against": 191,
+      "set_ratio": 2.6667,
+      "point_ratio": 1.2199
+    },
+    {
+      "team_id": "229802",
+      "pos": 3,
+      "played": 2,
+      "points": 6,
+      "won": 2,
+      "lost": 0,
+      "sets_won": 6,
+      "sets_lost": 1,
+      "points_for": 172,
+      "points_against": 121,
+      "set_ratio": 6.0,
+      "point_ratio": 1.4215
+    },
+    {
+      "team_id": "232550",
+      "pos": 4,
+      "played": 3,
+      "points": 3,
+      "won": 1,
+      "lost": 2,
+      "sets_won": 3,
+      "sets_lost": 6,
+      "points_for": 153,
+      "points_against": 199,
+      "set_ratio": 0.5,
+      "point_ratio": 0.7688
+    },
+    {
+      "team_id": "232396",
+      "pos": 5,
+      "played": 2,
+      "points": 0,
+      "won": 0,
+      "lost": 2,
+      "sets_won": 1,
+      "sets_lost": 6,
+      "points_for": 120,
+      "points_against": 172,
+      "set_ratio": 0.1667,
+      "point_ratio": 0.6977
+    },
+    {
+      "team_id": "232645",
+      "pos": 6,
+      "played": 3,
+      "points": 0,
+      "won": 0,
+      "lost": 3,
+      "sets_won": 0,
+      "sets_lost": 9,
+      "points_for": 137,
+      "points_against": 225,
+      "set_ratio": 0.0,
+      "point_ratio": 0.6089
+    }
+  ],
   "notices": []
 }

@@ -6,7 +6,7 @@ from typing import Any, cast
 from zoneinfo import ZoneInfo
 
 from fenice_calendar.config import FORMULA, SEASON, SOURCE, TEAM_COD, TIE_BREAK
-from fenice_calendar.schema import Data, Formula, Game, League, Source, Team, TieBreak, Venue
+from fenice_calendar.schema import Data, Formula, Game, League, Row, Source, Team, TieBreak, Venue
 
 LOCAL_TZ = ZoneInfo("Europe/Rome")
 DATE_FORMAT = "%d/%m/%Y"
@@ -186,3 +186,30 @@ def parse_document(
         standings=[],
         notices=[],
     )
+
+
+def _ratio(value: object) -> float | None:
+    number = float(str(value))
+    return number if math.isfinite(number) else None
+
+
+def parse_standings(raw: list[dict[str, Any]]) -> list[Row]:
+    """Normalize the FIPAV standings and order them by position."""
+    rows = [
+        Row(
+            team_id=str(team["id"]),
+            pos=int(team["pos"]),
+            played=int(team["g"]),
+            points=int(team["p"]),
+            won=int(team["gv"]),
+            lost=int(team["gp"]),
+            sets_won=int(team["sv"]),
+            sets_lost=int(team["sp"]),
+            points_for=int(team["pf"]),
+            points_against=int(team["ps"]),
+            set_ratio=_ratio(team["qs"]),
+            point_ratio=_ratio(team["qp"]),
+        )
+        for team in raw[0]["data"]["teams"]
+    ]
+    return sorted(rows, key=lambda row: row["pos"])

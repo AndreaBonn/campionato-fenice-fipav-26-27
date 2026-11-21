@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 from fenice_calendar.config import FORMULA, SEASON, SOURCE, TEAM_COD, TIE_BREAK
-from fenice_calendar.parse import TeamNotFound, parse_document
+from fenice_calendar.parse import TeamNotFound, parse_document, parse_standings
 from fenice_calendar.schema import validate_data
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -104,6 +104,9 @@ def test_parse_document_without_fenice_raises_team_not_found() -> None:
 def test_parse_document_regenerates_the_64353_fixture() -> None:
     parsed = parse_document(
         load("calendar-64353.json"), generated_at=GENERATED_AT, team_cod=FENICE_COD_64353
+    )
+    parsed["standings"] = parse_standings(
+        json.loads((FIXTURES / "standings-64353.json").read_text())
     )
     expected = load("data-64353.json")
     assert json.loads(json.dumps(parsed)) == expected
