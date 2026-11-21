@@ -210,7 +210,7 @@ test("schedule: referee names, or «Arbitro da designare» when pending", () => 
   const named = renderSchedule(girone, new Date("2026-11-20T10:00:00Z"));
   assert.match(named, /Arbitro: Marini Anna/);
   assert.match(named, /Arbitro da designare/);
-  assert.equal(count(renderSchedule(sample, new Date("2026-11-20T10:00:00Z")), "Arbitro da designare"), 1);
+  assert.equal(count(renderSchedule(sample, new Date("2026-11-20T10:00:00Z")), "Arbitro da designare"), 3);
 });
 
 test("schedule: referee names go through escaping", () => {

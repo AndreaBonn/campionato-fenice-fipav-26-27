@@ -38,3 +38,13 @@ def test_posters_fixture_maps_game_ids_to_keys() -> None:
     posters = load("posters-19092.json")["data"]
     assert len(posters) > 0
     assert all(entry["key"].startswith("public/locandine/images/") for entry in posters.values())
+
+
+def test_sample_games_to_play_without_referees_are_pending() -> None:
+    sample = json.loads((FIXTURES / "data-sample.json").read_text())
+    to_play = [g for g in sample["games"] if not g["played"]]
+    assert to_play
+    assert [(g["id"], g["referee_pending"]) for g in to_play if not g["referees"]] == [
+        (g["id"], True) for g in to_play if not g["referees"]
+    ]
+    assert any(not g["referees"] for g in to_play)

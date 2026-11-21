@@ -201,7 +201,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": "https://example.com/live",
       "poster": {
         "url": "https://example.com/poster.jpg",
@@ -232,7 +232,7 @@
       "sets_won": null,
       "sets": [],
       "referees": [],
-      "referee_pending": false,
+      "referee_pending": true,
       "live_url": null,
       "poster": null,
       "changes": [
