@@ -154,3 +154,12 @@ def test_data_commit_happens_only_when_generated_files_changed() -> None:
     assert guard, "the commit step must bail out when data.json and calendario.ics are unchanged"
     assert "exit 0" in guard["body"]
     assert guard.end() <= content.find("git commit -m")
+
+
+def test_failed_sync_uploads_the_fipav_responses_it_read() -> None:
+    steps = parse_steps(WORKFLOW.read_text())[0]
+    sync = step_index(steps, "run: uv run fenice-sync")
+    upload = step_index(steps, "actions/upload-artifact@")
+    assert upload == sync + 1
+    assert re.search(r"if: failure\(\)", steps[upload])
+    assert re.search(r"path: reports/sync-failure/\n", steps[upload])

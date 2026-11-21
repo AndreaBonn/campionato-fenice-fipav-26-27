@@ -7,11 +7,12 @@ from typing import Any
 
 import pytest
 
-from fenice_calendar.cli import main
+from fenice_calendar.cli import failure_dir_for, main
 from fenice_calendar.config import (
     CALENDAR_PATH,
     COMMITTEE_CODE,
     GROUP_ID,
+    OUTPUT_PATH,
     POSTERS_PATH,
     TABLES_PATH,
     TEAM_COD,
@@ -411,3 +412,71 @@ def test_season_baseline_has_every_game_of_the_girone_with_the_compared_fields()
 
     assert set(baseline) == {game["id"] for game in games}
     assert all(set(entry) == {"date", "time", "venue_raw"} for entry in baseline.values())
+
+
+# A failed run keeps the FIPAV answers it read: a new response shape can go in tests/fixtures/
+FAILED_RUN_DIR = "reports/sync-failure/20261121T120000Z"
+
+
+def saved_responses(env: Env) -> dict[str, Any]:
+    folder = env.data.parent.parent / FAILED_RUN_DIR
+    return {p.name: json.loads(p.read_text(encoding="utf-8")) for p in sorted(folder.iterdir())}
+
+
+def test_main_failed_build_saves_every_response_it_read(env: Env) -> None:
+    payload = copy.deepcopy(calendar())
+    payload["data"]["matches"][0]["day"] = "Giornata 99"
+
+    assert env.run(payload) == 1
+
+    saved = saved_responses(env)
+    assert [name[:22] for name in saved] == [
+        "01-api-v2-calendar-0-6",
+        "02-api-v2-tables-64444",
+        "03-https-fipavcagliari",
+        "04-https-fipavcagliari",
+        "05-public-locandine-19",
+    ]
+    assert "05-public-locandine-19092.json" in saved
+    assert saved["01-api-v2-calendar-0-64444.json"] == payload
+
+
+def test_main_bad_standings_saves_calendar_and_standings_in_request_order(env: Env) -> None:
+    env.overrides[TABLES_PATH.format(group=GROUP_ID)] = json.loads(
+        (FIXTURES / "standings-64353.json").read_text()
+    )
+
+    assert env.run(calendar()) == 1
+
+    assert list(saved_responses(env)) == [
+        "01-api-v2-calendar-0-64444.json",
+        "02-api-v2-tables-64444.json",
+    ]
+
+
+def test_main_success_saves_no_responses(env: Env) -> None:
+    assert env.run(calendar()) == 0
+    assert not (env.data.parent.parent / "reports").exists()
+
+
+def test_main_network_down_before_any_answer_saves_nothing(env: Env) -> None:
+    assert env.run(FetchError("down")) == 1
+    assert not (env.data.parent.parent / "reports").exists()
+
+
+def test_main_unwritable_reports_folder_still_exits_1_and_says_so(
+    env: Env, caplog: pytest.LogCaptureFixture
+) -> None:
+    env.data.parent.parent.joinpath("reports").write_text("a file where a directory is expected")
+    payload = copy.deepcopy(calendar())
+    payload["data"]["matches"][0]["day"] = "Giornata 99"
+
+    assert env.run(payload) == 1
+
+    assert "Could not save the FIPAV responses" in caplog.text
+
+
+def test_failed_run_responses_land_in_the_gitignored_reports_folder() -> None:
+    root = Path(__file__).resolve().parents[1]
+    assert failure_dir_for(OUTPUT_PATH) == root / "reports" / "sync-failure"
+    assert "reports/" in (root / ".gitignore").read_text().splitlines()

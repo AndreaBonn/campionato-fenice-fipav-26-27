@@ -30,6 +30,16 @@ jobs:
       - run: uv run pytest -q
       - run: npm test
       - run: uv run fenice-sync
+      # a failed sync leaves the FIPAV answers it read in reports/:
+      # download them from the run page, save the new shape in
+      # tests/fixtures/ and reproduce the failure there
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: fipav-responses
+          path: reports/sync-failure/
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Commit generated data if changed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

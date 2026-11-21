@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -25,9 +26,44 @@ logger = logging.getLogger(__name__)
 
 Fetch = Callable[[str], Any]
 
+FAILURE_DIR = Path("reports") / "sync-failure"
+RUN_STAMP = "%Y%m%dT%H%M%SZ"
+NON_SLUG = re.compile(r"[^A-Za-z0-9]+")
+MAX_SLUG = 100
+
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def failure_dir_for(data_path: Path) -> Path:
+    """Folder for the responses of a failed run: reports/ beside docs/, gitignored, unpublished."""
+    return data_path.parent.parent / FAILURE_DIR
+
+
+def _recording(fetch: Fetch, responses: dict[str, Any]) -> Fetch:
+    def recorded(path: str) -> Any:
+        payload = fetch(path)
+        responses[path] = payload
+        return payload
+
+    return recorded
+
+
+def _save_responses(responses: dict[str, Any], folder: Path) -> None:
+    """Keep what FIPAV answered, in request order, so the failure can be replayed from a fixture."""
+    if not responses:
+        return
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        for index, (path, payload) in enumerate(responses.items(), start=1):
+            slug = NON_SLUG.sub("-", path.removesuffix(".json")).strip("-")[:MAX_SLUG]
+            text = json.dumps(payload, ensure_ascii=False, indent=2)
+            (folder / f"{index:02d}-{slug}.json").write_text(text, encoding="utf-8")
+    except OSError as err:
+        logger.error("Could not save the FIPAV responses in %s: %s", folder, err)
+        return
+    logger.error("FIPAV responses of the failed run saved in %s", folder)
 
 
 def _fetch_and_build(fetch: Fetch, checked_at: datetime, data_path: Path) -> tuple[Data, str]:
@@ -72,8 +108,11 @@ def main(
     """Build all outputs before writing; return 1 if building or writing fails."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     checked_at = now()
+    responses: dict[str, Any] = {}
     try:
-        document, calendar_ics = _fetch_and_build(fetch, checked_at, data_path)
+        document, calendar_ics = _fetch_and_build(
+            _recording(fetch, responses), checked_at, data_path
+        )
         _write_outputs(document, calendar_ics, data_path, status_path)
     except (
         FetchError,
@@ -86,5 +125,6 @@ def main(
         IndexError,
     ) as err:
         logger.error("Sync failed: %s", err, exc_info=True)
+        _save_responses(responses, failure_dir_for(data_path) / checked_at.strftime(RUN_STAMP))
         return 1
     return 0
