@@ -46,3 +46,8 @@ test("first visit: the first worker claiming the page does not reload it", () =>
 test("a repeated handover does not reload twice", () => {
   assert.equal(shouldReloadOnControllerChange({ hadController: true, reloading: true }), false);
 });
+
+test("after «Più tardi» a waiting version is not announced again until the page reloads", () => {
+  assert.equal(shouldAnnounce({ waiting: true, controlled: true, dismissed: true }), false);
+  assert.equal(shouldAnnounce({ waiting: true, controlled: true, dismissed: false }), true);
+});

@@ -262,3 +262,17 @@ test("visibilitychange before register resolves neither throws nor asks for an u
   await starting;
   assert.equal(t.registration.updates, 1);
 });
+
+test("Più tardi: coming back to the tab does not show the notice again", async () => {
+  const t = setup({ waiting: worker("installed") });
+  await setupUpdates(t.env);
+  assert.equal(t.els["update-notice"].hidden, false);
+
+  t.els["update-later"].onclick();
+  t.doc.visibilityState = "hidden";
+  t.doc.fire("visibilitychange");
+  t.doc.visibilityState = "visible";
+  t.doc.fire("visibilitychange");
+
+  assert.equal(t.els["update-notice"].hidden, true);
+});

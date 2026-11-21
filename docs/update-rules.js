@@ -4,8 +4,9 @@
 export const MIN_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 
 // A waiting worker on a page nobody controlled yet is the first install, not an update.
-export function shouldAnnounce({ waiting, controlled }) {
-  return waiting && controlled;
+// «Più tardi» (dismissed) holds until the page is loaded again, not just until the tab is back.
+export function shouldAnnounce({ waiting, controlled, dismissed = false }) {
+  return waiting && controlled && !dismissed;
 }
 
 export function isCheckDue({ now, lastCheck }) {

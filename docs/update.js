@@ -4,7 +4,7 @@ import { isCheckDue, shouldAnnounce, shouldReloadOnControllerChange } from "./up
 function announce(s) {
   if (!s.registration) return;
   const waiting = s.registration.waiting !== null;
-  if (shouldAnnounce({ waiting, controlled: s.sw.controller !== null })) s.notice.hidden = false;
+  if (shouldAnnounce({ waiting, controlled: s.sw.controller !== null, dismissed: s.dismissed })) s.notice.hidden = false;
 }
 
 // updatefound fires while the worker is still installing; "installed" is only visible here
@@ -44,6 +44,7 @@ function applyUpdate(s) {
 function wireButtons(s) {
   s.apply.onclick = () => applyUpdate(s);
   s.later.onclick = () => {
+    s.dismissed = true;
     s.notice.hidden = true;
   };
 }
@@ -77,6 +78,8 @@ export function setupUpdates(env) {
     registration: null,
     lastCheck: null,
     reloading: false,
+    // «Più tardi» was pressed: no notice until the page is loaded again
+    dismissed: false,
     // false on a first visit: the first worker claiming the page is not an update
     controlled: sw.controller !== null,
   };
