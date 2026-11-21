@@ -55,3 +55,23 @@ test("games not played are ignored", () => {
   const games = [{ home_id: "A", away_id: "B", played: false, sets_won: null, sets: [] }];
   assert.deepEqual(tableFromGames(games, [t("A"), t("B")]).map((r) => r.played), [0, 0]);
 });
+
+const team = (id) => ({ id, name: `T${id}` });
+const game = (home_id, away_id, sets_won, sets) => ({ played: true, home_id, away_id, sets_won, sets });
+
+test("a team with no sets played ranks below one that lost 0-3 at equal points", () => {
+  const table = tableFromGames([game("a", "b", [3, 0], [[25, 10], [25, 10], [25, 10]])], [team("c"), team("b"), team("a")]);
+  assert.deepEqual(table.map((r) => r.team_id), ["a", "b", "c"]);
+  assert.equal(table[2].set_ratio, 0);
+  assert.equal(table[2].point_ratio, 0);
+});
+
+test("a ratio keeps Infinity when sets were won and none lost", () => {
+  const table = tableFromGames([game("a", "b", [3, 0], [[25, 10], [25, 10], [25, 10]])], [team("a"), team("b")]);
+  assert.equal(table[0].set_ratio, Infinity);
+});
+
+test("a game with a team missing from the teams list is skipped, not a crash", () => {
+  const table = tableFromGames([game("a", "ghost", [3, 0], [[25, 10], [25, 10], [25, 10]])], [team("a"), team("b")]);
+  assert.equal(table.find((r) => r.team_id === "a").played, 0);
+});

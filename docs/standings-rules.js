@@ -18,8 +18,9 @@ const emptyRow = (team_id) => ({
   team_id, pos: 0, played: 0, points: 0, won: 0, lost: 0, sets_won: 0, sets_lost: 0, points_for: 0, points_against: 0, set_ratio: 0, point_ratio: 0,
 });
 
-// A zero denominator reads as an infinite ratio, so a side that never lost a set ranks first
-const ratio = (num, den) => (den === 0 ? Infinity : num / den);
+// A zero denominator reads as an infinite ratio, so a side that never lost a set ranks first;
+// 0 over 0 is a side that has not played, which must not outrank one that lost every set
+const ratio = (num, den) => (den === 0 ? (num === 0 ? 0 : Infinity) : num / den);
 
 function addSide(row, mine, theirs, points, sets) {
   row.played += 1;
@@ -42,7 +43,7 @@ const compare = (a, b) =>
 export function tableFromGames(games, teams) {
   const rows = new Map(teams.map((t) => [t.id, emptyRow(t.id)]));
   for (const g of games) {
-    if (!g.played || !g.sets_won) continue;
+    if (!g.played || !g.sets_won || !rows.has(g.home_id) || !rows.has(g.away_id)) continue;
     const [hp, ap] = matchPoints(g.sets_won);
     addSide(rows.get(g.home_id), g.sets_won[0], g.sets_won[1], hp, g.sets);
     addSide(rows.get(g.away_id), g.sets_won[1], g.sets_won[0], ap, g.sets.map(([h, a]) => [a, h]));
