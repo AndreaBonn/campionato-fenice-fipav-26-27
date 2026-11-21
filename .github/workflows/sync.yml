@@ -1,0 +1,67 @@
+name: Sync with FIPAV Online and publish
+
+on:
+  schedule:
+    # Run off the hour to avoid the top-of-hour queue.
+    - cron: "17 */4 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-fipav
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+      - run: uv sync --frozen
+      - run: uv run pytest -q
+      - run: npm test
+      - run: uv run fenice-sync
+      - name: Commit generated data if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$(git status --porcelain -- docs/data.json docs/calendario.ics)" ]; then
+            echo "No changes from FIPAV Online"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for file in docs/data.json docs/calendario.ics; do
+            if [ -e "$file" ] || git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
+              git add -A -- "$file"
+            fi
+          done
+          git commit -m "chore(data): sync with FIPAV Online"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main
+      # T040 will stamp the service worker after the data commit and before upload.
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: docs
+
+  deploy:
+    needs: sync
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
