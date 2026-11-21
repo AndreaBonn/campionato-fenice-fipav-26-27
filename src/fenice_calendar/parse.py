@@ -1,9 +1,11 @@
+import copy
 import re
-from datetime import datetime
-from typing import Any
+from datetime import UTC, datetime
+from typing import Any, cast
 from zoneinfo import ZoneInfo
 
-from fenice_calendar.schema import Game, Team, Venue
+from fenice_calendar.config import FORMULA, SEASON, SOURCE, TEAM_COD, TIE_BREAK
+from fenice_calendar.schema import Data, Formula, Game, League, Source, Team, TieBreak, Venue
 
 LOCAL_TZ = ZoneInfo("Europe/Rome")
 DATE_FORMAT = "%d/%m/%Y"
@@ -15,7 +17,14 @@ ROUND_PATTERN = re.compile(r"Giornata\s+(\d+)")
 FLAG_ON = "1"
 
 
+SCHEMA_VERSION = 1
+
+
 class ParseError(Exception):
+    pass
+
+
+class TeamNotFound(Exception):
     pass
 
 
@@ -114,4 +123,58 @@ def parse_game(raw: dict[str, Any], teams_index: dict[str, Team]) -> Game:
         live_url=_live_url(raw),
         poster=None,
         changes=[],
+    )
+
+
+def _parse_team(raw: dict[str, Any]) -> Team:
+    return Team(
+        id=str(raw["id"]),
+        cod=str(raw["cod_aff_societa"]),
+        name=_clean(str(raw["title"])),
+        logo_url=str(raw["logo"]) or None,
+    )
+
+
+def _build_teams(matches: list[dict[str, Any]], team_cod: str) -> list[Team]:
+    teams = {
+        str(raw["id"]): _parse_team(raw)
+        for match in matches
+        for raw in (match["team1"], match["team2"])
+    }
+    if not any(team["cod"] == team_cod for team in teams.values()):
+        raise TeamNotFound(f"Team {team_cod} not found in the calendar")
+    return sorted(teams.values(), key=lambda team: (team["cod"] != team_cod, team["name"]))
+
+
+def _game_order(game: Game) -> tuple[int, bool, datetime, int]:
+    start = game["starts_at"]
+    return (
+        game["round"],
+        start is None,
+        datetime.fromisoformat(start) if start else datetime.min.replace(tzinfo=UTC),
+        int(game["number"]),
+    )
+
+
+def parse_document(
+    calendar_json: dict[str, Any], generated_at: datetime, team_cod: str = TEAM_COD
+) -> Data:
+    """Build the complete data.json document from a FIPAV calendar response."""
+    calendar = calendar_json["data"]
+    teams = _build_teams(calendar["matches"], team_cod)
+    index = {team["id"]: team for team in teams}
+    games = sorted((parse_game(raw, index) for raw in calendar["matches"]), key=_game_order)
+    return Data(
+        schema_version=SCHEMA_VERSION,
+        updated_at=generated_at.astimezone(UTC).isoformat(),
+        source=cast(Source, copy.deepcopy(SOURCE)),
+        season=SEASON,
+        league=League(group_id=str(calendar["id"]), title=_clean(str(calendar["title"]))),
+        team_cod=team_cod,
+        formula=cast(Formula, copy.deepcopy(FORMULA)),
+        tie_break=cast(TieBreak, copy.deepcopy(TIE_BREAK)),
+        teams=teams,
+        games=games,
+        standings=[],
+        notices=[],
     )

@@ -1,0 +1,1036 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-21T12:00:00+00:00",
+  "source": {
+    "name": "FIPAV Online",
+    "url": "https://www.fipavonline.it"
+  },
+  "season": "2026/27",
+  "league": {
+    "group_id": "64353",
+    "title": "Under 14 Femminile - Girone C"
+  },
+  "team_cod": "190920448",
+  "formula": {
+    "published": false,
+    "promotion": 0,
+    "playoff": 0,
+    "relegation": 0
+  },
+  "tie_break": {
+    "criteria": [
+      "wins",
+      "set_ratio",
+      "point_ratio"
+    ],
+    "provisional": true
+  },
+  "teams": [
+    {
+      "id": "232645",
+      "cod": "190920448",
+      "name": "ASD FENICE",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920448/logo.jpg?v=1762974109"
+    },
+    {
+      "id": "232396",
+      "cod": "190920316",
+      "name": "ASD SPORTING CLUB SU PLANU",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920316/logo.png?v=1789744698"
+    },
+    {
+      "id": "229802",
+      "cod": "190920463",
+      "name": "CUS CAGLIARI",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920463/logo.png?v=1580642590"
+    },
+    {
+      "id": "232223",
+      "cod": "190920002",
+      "name": "G.S. AQUILA ORO",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920002/logo.png?v=1792057753"
+    },
+    {
+      "id": "232550",
+      "cod": "190920172",
+      "name": "POLISPORTIVA SELARGIUS 85 ASD",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920172/logo.jpg?v=1543661081"
+    },
+    {
+      "id": "232139",
+      "cod": "190920332",
+      "name": "SARLUX VOLLEY SARROCH",
+      "logo_url": "https://app.fipavonline.it/img/loghi_societa/190920332/logo.png?v=1792673288"
+    }
+  ],
+  "games": [
+    {
+      "id": "12995175",
+      "number": "940",
+      "round": 1,
+      "date": "2026-10-30",
+      "time": "19:00",
+      "starts_at": "2026-10-30T19:00:00+01:00",
+      "venue": {
+        "raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS",
+        "name": "PAL. SCOLASTICA",
+        "address": "VIA PARIGI",
+        "city": "SELARGIUS",
+        "lat": 39.2526659,
+        "lng": 9.158996
+      },
+      "home_id": "232550",
+      "away_id": "232645",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        3,
+        0
+      ],
+      "sets": [
+        [
+          25,
+          12
+        ],
+        [
+          25,
+          19
+        ],
+        [
+          25,
+          18
+        ]
+      ],
+      "referees": [
+        "Congera Sofia"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995174",
+      "number": "939",
+      "round": 1,
+      "date": "2026-11-02",
+      "time": "17:30",
+      "starts_at": "2026-11-02T17:30:00+01:00",
+      "venue": {
+        "raw": "PALAZZETTO DELLO SPORT - VIA GIOTTO - SARROCH",
+        "name": "PALAZZETTO DELLO SPORT",
+        "address": "VIA GIOTTO",
+        "city": "SARROCH",
+        "lat": 39.06768,
+        "lng": 9.014977
+      },
+      "home_id": "232139",
+      "away_id": "232223",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        2,
+        3
+      ],
+      "sets": [
+        [
+          25,
+          16
+        ],
+        [
+          25,
+          19
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          16,
+          25
+        ],
+        [
+          5,
+          15
+        ]
+      ],
+      "referees": [
+        "Ventura Fabio"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995176",
+      "number": "941",
+      "round": 1,
+      "date": "2026-11-16",
+      "time": "18:00",
+      "starts_at": "2026-11-16T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL.  IST. EUCLIDE - VIA  ARAOLLA - SELARGIUS",
+        "name": "PAL. IST. EUCLIDE",
+        "address": "VIA ARAOLLA",
+        "city": "SELARGIUS",
+        "lat": 39.252413,
+        "lng": 9.1108387
+      },
+      "home_id": "232396",
+      "away_id": "229802",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        1,
+        3
+      ],
+      "sets": [
+        [
+          10,
+          25
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          25,
+          21
+        ],
+        [
+          24,
+          26
+        ]
+      ],
+      "referees": [
+        "Melis Gabriele"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995179",
+      "number": "944",
+      "round": 2,
+      "date": "2026-11-05",
+      "time": "18:00",
+      "starts_at": "2026-11-05T18:00:00+01:00",
+      "venue": {
+        "raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI",
+        "name": "Pal. CUS B",
+        "address": "VIA IS MIRRIONIS",
+        "city": "CAGLIARI",
+        "lat": 39.2360504,
+        "lng": 9.108202
+      },
+      "home_id": "229802",
+      "away_id": "232550",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        3,
+        0
+      ],
+      "sets": [
+        [
+          25,
+          10
+        ],
+        [
+          25,
+          17
+        ],
+        [
+          25,
+          18
+        ]
+      ],
+      "referees": [
+        "Italiano Simone"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995177",
+      "number": "942",
+      "round": 2,
+      "date": "2026-11-09",
+      "time": "18:30",
+      "starts_at": "2026-11-09T18:30:00+01:00",
+      "venue": {
+        "raw": "PALAZZETTO DELLO SPORT - VIA GIOTTO - SARROCH",
+        "name": "PALAZZETTO DELLO SPORT",
+        "address": "VIA GIOTTO",
+        "city": "SARROCH",
+        "lat": 39.06768,
+        "lng": 9.014977
+      },
+      "home_id": "232139",
+      "away_id": "232396",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        3,
+        0
+      ],
+      "sets": [
+        [
+          25,
+          20
+        ],
+        [
+          25,
+          15
+        ],
+        [
+          25,
+          9
+        ]
+      ],
+      "referees": [
+        "Lai Dzintars"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995178",
+      "number": "943",
+      "round": 2,
+      "date": "2026-11-12",
+      "time": "17:00",
+      "starts_at": "2026-11-12T17:00:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232645",
+      "away_id": "232223",
+      "played": true,
+      "official": true,
+      "sets_won": [
+        0,
+        3
+      ],
+      "sets": [
+        [
+          8,
+          25
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          16,
+          25
+        ]
+      ],
+      "referees": [
+        "Puddu Alessandro"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995182",
+      "number": "947",
+      "round": 3,
+      "date": "2026-11-19",
+      "time": "17:00",
+      "starts_at": "2026-11-19T17:00:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232645",
+      "away_id": "232139",
+      "played": true,
+      "official": false,
+      "sets_won": [
+        0,
+        3
+      ],
+      "sets": [
+        [
+          10,
+          25
+        ],
+        [
+          18,
+          25
+        ],
+        [
+          19,
+          25
+        ]
+      ],
+      "referees": [
+        "Marini Anna"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995181",
+      "number": "946",
+      "round": 3,
+      "date": "2026-11-23",
+      "time": "18:00",
+      "starts_at": "2026-11-23T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL.  IST. EUCLIDE - VIA  ARAOLLA - SELARGIUS",
+        "name": "PAL. IST. EUCLIDE",
+        "address": "VIA ARAOLLA",
+        "city": "SELARGIUS",
+        "lat": 39.252413,
+        "lng": 9.1108387
+      },
+      "home_id": "232396",
+      "away_id": "232550",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": true,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995180",
+      "number": "945",
+      "round": 3,
+      "date": "2026-11-29",
+      "time": "15:30",
+      "starts_at": "2026-11-29T15:30:00+01:00",
+      "venue": {
+        "raw": "DOMUS AQUILA - CALATA DEI TRINITARI - CAGLIARI",
+        "name": "DOMUS AQUILA",
+        "address": "CALATA DEI TRINITARI",
+        "city": "CAGLIARI",
+        "lat": 39.2034133,
+        "lng": 9.1259595
+      },
+      "home_id": "232223",
+      "away_id": "229802",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995183",
+      "number": "948",
+      "round": 4,
+      "date": "2026-11-20",
+      "time": "19:00",
+      "starts_at": "2026-11-20T19:00:00+01:00",
+      "venue": {
+        "raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS",
+        "name": "PAL. SCOLASTICA",
+        "address": "VIA PARIGI",
+        "city": "SELARGIUS",
+        "lat": 39.2526659,
+        "lng": 9.158996
+      },
+      "home_id": "232550",
+      "away_id": "232223",
+      "played": true,
+      "official": false,
+      "sets_won": [
+        0,
+        3
+      ],
+      "sets": [
+        [
+          6,
+          25
+        ],
+        [
+          14,
+          25
+        ],
+        [
+          13,
+          25
+        ]
+      ],
+      "referees": [
+        "Galici Massimiliano"
+      ],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995185",
+      "number": "950",
+      "round": 4,
+      "date": "2026-11-26",
+      "time": "18:00",
+      "starts_at": "2026-11-26T18:00:00+01:00",
+      "venue": {
+        "raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI",
+        "name": "Pal. CUS B",
+        "address": "VIA IS MIRRIONIS",
+        "city": "CAGLIARI",
+        "lat": 39.2360504,
+        "lng": 9.108202
+      },
+      "home_id": "229802",
+      "away_id": "232139",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": true,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995184",
+      "number": "949",
+      "round": 4,
+      "date": "2026-11-30",
+      "time": "18:00",
+      "starts_at": "2026-11-30T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL.  IST. EUCLIDE - VIA  ARAOLLA - SELARGIUS",
+        "name": "PAL. IST. EUCLIDE",
+        "address": "VIA ARAOLLA",
+        "city": "SELARGIUS",
+        "lat": 39.252413,
+        "lng": 9.1108387
+      },
+      "home_id": "232396",
+      "away_id": "232645",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995187",
+      "number": "952",
+      "round": 5,
+      "date": "2026-11-30",
+      "time": "19:00",
+      "starts_at": "2026-11-30T19:00:00+01:00",
+      "venue": {
+        "raw": "PALAZZETTO DELLO SPORT - VIA GIOTTO - SARROCH",
+        "name": "PALAZZETTO DELLO SPORT",
+        "address": "VIA GIOTTO",
+        "city": "SARROCH",
+        "lat": 39.06768,
+        "lng": 9.014977
+      },
+      "home_id": "232139",
+      "away_id": "232550",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995188",
+      "number": "953",
+      "round": 5,
+      "date": "2026-12-03",
+      "time": "17:00",
+      "starts_at": "2026-12-03T17:00:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232645",
+      "away_id": "229802",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995186",
+      "number": "951",
+      "round": 5,
+      "date": "2026-12-07",
+      "time": "17:45",
+      "starts_at": "2026-12-07T17:45:00+01:00",
+      "venue": {
+        "raw": "PALALONGINO - CALATA DEI TRINITARI - CAGLIARI",
+        "name": "PALALONGINO",
+        "address": "CALATA DEI TRINITARI",
+        "city": "CAGLIARI",
+        "lat": 39.2036272,
+        "lng": 9.1257685
+      },
+      "home_id": "232223",
+      "away_id": "232396",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995191",
+      "number": "956",
+      "round": 6,
+      "date": "2026-12-10",
+      "time": "18:00",
+      "starts_at": "2026-12-10T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL. CUS C - VIA IS MIRRIONIS - CAGLIARI",
+        "name": "PAL. CUS C",
+        "address": "VIA IS MIRRIONIS",
+        "city": "CAGLIARI",
+        "lat": 39.2361766,
+        "lng": 9.1078729
+      },
+      "home_id": "229802",
+      "away_id": "232396",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995190",
+      "number": "955",
+      "round": 6,
+      "date": "2026-12-15",
+      "time": "17:30",
+      "starts_at": "2026-12-15T17:30:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232645",
+      "away_id": "232550",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995189",
+      "number": "954",
+      "round": 6,
+      "date": "2026-12-20",
+      "time": "15:00",
+      "starts_at": "2026-12-20T15:00:00+01:00",
+      "venue": {
+        "raw": "DOMUS AQUILA - CALATA DEI TRINITARI - CAGLIARI",
+        "name": "DOMUS AQUILA",
+        "address": "CALATA DEI TRINITARI",
+        "city": "CAGLIARI",
+        "lat": 39.2034133,
+        "lng": 9.1259595
+      },
+      "home_id": "232223",
+      "away_id": "232139",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995193",
+      "number": "958",
+      "round": 7,
+      "date": "2027-01-07",
+      "time": "17:30",
+      "starts_at": "2027-01-07T17:30:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232223",
+      "away_id": "232645",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995194",
+      "number": "959",
+      "round": 7,
+      "date": "2027-01-08",
+      "time": "19:00",
+      "starts_at": "2027-01-08T19:00:00+01:00",
+      "venue": {
+        "raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS",
+        "name": "PAL. SCOLASTICA",
+        "address": "VIA PARIGI",
+        "city": "SELARGIUS",
+        "lat": 39.2526659,
+        "lng": 9.158996
+      },
+      "home_id": "232550",
+      "away_id": "229802",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995192",
+      "number": "957",
+      "round": 7,
+      "date": "2027-01-11",
+      "time": "18:00",
+      "starts_at": "2027-01-11T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL.  IST. EUCLIDE - VIA  ARAOLLA - SELARGIUS",
+        "name": "PAL. IST. EUCLIDE",
+        "address": "VIA ARAOLLA",
+        "city": "SELARGIUS",
+        "lat": 39.252413,
+        "lng": 9.1108387
+      },
+      "home_id": "232396",
+      "away_id": "232139",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995195",
+      "number": "960",
+      "round": 8,
+      "date": "2027-01-10",
+      "time": "09:00",
+      "starts_at": "2027-01-10T09:00:00+01:00",
+      "venue": {
+        "raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI",
+        "name": "Pal. CUS B",
+        "address": "VIA IS MIRRIONIS",
+        "city": "CAGLIARI",
+        "lat": 39.2360504,
+        "lng": 9.108202
+      },
+      "home_id": "229802",
+      "away_id": "232223",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995196",
+      "number": "961",
+      "round": 8,
+      "date": "2027-01-15",
+      "time": "19:00",
+      "starts_at": "2027-01-15T19:00:00+01:00",
+      "venue": {
+        "raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS",
+        "name": "PAL. SCOLASTICA",
+        "address": "VIA PARIGI",
+        "city": "SELARGIUS",
+        "lat": 39.2526659,
+        "lng": 9.158996
+      },
+      "home_id": "232550",
+      "away_id": "232396",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995197",
+      "number": "962",
+      "round": 8,
+      "date": "2027-01-18",
+      "time": "18:30",
+      "starts_at": "2027-01-18T18:30:00+01:00",
+      "venue": {
+        "raw": "PALAZZETTO DELLO SPORT - VIA GIOTTO - SARROCH",
+        "name": "PALAZZETTO DELLO SPORT",
+        "address": "VIA GIOTTO",
+        "city": "SARROCH",
+        "lat": 39.06768,
+        "lng": 9.014977
+      },
+      "home_id": "232139",
+      "away_id": "232645",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995199",
+      "number": "964",
+      "round": 9,
+      "date": "2027-01-21",
+      "time": "17:00",
+      "starts_at": "2027-01-21T17:00:00+01:00",
+      "venue": {
+        "raw": "PALESTRA - VIA DON MINZONI - QUARTUCCIU",
+        "name": "PALESTRA",
+        "address": "VIA DON MINZONI",
+        "city": "QUARTUCCIU",
+        "lat": 39.2491863,
+        "lng": 9.1748398
+      },
+      "home_id": "232645",
+      "away_id": "232396",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995198",
+      "number": "963",
+      "round": 9,
+      "date": "2027-01-25",
+      "time": "17:45",
+      "starts_at": "2027-01-25T17:45:00+01:00",
+      "venue": {
+        "raw": "PALALONGINO - CALATA DEI TRINITARI - CAGLIARI",
+        "name": "PALALONGINO",
+        "address": "CALATA DEI TRINITARI",
+        "city": "CAGLIARI",
+        "lat": 39.2036272,
+        "lng": 9.1257685
+      },
+      "home_id": "232223",
+      "away_id": "232550",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995200",
+      "number": "965",
+      "round": 9,
+      "date": "2027-01-27",
+      "time": "18:30",
+      "starts_at": "2027-01-27T18:30:00+01:00",
+      "venue": {
+        "raw": "PALAZZETTO DELLO SPORT - VIA GIOTTO - SARROCH",
+        "name": "PALAZZETTO DELLO SPORT",
+        "address": "VIA GIOTTO",
+        "city": "SARROCH",
+        "lat": 39.06768,
+        "lng": 9.014977
+      },
+      "home_id": "232139",
+      "away_id": "229802",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995203",
+      "number": "968",
+      "round": 10,
+      "date": "2027-01-28",
+      "time": "18:00",
+      "starts_at": "2027-01-28T18:00:00+01:00",
+      "venue": {
+        "raw": "Pal. CUS B - VIA IS MIRRIONIS - CAGLIARI",
+        "name": "Pal. CUS B",
+        "address": "VIA IS MIRRIONIS",
+        "city": "CAGLIARI",
+        "lat": 39.2360504,
+        "lng": 9.108202
+      },
+      "home_id": "229802",
+      "away_id": "232645",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995202",
+      "number": "967",
+      "round": 10,
+      "date": "2027-01-29",
+      "time": "19:00",
+      "starts_at": "2027-01-29T19:00:00+01:00",
+      "venue": {
+        "raw": "PAL. SCOLASTICA  - VIA PARIGI - SELARGIUS",
+        "name": "PAL. SCOLASTICA",
+        "address": "VIA PARIGI",
+        "city": "SELARGIUS",
+        "lat": 39.2526659,
+        "lng": 9.158996
+      },
+      "home_id": "232550",
+      "away_id": "232139",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    },
+    {
+      "id": "12995201",
+      "number": "966",
+      "round": 10,
+      "date": "2027-02-01",
+      "time": "18:00",
+      "starts_at": "2027-02-01T18:00:00+01:00",
+      "venue": {
+        "raw": "PAL.  IST. EUCLIDE - VIA  ARAOLLA - SELARGIUS",
+        "name": "PAL. IST. EUCLIDE",
+        "address": "VIA ARAOLLA",
+        "city": "SELARGIUS",
+        "lat": 39.252413,
+        "lng": 9.1108387
+      },
+      "home_id": "232396",
+      "away_id": "232223",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": false,
+      "live_url": null,
+      "poster": null,
+      "changes": []
+    }
+  ],
+  "standings": [],
+  "notices": []
+}
