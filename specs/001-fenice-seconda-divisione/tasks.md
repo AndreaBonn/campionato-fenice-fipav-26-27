@@ -37,7 +37,7 @@ Dettaglio, file e `verify` di ogni task in `plan.md` § Sub-task. Formato: id | 
 ## Fase 3 - Posizioni finali possibili
 
 - [x] T027 | standings-math.js a 4 esiti, test contro forza bruta | dip: T026 | R16 | seq | revert
-- [ ] T028 | Misura e taratura MAX_ENUMERATED_GAMES, fallback contenuto | dip: T027 | R16 | seq | revert
+- [x] T028 | Misura e taratura MAX_ENUMERATED_GAMES, fallback contenuto | dip: T027 | R16 | seq | revert
 - [ ] T029 | Colonna Poss. e Già deciso, render e commit di fase 3 | dip: T028 | R17, R26 | seq | revert
 
 ## Fase 4 - Scheda avversaria e analisi Fenice
