@@ -7,6 +7,7 @@ dependencies = []
 
 [project.scripts]
 fenice-sync = "fenice_calendar.cli:main"
+fenice-stamp-sw = "fenice_calendar.appversion:main"
 fenice-badges = "fenice_calendar.badges:main"
 
 [dependency-groups]

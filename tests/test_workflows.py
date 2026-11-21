@@ -52,3 +52,12 @@ def test_activity_report_is_removed_before_the_pages_upload() -> None:
     upload = content.find("actions/upload-pages-artifact")
     assert removal != -1, "the development report would be published on GitHub Pages"
     assert removal < upload
+
+
+def test_service_worker_is_stamped_after_the_data_commit_and_before_the_upload() -> None:
+    content = WORKFLOW.read_text()
+    commit = content.find("git push")
+    stamp = content.find("uv run fenice-stamp-sw")
+    upload = content.find("actions/upload-pages-artifact")
+    assert stamp != -1, "sw.js would ship with the dev version and never update"
+    assert commit < stamp < upload
