@@ -72,7 +72,7 @@ export function renderSchedule(data, now) {
   const teamId = feniceTeamId(data), next = nextGame(games, now), rounds = new Map();
   for (const g of games) rounds.set(g.round, [...(rounds.get(g.round) ?? []), g]);
   return [...rounds].map(([round, list]) =>
-    `<section class="round"><h3>Giornata ${round}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next)).join("")}</ul></section>`).join("");
+    `<section class="round"><h3>Giornata ${esc(round)}</h3><ul>${list.map((g) => rowHtml(data, g, teamId, g === next)).join("")}</ul></section>`).join("");
 }
 
 // A failed load, in plain words: network down, server error, or a page opened as a local file

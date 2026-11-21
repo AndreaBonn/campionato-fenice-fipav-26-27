@@ -126,6 +126,17 @@ test("schedule: a game with a date but no time says the time is to be defined", 
   assert.equal(count(html, "ore null"), 0);
 });
 
+test("schedule: the round heading and the venue parts are escaped, and shown escaped", () => {
+  const evil = structuredClone(girone);
+  const mine = evil.games.find((g) => g.id === feniceGames(evil)[0].id);
+  mine.round = "<script>r</script>";
+  Object.assign(mine.venue, { name: "<script>n</script>", address: "<script>a</script>", city: "<script>c</script>" });
+  const html = renderSchedule(evil, new Date("2026-11-20T10:00:00Z"));
+  assert.equal(count(html, "<script"), 0);
+  assert.match(html, /&lt;script&gt;r/);
+  for (const part of ["n", "a", "c"]) assert.match(html, new RegExp(`&lt;script&gt;${part}&lt;/script&gt;`, "i"));
+});
+
 test("schedule: every string from the data is escaped", () => {
   const evil = structuredClone(girone);
   evil.teams.find((t) => t.id === "232396").name = "<img src=x onerror=alert(1)>";
@@ -134,6 +145,7 @@ test("schedule: every string from the data is escaped", () => {
   assert.equal(count(html, "<img"), 0);
   assert.equal(count(html, "<script"), 0);
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/i);
+  assert.match(html, /&lt;script&gt;x&lt;\/script&gt;/); // venue.name, the positive case beside the negative one
 });
 
 test("error: plain cause and a Riprova button, never a stack trace", () => {
