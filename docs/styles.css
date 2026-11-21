@@ -305,6 +305,15 @@ footer.site p { margin: 0.15rem 0; }
 .analysis div + div { border-top: 1px solid var(--line); }
 .analysis dt { font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
 .analysis dd { margin: 0.1rem 0 0; }
+.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.75rem 0 0; }
+.by-set { margin: 0.75rem 0 0; }
+.by-set h3 { margin: 0 0 0.25rem; font-size: 0.8125rem; font-weight: 600; color: var(--muted); }
+.set-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; max-width: 30rem; }
+/* not interactive: rows as tall as their text, the bar stays short enough to read next to its value */
+.set-bars li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) 4.5rem; align-items: center; gap: 0.75rem; }
+.set-bars .bar { display: block; height: 0.75rem; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); overflow: hidden; }
+.set-bars .bar > span { display: block; height: 100%; background: var(--win); }
+.set-bars .val { text-align: right; font-variant-numeric: tabular-nums; }
 
 dialog.opp { width: min(40rem, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); }
 dialog.opp::backdrop { background: oklch(0.2 0.02 283 / 0.6); }

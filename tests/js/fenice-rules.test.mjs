@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { averagePointsPerSet, comebacks, forfeitCount, setStats, streak, tieBreakRecord } from "../../docs/fenice-rules.js";
+import {
+  averagePointsPerSet, closeSets, comebacks, forfeitCount, setStats, setsByNumber, streak, tieBreakDetail, tieBreakRecord,
+} from "../../docs/fenice-rules.js";
 
 const girone = JSON.parse(readFileSync(new URL("../fixtures/data-64353.json", import.meta.url), "utf8"));
 const FENICE = "232645";
@@ -101,4 +103,52 @@ test("streak follows the date the games were played, not their round", () => {
     at(sweep, "2026-11-23T18:00:00+01:00")];
   assert.deepEqual(streak(FENICE, games), { outcome: "lost", length: 1 });
   assert.deepEqual(streak(FENICE, [games[0], games[2]]), { outcome: "won", length: 2 });
+});
+
+// tieBreakDetail: comeback (home, fifth 15-12) then lateLoss (away, fifth stored 15-10 as home-away, so Fenice 10 vs 15)
+test("tieBreakDetail lists each fifth set seen from the Fenice, with the opponent and the mean margin", () => {
+  const detail = tieBreakDetail(FENICE, [comeback, lateLoss, sweep]);
+  // margins +3 and -5 -> mean -1
+  assert.deepEqual(detail, { sets: [{ opponentId: OTHER, mine: 15, theirs: 12 }, { opponentId: OTHER, mine: 10, theirs: 15 }], meanMargin: -1 });
+});
+
+test("tieBreakDetail has a mean margin only from two sets on, and nothing without a fifth set", () => {
+  assert.deepEqual(tieBreakDetail(FENICE, [comeback]), { sets: [{ opponentId: OTHER, mine: 15, theirs: 12 }], meanMargin: null });
+  assert.deepEqual(tieBreakDetail(FENICE, [sweep]), { sets: [], meanMargin: null });
+});
+
+test("tieBreakDetail ignores games awarded at the table and unplayed games", () => {
+  const forfeit = { ...sweep, sets: [], sets_won: [3, 0] };
+  assert.deepEqual(tieBreakDetail(FENICE, [forfeit, game([[25, 20]], { played: false })]), { sets: [], meanMargin: null });
+});
+
+test("setsByNumber counts sets won and played for each set number, the fifth only when played", () => {
+  // set 1: comeback L, lateLoss W, sweep W, 3-1 game L -> 2/4; set 2: L W W W -> 3/4; set 3: W L W W -> 3/4;
+  // set 4: comeback W, lateLoss L, 3-1 game W -> 2/3; set 5: comeback W, lateLoss L -> 1/2
+  assert.deepEqual(setsByNumber(FENICE, synthetic), [
+    { number: 1, won: 2, played: 4 }, { number: 2, won: 3, played: 4 }, { number: 3, won: 3, played: 4 },
+    { number: 4, won: 2, played: 3 }, { number: 5, won: 1, played: 2 },
+  ]);
+});
+
+test("setsByNumber stops at four sets without a tie-break, and is empty before any set or for forfeits only", () => {
+  assert.deepEqual(setsByNumber(FENICE, [sweep]), [
+    { number: 1, won: 1, played: 1 }, { number: 2, won: 1, played: 1 }, { number: 3, won: 1, played: 1 }, { number: 4, won: 0, played: 0 },
+  ]);
+  assert.deepEqual(setsByNumber(FENICE, [{ ...sweep, sets: [], sets_won: [3, 0] }, game([[25, 20]], { played: false })]), []);
+});
+
+test("setsByNumber on the real girone: three games lost 0-3, so 0 of 3 in each of the first three sets", () => {
+  assert.deepEqual(setsByNumber(FENICE, girone.games).map((s) => [s.number, s.won, s.played]), [[1, 0, 3], [2, 0, 3], [3, 0, 3], [4, 0, 0]]);
+});
+
+test("closeSets counts sets decided by exactly two points, extra points included, either side of the court", () => {
+  const home = game([[27, 25], [25, 23], [24, 26], [14, 16], [25, 10]]); // W W L L, last not close
+  const away = game([[26, 24], [23, 25], [25, 20]], { home: false }); // W L, last not close
+  const forfeit = { ...sweep, sets: [], sets_won: [3, 0] };
+  assert.deepEqual(closeSets(FENICE, [home, away, forfeit, game([[25, 23]], { played: false })]), { won: 3, lost: 3 });
+});
+
+test("closeSets is zero when no set was that tight", () => {
+  assert.deepEqual(closeSets(FENICE, [sweep, comeback]), { won: 0, lost: 0 });
 });

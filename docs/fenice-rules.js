@@ -69,3 +69,34 @@ export function streak(teamId, games) {
   for (let i = outcomes.length - 1; i >= 0 && outcomes[i] === last; i -= 1) length += 1;
   return { outcome: last, length };
 }
+
+// Each fifth set played, oldest first, seen from the team's side with the opponent id; meanMargin
+// (points scored minus conceded, averaged) only from two sets on
+export function tieBreakDetail(teamId, games) {
+  const sets = withSets(teamId, games).filter((g) => g.sets.length >= TIE_BREAK_SET).map((g) => {
+    const [mine, theirs] = setPairs(g, teamId)[TIE_BREAK_SET - 1];
+    return { opponentId: isHome(g, teamId) ? g.away_id : g.home_id, mine, theirs };
+  });
+  const margins = sets.map((s) => s.mine - s.theirs);
+  return { sets, meanMargin: sets.length > 1 ? margins.reduce((a, b) => a + b, 0) / sets.length : null };
+}
+
+// Sets won and played for set number 1 to 4, and 5 when a fifth set was played; empty before any set
+export function setsByNumber(teamId, games) {
+  const pairs = withSets(teamId, games).map((g) => setPairs(g, teamId));
+  if (!pairs.length) return [];
+  const last = pairs.some((p) => p.length >= TIE_BREAK_SET) ? TIE_BREAK_SET : TIE_BREAK_SET - 1;
+  return Array.from({ length: last }, (_, i) => {
+    const played = pairs.map((p) => p[i]).filter(Boolean);
+    return { number: i + 1, won: played.filter(([mine, theirs]) => mine > theirs).length, played: played.length };
+  });
+}
+
+const CLOSE_SET_MARGIN = 2;
+
+// Sets decided by exactly two points (27-25 and 16-14 included), won and lost
+export function closeSets(teamId, games) {
+  const close = withSets(teamId, games).flatMap((g) => setPairs(g, teamId)).filter(([mine, theirs]) => Math.abs(mine - theirs) === CLOSE_SET_MARGIN);
+  const won = close.filter(([mine, theirs]) => mine > theirs).length;
+  return { won, lost: close.length - won };
+}
