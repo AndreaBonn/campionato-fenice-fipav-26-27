@@ -132,3 +132,15 @@ test("a page without the hint markup does nothing", () => {
   t.env.doc.getElementById = () => null;
   assert.doesNotThrow(() => setupInstallHint(t.env));
 });
+
+test("iOS Safari already running as the installed app (navigator.standalone) shows no hint", () => {
+  const shown = setup({ ios: true });
+  setupInstallHint(shown.env);
+  assert.equal(shown.els["install-hint"].hidden, false);
+
+  const t = setup({ ios: true });
+  t.env.win.matchMedia = () => ({ matches: false });
+  t.env.nav.standalone = true;
+  setupInstallHint(t.env);
+  assert.equal(t.els["install-hint"].hidden, true);
+});

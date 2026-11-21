@@ -100,3 +100,32 @@ test("a page that fits the viewport does not count as scrolled to the end: the f
   t.flush();
   assert.deepEqual(current(t), ["next"]);
 });
+
+test("at the end of the page a short last section is marked even if it starts below the bar", () => {
+  const t = setup({ starts: { next: 200, standings: 900, calendar: 1600, notices: 3500 } });
+  setupSectionNav(t.env);
+  t.scrollTo(3150);
+  assert.deepEqual(current(t), ["calendar"]);
+  t.scrollTo(3200);
+  // notices starts 300 px below the top of the viewport, but nothing is left to scroll
+  assert.deepEqual(current(t), ["notices"]);
+});
+
+test("a resize of the window updates the mark like a scroll does", () => {
+  const t = setup();
+  setupSectionNav(t.env);
+  t.flush();
+  t.env.win.scrollY = 1000;
+  t.listeners.resize.forEach((fn) => fn());
+  t.flush();
+  assert.deepEqual(current(t), ["standings"]);
+});
+
+test("without an offset the bar height of 80 px is used", () => {
+  const t = setup();
+  delete t.env.offset;
+  setupSectionNav(t.env);
+  // calendar starts 50 px below the top: under the 80 px bar it is the current one
+  t.scrollTo(1550);
+  assert.deepEqual(current(t), ["calendar"]);
+});
