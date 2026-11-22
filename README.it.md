@@ -161,8 +161,14 @@ Per segnalare una vulnerabilità, consulta [SECURITY.it.md](./SECURITY.it.md).
 
 Rilasciato con licenza MIT. Vedi [LICENSE](./LICENSE). I dati di gara appartengono alla FIPAV.
 
-## Supporta il progetto
+## Sostieni il progetto
 
 Se la pagina ti è utile, lascia una stella al [repository](https://github.com/AndreaBonn/campionato-fenice-fipav-26-27) su GitHub.
+
+Campionato Fenice 2026/27 è gratuito. Se ti è utile e vuoi contribuire, puoi lasciare un'offerta tramite PayPal. L'importo lo scegli tu ed è del tutto facoltativo.
+
+<p align="center">
+  <a href="https://paypal.me/AndreaBonacci19"><img src="https://img.shields.io/badge/Dona-PayPal-00457C?logo=paypal&logoColor=white&style=for-the-badge" alt="Dona con PayPal"></a>
+</p>
 
 Curato da [Andrea Bonacci](https://github.com/AndreaBonn).

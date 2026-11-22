@@ -165,4 +165,10 @@ Released under the MIT License. See [LICENSE](./LICENSE). The game data belongs 
 
 If the page is useful to you, consider giving the [repository](https://github.com/AndreaBonn/campionato-fenice-fipav-26-27) a star on GitHub.
 
+Campionato Fenice 2026/27 is free to use. If it helps you and you want to give something back, you can leave a tip via PayPal. The amount is up to you and it is entirely optional.
+
+<p align="center">
+  <a href="https://paypal.me/AndreaBonacci19"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white&style=for-the-badge" alt="Donate with PayPal"></a>
+</p>
+
 Maintained by [Andrea Bonacci](https://github.com/AndreaBonn).
