@@ -1,0 +1,11 @@
+---
+extends: default
+
+rules:
+  # same limit as ruff in pyproject.toml
+  line-length:
+    max: 100
+  # GitHub Actions uses the `on:` key, which yamllint reads as a boolean
+  truthy:
+    check-keys: false
+  document-start: disable
