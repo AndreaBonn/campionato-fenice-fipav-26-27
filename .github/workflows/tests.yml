@@ -33,13 +33,16 @@ jobs:
         run: >
           uv run pytest -q --cov --cov-report=term
           --cov-report=json:"$REPORTS/coverage.json" --junitxml="$REPORTS/pytest.xml"
-      # runs even when pytest failed, so the badge counts both suites
+      # runs even when pytest failed, so the badge counts both suites;
+      # node directly, not `npm test --`: npm appends the flags after the file glob,
+      # where node passes them to the test files and never writes node.xml
       - name: JS tests
         if: ${{ !cancelled() }}
         run: >
-          npm test --
+          node --test
           --test-reporter=spec --test-reporter-destination=stdout
           --test-reporter=junit --test-reporter-destination="$REPORTS/node.xml"
+          tests/js/*.test.mjs
       # a red run still publishes: the badge must show the failure, not the last green;
       # missing reports (a setup that failed early) become the error and unknown badges;
       # badges.py is stdlib only, so the runner's python builds them when uv itself failed
