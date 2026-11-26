@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-25T00:44:54.527732+00:00",
+  "updated_at": "2026-11-26T00:21:12.819182+00:00",
   "source": {
     "name": "FIPAV Online",
     "url": "https://www.fipavonline.it"
@@ -248,12 +248,30 @@
       },
       "home_id": "232838",
       "away_id": "230615",
-      "played": false,
+      "played": true,
       "official": false,
-      "sets_won": null,
-      "sets": [],
-      "referees": [],
-      "referee_pending": true,
+      "sets_won": [
+        3,
+        0
+      ],
+      "sets": [
+        [
+          27,
+          25
+        ],
+        [
+          25,
+          23
+        ],
+        [
+          25,
+          22
+        ]
+      ],
+      "referees": [
+        "Baraglia Maria Grazia"
+      ],
+      "referee_pending": false,
       "live_url": null,
       "poster": null,
       "changes": []
@@ -2615,8 +2633,22 @@
       "point_ratio": 1.4074
     },
     {
-      "team_id": "232642",
+      "team_id": "232838",
       "pos": 3,
+      "played": 1,
+      "points": 3,
+      "won": 1,
+      "lost": 0,
+      "sets_won": 3,
+      "sets_lost": 0,
+      "points_for": 77,
+      "points_against": 70,
+      "set_ratio": 100.0,
+      "point_ratio": 1.1
+    },
+    {
+      "team_id": "232642",
+      "pos": 4,
       "played": 1,
       "points": 2,
       "won": 1,
@@ -2630,7 +2662,7 @@
     },
     {
       "team_id": "232426",
-      "pos": 4,
+      "pos": 5,
       "played": 1,
       "points": 1,
       "won": 0,
@@ -2641,20 +2673,6 @@
       "points_against": 110,
       "set_ratio": 0.6667,
       "point_ratio": 0.8818
-    },
-    {
-      "team_id": "230615",
-      "pos": 5,
-      "played": 0,
-      "points": 0,
-      "won": 0,
-      "lost": 0,
-      "sets_won": 0,
-      "sets_lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "set_ratio": null,
-      "point_ratio": null
     },
     {
       "team_id": "229796",
@@ -2685,18 +2703,18 @@
       "point_ratio": null
     },
     {
-      "team_id": "232838",
+      "team_id": "230615",
       "pos": 8,
-      "played": 0,
+      "played": 1,
       "points": 0,
       "won": 0,
-      "lost": 0,
+      "lost": 1,
       "sets_won": 0,
-      "sets_lost": 0,
-      "points_for": 0,
-      "points_against": 0,
-      "set_ratio": null,
-      "point_ratio": null
+      "sets_lost": 3,
+      "points_for": 70,
+      "points_against": 77,
+      "set_ratio": 0.0,
+      "point_ratio": 0.9091
     },
     {
       "team_id": "228968",
