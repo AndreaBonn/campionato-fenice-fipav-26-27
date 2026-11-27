@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-26T00:21:12.819182+00:00",
+  "updated_at": "2026-11-27T00:35:30.615496+00:00",
   "source": {
     "name": "FIPAV Online",
     "url": "https://www.fipavonline.it"
@@ -578,33 +578,6 @@
       "changes": []
     },
     {
-      "id": "13002257",
-      "number": "1181",
-      "round": 4,
-      "date": "2026-12-12",
-      "time": "17:00",
-      "starts_at": "2026-12-12T17:00:00+01:00",
-      "venue": {
-        "raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS",
-        "name": "PALESTRA IST. MAGISTRALE",
-        "address": "VIA MONSIGNOR A. SABA",
-        "city": "IGLESIAS",
-        "lat": 39.3076355,
-        "lng": 8.5492799
-      },
-      "home_id": "231931",
-      "away_id": "229796",
-      "played": false,
-      "official": false,
-      "sets_won": null,
-      "sets": [],
-      "referees": [],
-      "referee_pending": true,
-      "live_url": null,
-      "poster": null,
-      "changes": []
-    },
-    {
       "id": "13002259",
       "number": "1183",
       "round": 4,
@@ -711,6 +684,36 @@
       "live_url": null,
       "poster": null,
       "changes": []
+    },
+    {
+      "id": "13002257",
+      "number": "1181",
+      "round": 4,
+      "date": "2026-12-18",
+      "time": "20:00",
+      "starts_at": "2026-12-18T20:00:00+01:00",
+      "venue": {
+        "raw": "PALESTRA IST. MAGISTRALE   - VIA MONSIGNOR A. SABA - IGLESIAS",
+        "name": "PALESTRA IST. MAGISTRALE",
+        "address": "VIA MONSIGNOR A. SABA",
+        "city": "IGLESIAS",
+        "lat": 39.3076355,
+        "lng": 8.5492799
+      },
+      "home_id": "231931",
+      "away_id": "229796",
+      "played": false,
+      "official": false,
+      "sets_won": null,
+      "sets": [],
+      "referees": [],
+      "referee_pending": true,
+      "live_url": null,
+      "poster": null,
+      "changes": [
+        "date",
+        "time"
+      ]
     },
     {
       "id": "13002265",
