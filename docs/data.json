@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-27T00:35:30.615496+00:00",
+  "updated_at": "2026-11-27T13:52:10.196601+00:00",
   "source": {
     "name": "FIPAV Online",
     "url": "https://www.fipavonline.it"
@@ -106,7 +106,7 @@
       "home_id": "232642",
       "away_id": "232426",
       "played": true,
-      "official": false,
+      "official": true,
       "sets_won": [
         3,
         2
@@ -159,7 +159,7 @@
       "home_id": "232488",
       "away_id": "231931",
       "played": true,
-      "official": false,
+      "official": true,
       "sets_won": [
         3,
         0
@@ -204,7 +204,7 @@
       "home_id": "232656",
       "away_id": "228968",
       "played": true,
-      "official": false,
+      "official": true,
       "sets_won": [
         3,
         0
@@ -249,7 +249,7 @@
       "home_id": "232838",
       "away_id": "230615",
       "played": true,
-      "official": false,
+      "official": true,
       "sets_won": [
         3,
         0
